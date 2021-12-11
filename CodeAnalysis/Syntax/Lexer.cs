@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Peach.CodeAnalysis
+namespace Peach.CodeAnalysis.Syntax
 {
     internal class Lexer
     {
@@ -31,10 +31,10 @@ namespace Peach.CodeAnalysis
             _position++;
         }
 
-        public SyntaxToken NextToken()
+        public SyntaxToken Lex()
         {
             if (_position >= _text.Length)
-                return new SyntaxToken(SyntaxKind.TokenEOF, _position, "\0", null);
+                return new SyntaxToken(SyntaxKind.EOFToken, _position, "\0", null);
 
             if (char.IsDigit(Current))
             {
@@ -51,7 +51,7 @@ namespace Peach.CodeAnalysis
                 {
                     _diagnostics.Add($"ERROR: invalid number '{text}'");
                 }
-                return new SyntaxToken(SyntaxKind.TokenNumber, start, text, value);
+                return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
             }
 
             if (char.IsWhiteSpace(Current))
@@ -65,32 +65,29 @@ namespace Peach.CodeAnalysis
 
                 var len = _position - start;
                 var text = _text.Substring(start, len);
-                return new SyntaxToken(SyntaxKind.TokenWhitespace, start, text, null);
+                return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
             }
 
-            if (Current == '+')
+            switch (Current)
+            {
+                case '+':
+                    return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
 
-                return new SyntaxToken(SyntaxKind.TokenPlus, _position++, "+", null);
+                case '-':
+                    return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
 
-            if (Current == '-')
+                case '*':
+                    return new SyntaxToken(SyntaxKind.AsteriskToken, _position++, "*", null);
 
-                return new SyntaxToken(SyntaxKind.TokenMinus, _position++, "-", null);
+                case '/':
+                    return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
 
-            if (Current == '*')
+                case '(':
+                    return new SyntaxToken(SyntaxKind.OpenParenToken, _position++, "(", null);
 
-                return new SyntaxToken(SyntaxKind.TokenAsterisk, _position++, "*", null);
-
-            if (Current == '/')
-
-                return new SyntaxToken(SyntaxKind.TokenForwardSlash, _position++, "/", null);
-
-            if (Current == '(')
-
-                return new SyntaxToken(SyntaxKind.TokenOpenParen, _position++, "(", null);
-
-            if (Current == ')')
-
-                return new SyntaxToken(SyntaxKind.TokenCloseParen, _position++, ")", null);
+                case ')':
+                    return new SyntaxToken(SyntaxKind.CloseParenToken, _position++, ")", null);
+            }
 
             _diagnostics.Add($"ERROR: bad character input: '{Current}'");
             return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);

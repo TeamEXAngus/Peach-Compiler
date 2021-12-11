@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Peach.CodeAnalysis
+namespace Peach.CodeAnalysis.Syntax
 {
     internal class Parser
     {
@@ -20,14 +16,14 @@ namespace Peach.CodeAnalysis
             SyntaxToken token;
             do
             {
-                token = lexer.NextToken();
+                token = lexer.Lex();
 
-                if (token.Kind != SyntaxKind.TokenWhitespace &&
+                if (token.Kind != SyntaxKind.WhitespaceToken &&
                     token.Kind != SyntaxKind.BadToken)
                 {
                     tokens.Add(token);
                 }
-            } while (token.Kind != SyntaxKind.TokenEOF);
+            } while (token.Kind != SyntaxKind.EOFToken);
 
             _tokens = tokens.ToArray();
             _diagnostics.AddRange(lexer.Diagnostics);
@@ -51,7 +47,7 @@ namespace Peach.CodeAnalysis
             return current;
         }
 
-        private SyntaxToken Match(SyntaxKind kind)
+        private SyntaxToken MatchToken(SyntaxKind kind)
         {
             if (Current.Kind == kind)
                 return NextToken();
@@ -60,43 +56,40 @@ namespace Peach.CodeAnalysis
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
-        private ExpressionSyntax ParseExpression()
-        {
-            return ParseTerm();
-        }
-
         public SyntaxTree Parse()
         {
-            var expression = ParseTerm();
-            var endOfFileToken = Match(SyntaxKind.TokenEOF);
+            var expression = ParseExpression();
+            var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
             return new SyntaxTree(_diagnostics, expression, endOfFileToken);
         }
 
-        public ExpressionSyntax ParseTerm()
+        private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
-            var left = ParseFactor();
+            ExpressionSyntax left;
 
-            while (Current.Kind == SyntaxKind.TokenPlus ||
-                   Current.Kind == SyntaxKind.TokenMinus)
+            var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+            if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
-                var right = ParseFactor();
-                left = new BinaryExpressionSyntax(left, operatorToken, right);
+                var operand = ParseExpression(unaryOperatorPrecedence);
+                left = new UnaryExpressionSyntax(operatorToken, operand);
+            }
+            else
+            {
+                left = ParsePrimaryExpression();
             }
 
-            return left;
-        }
-
-        public ExpressionSyntax ParseFactor()
-        {
-            var left = ParsePrimaryExpression();
-
-            while (Current.Kind == SyntaxKind.TokenAsterisk ||
-                   Current.Kind == SyntaxKind.TokenForwardSlash)
+            for (; ; )
             {
+                var precedence = Current.Kind.GetBinaryOperatorPrecedence();
+                if (precedence == 0 || precedence <= parentPrecedence)
+                {
+                    break;
+                }
+
                 var operatorToken = NextToken();
-                var right = ParsePrimaryExpression();
+                var right = ParseExpression(precedence);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 
@@ -105,16 +98,16 @@ namespace Peach.CodeAnalysis
 
         public ExpressionSyntax ParsePrimaryExpression()
         {
-            if (Current.Kind == SyntaxKind.TokenOpenParen)
+            if (Current.Kind == SyntaxKind.OpenParenToken)
             {
                 var left = NextToken();
                 var expression = ParseExpression();
-                var right = Match(SyntaxKind.TokenCloseParen);
+                var right = MatchToken(SyntaxKind.CloseParenToken);
                 return new ParenthesisedExpressionSyntax(left, expression, right);
             }
 
-            var numberToken = Match(SyntaxKind.TokenNumber);
-            return new NumberExpressionSyntax(numberToken);
+            var numberToken = MatchToken(SyntaxKind.NumberToken);
+            return new LiteralExpressionSyntax(numberToken);
         }
     }
 }

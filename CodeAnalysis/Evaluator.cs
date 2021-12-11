@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Peach.CodeAnalysis.Binding;
+using Peach.CodeAnalysis.Syntax;
 
 namespace Peach.CodeAnalysis
 {
-    internal class Evaluator
+    internal sealed class Evaluator
     {
-        private readonly ExpressionSyntax _root;
+        private readonly BoundExpression _root;
 
-        public Evaluator(ExpressionSyntax root)
+        public Evaluator(BoundExpression root)
         {
             _root = root;
         }
@@ -20,35 +18,47 @@ namespace Peach.CodeAnalysis
             return EvaluateExpression(_root);
         }
 
-        private int EvaluateExpression(ExpressionSyntax root)
+        private int EvaluateExpression(BoundExpression node)
         {
             // BinaryExpression
             // NumberExpression
 
-            if (root is NumberExpressionSyntax n)
-                return (int)n.NumberToken.Value;
+            if (node is BoundLiteralExpresion n)
+                return (int)n.Value;
 
-            if (root is BinaryExpressionSyntax b)
+            if (node is BoundUnaryExpression u)
+            {
+                var operand = EvaluateExpression(u.Operand);
+
+                if (u.OperatorKind == BoundUnaryOperatorKind.Identity)
+                    return operand;
+
+                if (u.OperatorKind == BoundUnaryOperatorKind.Negation)
+                    return -operand;
+
+                throw new Exception($"Unexpected unary operator '{u.OperatorKind}'");
+            }
+
+            if (node is BoundBinaryExpression b)
             {
                 var left = EvaluateExpression(b.Left);
                 var right = EvaluateExpression(b.Right);
 
-                if (b.OperatorToken.Kind == SyntaxKind.TokenPlus)
-                    return left + right;
-                if (b.OperatorToken.Kind == SyntaxKind.TokenMinus)
-                    return left - right;
-                if (b.OperatorToken.Kind == SyntaxKind.TokenAsterisk)
-                    return left * right;
-                if (b.OperatorToken.Kind == SyntaxKind.TokenForwardSlash)
-                    return left / right;
+                return b.OperatorKind switch
+                {
+                    BoundBinaryOperatorKind.Addition => left + right,
+                    BoundBinaryOperatorKind.Subtraction => left - right,
+                    BoundBinaryOperatorKind.Multiplication => left * right,
+                    BoundBinaryOperatorKind.Division => left / right
+                };
 
-                throw new Exception($"Unexpected binary operator '{b.OperatorToken.Kind}'");
+                throw new Exception($"Unexpected binary operator '{b.OperatorKind}'");
             }
 
-            if (root is ParenthesisedExpressionSyntax p)
-                return EvaluateExpression(p.Expression);
+            //if (node is ParenthesisedExpressionSyntax p)
+            //  return EvaluateExpression(p.Expression);
 
-            throw new Exception($"Unexpected node '{root.Kind}'");
+            throw new Exception($"Unexpected node '{node.Kind}'");
         }
     }
 }

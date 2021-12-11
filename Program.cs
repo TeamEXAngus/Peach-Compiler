@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Linq;
 using Peach.CodeAnalysis;
+using Peach.CodeAnalysis.Syntax;
+using Peach.CodeAnalysis.Binding;
+using System.Collections.Generic;
 
 namespace Peach
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             bool showTree = false;
 
@@ -31,10 +34,11 @@ namespace Peach
                     continue;
                 }
 
-                var parser = new Parser(line);
-                var syntaxTree = parser.Parse();
+                var syntaxTree = SyntaxTree.Parse(line);
+                var binder = new Binder();
+                var boundExpression = binder.BindExpression(syntaxTree.Root);
 
-                var defaultColor = Console.ForegroundColor;
+                IReadOnlyList<string> diagnostics = syntaxTree.Diagnostics.Concat(binder.Diagnostics).ToArray();
 
                 if (showTree)
                 {
@@ -42,11 +46,11 @@ namespace Peach
 
                     PrettyPrint(syntaxTree.Root);
 
-                    Console.ForegroundColor = defaultColor;
+                    Console.ResetColor();
                 }
-                if (!syntaxTree.Diagnostics.Any())
+                if (diagnostics.Any())
                 {
-                    var e = new Evaluator(syntaxTree.Root);
+                    var e = new Evaluator(boundExpression);
                     Console.WriteLine(e.Evaluate());
                 }
                 else
@@ -56,12 +60,12 @@ namespace Peach
                     foreach (string Error in syntaxTree.Diagnostics)
                         Console.WriteLine(Error);
 
-                    Console.ForegroundColor = defaultColor;
+                    Console.ResetColor();
                 }
             }
         }
 
-        public static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
+        private static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
         {
             // ├──
             // │
