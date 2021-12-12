@@ -4,12 +4,13 @@ namespace Peach.CodeAnalysis.Binding
 {
     internal class BoundAssignmentExpression : BoundExpression
     {
-        public string Name { get; }
+        public string Name => Variable.Name;
         public BoundExpression Expression { get; }
+        public VariableSymbol Variable { get; }
 
-        public BoundAssignmentExpression(string name, BoundExpression boundExpression)
+        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression boundExpression)
         {
-            Name = name;
+            Variable = variable;
             Expression = boundExpression;
         }
 

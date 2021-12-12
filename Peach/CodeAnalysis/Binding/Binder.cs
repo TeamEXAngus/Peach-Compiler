@@ -1,30 +1,18 @@
 ﻿using Peach.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Peach.CodeAnalysis.Binding
 {
-    internal sealed class BoundVariableExpression : BoundExpression
-    {
-        public BoundVariableExpression(string name, Type type)
-        {
-            Name = name;
-            Type = type;
-        }
-
-        public override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
-        public string Name { get; }
-        public override Type Type { get; }
-    }
-
     internal sealed class Binder
     {
         private readonly DiagnosticBag _diagnostics = new();
         public DiagnosticBag Diagnostics => _diagnostics;
 
-        private readonly Dictionary<string, object> _variables;
+        private readonly Dictionary<VariableSymbol, object> _variables;
 
-        public Binder(Dictionary<string, object> variables)
+        public Binder(Dictionary<VariableSymbol, object> variables)
         {
             _variables = variables;
         }
@@ -100,14 +88,16 @@ namespace Peach.CodeAnalysis.Binding
         private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
             var name = syntax.IdentifierToken.Text;
-            if (!_variables.TryGetValue(name, out var value))
+
+            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+
+            if (variable is null)
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
                 return new BoundLiteralExpresion(0);
             }
 
-            var type = value?.GetType() ?? typeof(object);
-            return new BoundVariableExpression(name, type);
+            return new BoundVariableExpression(variable);
         }
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
@@ -115,19 +105,15 @@ namespace Peach.CodeAnalysis.Binding
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
 
-            object defaultValue =
-                boundExpression.Type == typeof(int)
-                    ? 0
-                    : boundExpression.Type == typeof(bool)
-                        ? false
-                        : null;
+            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
 
-            if (defaultValue is null)
-                throw new Exception($"Unsuported variable type: {boundExpression.Type}");
+            if (existingVariable is not null)
+                _variables.Remove(existingVariable);
 
-            _variables[name] = defaultValue;
+            var variable = new VariableSymbol(name, boundExpression.Type);
+            _variables[variable] = null;
 
-            return new BoundAssignmentExpression(name, boundExpression);
+            return new BoundAssignmentExpression(variable, boundExpression);
         }
     }
 }
