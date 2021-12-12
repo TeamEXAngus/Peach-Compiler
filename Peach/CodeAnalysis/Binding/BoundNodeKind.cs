@@ -11,6 +11,8 @@ namespace Peach.CodeAnalysis.Binding
         UnaryExpression,
         BinaryExpression,
         LiteralExpression,
-        ParenthesisedExpression
+        ParenthesisedExpression,
+        VariableExpression,
+        AssignmentExpression
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
@@ -10,6 +11,7 @@ namespace Peach
         private static void Main()
         {
             var showTree = false;
+            var variables = new Dictionary<string, object>();
 
             for (; ; )
             {
@@ -34,7 +36,7 @@ namespace Peach
 
                 var syntaxTree = SyntaxTree.Parse(line);
                 var compilation = new Compilation(syntaxTree);
-                var result = compilation.Evaluate();
+                var result = compilation.Evaluate(variables);
 
                 var diagnostics = result.Diagnostics;
 
