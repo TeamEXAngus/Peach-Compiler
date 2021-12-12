@@ -24,6 +24,12 @@ namespace Peach.CodeAnalysis.Binding
 
                 case SyntaxKind.ParenthesisedExpression:
                     return BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax);
+
+                case SyntaxKind.NameExpression:
+                    return BindNameExpression(syntax as NameExpressionSyntax);
+
+                case SyntaxKind.AssignmentExpression:
+                    return BindAssignmentExpression(syntax as AssignmentExpressionSyntax);
             }
 
             throw new Exception($"Unexpected syntax {syntax.Kind}");
@@ -69,6 +75,16 @@ namespace Peach.CodeAnalysis.Binding
             var expression = BindExpression(syntax.Expression);
 
             return new BoundParenthesisedExpression(expression);
+        }
+
+        private BoundExpression BindNameExpression(NameExpressionSyntax nameExpressionSyntax)
+        {
+            throw new NotImplementedException();
+        }
+
+        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax assignmentExpressionSyntax)
+        {
+            throw new NotImplementedException();
         }
     }
 }
