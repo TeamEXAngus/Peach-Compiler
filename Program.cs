@@ -35,47 +35,45 @@ namespace Peach
                 }
 
                 var syntaxTree = SyntaxTree.Parse(line);
-                var binder = new Binder();
-                var boundExpression = binder.BindExpression(syntaxTree.Root);
+                var compilation = new Compilation(syntaxTree);
+                var result = compilation.Evaluate();
 
-                IReadOnlyList<string> diagnostics = syntaxTree.Diagnostics.Concat(binder.Diagnostics).ToArray();
+                var diagnostics = result.Diagnostics;
 
                 if (showTree)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-
                     PrettyPrint(syntaxTree.Root);
-
-                    Console.ResetColor();
                 }
                 if (!diagnostics.Any())
                 {
-                    var e = new Evaluator(boundExpression);
-                    Console.WriteLine(e.Evaluate());
+                    Console.WriteLine(result.Value);
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    foreach (var diagnostic in diagnostics)
+                    {
+                        Console.WriteLine();
+                        ColourPrintln(diagnostic, ConsoleColor.Red);
 
-                    foreach (string Error in diagnostics)
-                        Console.WriteLine(Error);
+                        var prefix = line.Substring(0, diagnostic.Span.Start);
+                        var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                        var suffix = line.Substring(diagnostic.Span.End);
 
-                    Console.ResetColor();
+                        ColourPrint("    " + prefix, ConsoleColor.DarkYellow);
+                        ColourPrint(error, ConsoleColor.Red);
+                        ColourPrint(suffix + "\n\n", ConsoleColor.DarkYellow);
+                    }
                 }
             }
         }
 
         private static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
         {
-            // ├──
-            // │
-            // └──
-
             var marker = isLast ? "└──" : "├──";
 
-            Console.Write(indent);
-            Console.Write(marker);
-            Console.Write(node.Kind);
+            ColourPrint(indent, ConsoleColor.DarkGray);
+            ColourPrint(marker, ConsoleColor.DarkGray);
+            ColourPrint(node.Kind, ConsoleColor.DarkGray);
 
             if (node is SyntaxToken t && t.Value is not null)
             {
@@ -93,6 +91,20 @@ namespace Peach
             {
                 PrettyPrint(child, indent, child == lastChild);
             }
+        }
+
+        private static void ColourPrint(object Str, ConsoleColor Colour)
+        {
+            Console.ForegroundColor = Colour;
+            Console.Write(Str);
+            Console.ResetColor();
+        }
+
+        private static void ColourPrintln(object Str, ConsoleColor Colour)
+        {
+            Console.ForegroundColor = Colour;
+            Console.WriteLine(Str);
+            Console.ResetColor();
         }
     }
 }

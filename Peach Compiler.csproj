@@ -6,4 +6,8 @@
     <RootNamespace>Peach_Compiler</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Peach\Peach.csproj" />
+  </ItemGroup>
+
 </Project>
