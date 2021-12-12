@@ -57,7 +57,7 @@ namespace Peach
 
                         var prefix = line.Substring(0, diagnostic.Span.Start);
                         var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                        var suffix = line.Substring(diagnostic.Span.End);
+                        var suffix = line[diagnostic.Span.End..];
 
                         ColourPrint("    " + prefix, ConsoleColor.DarkYellow);
                         ColourPrint(error, ConsoleColor.Red);
