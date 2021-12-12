@@ -2,8 +2,6 @@
 using System.Linq;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
-using Peach.CodeAnalysis.Binding;
-using System.Collections.Generic;
 
 namespace Peach
 {

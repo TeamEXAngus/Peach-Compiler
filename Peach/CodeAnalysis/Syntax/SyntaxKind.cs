@@ -41,5 +41,7 @@ namespace Peach.CodeAnalysis.Syntax
         BinaryExpression,
         UnaryExpression,
         ParenthesisedExpression,
+        NameExpression,
+        AssignmentExpression,
     }
 }
