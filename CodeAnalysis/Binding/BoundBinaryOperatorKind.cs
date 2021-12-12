@@ -14,5 +14,7 @@ namespace Peach.CodeAnalysis.Binding
         Division,
         LogicalAnd,
         LogicalOr,
+        Equality,
+        Inequality
     }
 }

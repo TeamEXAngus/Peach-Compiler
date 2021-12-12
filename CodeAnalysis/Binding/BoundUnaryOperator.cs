@@ -1,22 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Peach.CodeAnalysis.Syntax;
 
 namespace Peach.CodeAnalysis.Binding
 {
-    internal sealed class BoundUnaryExpression : BoundExpression
+    internal sealed class BoundUnaryOperator
     {
-        public BoundUnaryExpression(BoundUnaryOperatorKind operatorKind, BoundExpression operand)
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType)
+            : this(syntaxKind, kind, operandType, operandType)
         {
-            OperatorKind = operatorKind;
-            Operand = operand;
+            SyntaxKind = syntaxKind;
+            Kind = kind;
+            OperandType = operandType;
         }
 
-        public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
-        public BoundUnaryOperatorKind OperatorKind { get; }
-        public BoundExpression Operand { get; }
-        public override Type Type => Operand.Type;
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType, Type resultType)
+        {
+            SyntaxKind = syntaxKind;
+            Kind = kind;
+            OperandType = operandType;
+            ResultType = resultType;
+        }
+
+        public SyntaxKind SyntaxKind { get; }
+        public BoundUnaryOperatorKind Kind { get; }
+        public Type OperandType { get; }
+        public Type ResultType { get; }
+
+        private static BoundUnaryOperator[] _operators =
+        {
+            new BoundUnaryOperator(SyntaxKind.ExclamationToken, BoundUnaryOperatorKind.LogicalNot, typeof(bool)),
+            new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(int)),
+            new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(int)),
+        };
+
+        public static BoundUnaryOperator Bind(SyntaxKind syntaxKind, Type operandType)
+        {
+            foreach (var op in _operators)
+            {
+                if (op.SyntaxKind == syntaxKind && op.OperandType == operandType)
+                    return op;
+            }
+
+            return null;
+        }
     }
 }

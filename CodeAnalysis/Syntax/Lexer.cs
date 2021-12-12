@@ -2,7 +2,7 @@
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal class Lexer
+    internal sealed class Lexer
     {
         private readonly string _text;
         private int _position;
@@ -115,6 +115,8 @@ namespace Peach.CodeAnalysis.Syntax
                     return new SyntaxToken(SyntaxKind.CloseParenToken, _position++, ")", null);
 
                 case '!':
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.ExclamationEqualsToken, _position += 2, "!=", null);
                     return new SyntaxToken(SyntaxKind.ExclamationToken, _position++, "!", null);
 
                 case '&':
@@ -126,6 +128,11 @@ namespace Peach.CodeAnalysis.Syntax
                     if (Lookahead == '|')
                         return new SyntaxToken(SyntaxKind.PipePipeToken, _position += 2, "&&", null);
                     return new SyntaxToken(SyntaxKind.PipeToken, _position++, "&", null);
+
+                case '=':
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, _position += 2, "==", null);
+                    return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
             }
 
             _diagnostics.Add($"ERROR: bad character input: '{Current}'");

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Peach
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main()
         {
-            bool showTree = false;
+            var showTree = false;
 
             for (; ; )
             {
@@ -57,7 +57,7 @@ namespace Peach
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
 
-                    foreach (string Error in syntaxTree.Diagnostics)
+                    foreach (string Error in diagnostics)
                         Console.WriteLine(Error);
 
                     Console.ResetColor();
@@ -85,7 +85,7 @@ namespace Peach
 
             Console.WriteLine();
 
-            indent += isLast ? "    " : "│   ";
+            indent += isLast ? "   " : "│  ";
 
             var lastChild = node.GetChildren().LastOrDefault();
 

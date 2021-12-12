@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal sealed class LiteralExpressionSyntax : ExpressionSyntax
+    public sealed class LiteralExpressionSyntax : ExpressionSyntax
     {
         public LiteralExpressionSyntax(SyntaxToken literalToken)
             : this(literalToken, literalToken.Value) { }

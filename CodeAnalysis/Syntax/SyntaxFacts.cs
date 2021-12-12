@@ -8,9 +8,9 @@ namespace Peach.CodeAnalysis.Syntax
         {
             return kind switch
             {
-                SyntaxKind.PlusToken => 5,
-                SyntaxKind.MinusToken => 5,
-                SyntaxKind.ExclamationToken => 5,
+                SyntaxKind.PlusToken => 6,
+                SyntaxKind.MinusToken => 6,
+                SyntaxKind.ExclamationToken => 6,
 
                 _ => 0
             };
@@ -24,11 +24,14 @@ namespace Peach.CodeAnalysis.Syntax
 
                 SyntaxKind.AmpersandAmpersandToken => 2,
 
-                SyntaxKind.PlusToken => 3,
-                SyntaxKind.MinusToken => 3,
+                SyntaxKind.EqualsEqualsToken => 3,
+                SyntaxKind.ExclamationEqualsToken => 3,
 
-                SyntaxKind.AsteriskToken => 4,
-                SyntaxKind.SlashToken => 4,
+                SyntaxKind.PlusToken => 4,
+                SyntaxKind.MinusToken => 4,
+
+                SyntaxKind.AsteriskToken => 5,
+                SyntaxKind.SlashToken => 5,
 
                 _ => 0
             };

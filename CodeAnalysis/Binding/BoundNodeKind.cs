@@ -10,6 +10,7 @@ namespace Peach.CodeAnalysis.Binding
     {
         UnaryExpression,
         BinaryExpression,
-        LiteralExpression
+        LiteralExpression,
+        ParenthesisedExpression
     }
 }

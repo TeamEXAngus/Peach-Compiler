@@ -2,7 +2,7 @@
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal class Parser
+    internal sealed class Parser
     {
         private readonly SyntaxToken[] _tokens;
         private int _position;

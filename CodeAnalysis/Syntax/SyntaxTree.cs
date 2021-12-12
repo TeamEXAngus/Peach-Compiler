@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal sealed class SyntaxTree
+    public sealed class SyntaxTree
     {
         public SyntaxTree(IEnumerable<string> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
         {

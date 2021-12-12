@@ -10,6 +10,6 @@ namespace Peach.CodeAnalysis.Binding
     {
         Identity,
         Negation,
-        LogicalNot
+        LogicalNot,
     }
 }

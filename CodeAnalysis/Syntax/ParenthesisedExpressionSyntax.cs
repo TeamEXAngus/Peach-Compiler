@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal sealed class ParenthesisedExpressionSyntax : ExpressionSyntax
+    public sealed class ParenthesisedExpressionSyntax : ExpressionSyntax
     {
         public ParenthesisedExpressionSyntax(SyntaxToken openParenthesisToken, ExpressionSyntax expression, SyntaxToken closeParenthesisToken)
         {

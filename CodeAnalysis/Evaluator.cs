@@ -30,7 +30,7 @@ namespace Peach.CodeAnalysis
             {
                 var operand = EvaluateExpression(u.Operand);
 
-                switch (u.OperatorKind)
+                switch (u.Op.Kind)
                 {
                     case BoundUnaryOperatorKind.Identity:
                         return (int)operand;
@@ -42,7 +42,7 @@ namespace Peach.CodeAnalysis
                         return !(bool)operand;
                 }
 
-                throw new Exception($"Unexpected unary operator '{u.OperatorKind}'");
+                throw new Exception($"Unexpected unary operator '{u.Op.Kind}'");
             }
 
             if (node is BoundBinaryExpression b)
@@ -52,7 +52,7 @@ namespace Peach.CodeAnalysis
 
                 var right = EvaluateExpression(b.Right);
 
-                switch (b.OperatorKind)
+                switch (b.Op.Kind)
                 {
                     case BoundBinaryOperatorKind.Addition:
                         return (int)left + (int)right;
@@ -71,13 +71,19 @@ namespace Peach.CodeAnalysis
 
                     case BoundBinaryOperatorKind.LogicalOr:
                         return (bool)left || (bool)right;
+
+                    case BoundBinaryOperatorKind.Equality:
+                        return Equals(left, right);
+
+                    case BoundBinaryOperatorKind.Inequality:
+                        return !Equals(left, right);
                 }
 
-                throw new Exception($"Unexpected binary operator '{b.OperatorKind}'");
+                throw new Exception($"Unexpected binary operator '{b.Op.Kind}'");
             }
 
-            //if (node is ParenthesisedExpressionSyntax p)
-            //  return EvaluateExpression(p.Expression);
+            if (node is BoundParenthesisedExpression p)
+              return EvaluateExpression(p.Expression);
 
             throw new Exception($"Unexpected node '{node.Kind}'");
         }

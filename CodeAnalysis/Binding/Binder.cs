@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Peach.CodeAnalysis.Syntax;
+using System;
 using System.Collections.Generic;
-using Peach.CodeAnalysis.Syntax;
 
 namespace Peach.CodeAnalysis.Binding
 {
@@ -21,9 +21,12 @@ namespace Peach.CodeAnalysis.Binding
 
                 case SyntaxKind.BinaryExpression:
                     return BindBinaryExpression(syntax as BinaryExpressionSyntax);
+
+                case SyntaxKind.ParenthesisedExpression:
+                    return BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax);
             }
 
-            throw new Exception("$Unexpected syntax {syntax.Kind}");
+            throw new Exception($"Unexpected syntax {syntax.Kind}");
         }
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
@@ -35,7 +38,7 @@ namespace Peach.CodeAnalysis.Binding
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
         {
             var boundOperand = BindExpression(syntax.Operand);
-            var boundOperatorKind = BindUnaryOperatorKind(syntax.OperatorToken.Kind, boundOperand.Type);
+            var boundOperatorKind = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
 
             if (boundOperatorKind is null)
             {
@@ -43,79 +46,29 @@ namespace Peach.CodeAnalysis.Binding
                 return boundOperand;
             }
 
-            return new BoundUnaryExpression(boundOperatorKind.Value, boundOperand);
+            return new BoundUnaryExpression(boundOperatorKind, boundOperand);
         }
 
         private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)
         {
             var boundLeft = BindExpression(syntax.Left);
             var boundRight = BindExpression(syntax.Right);
-            var boundOperatorKind = BindBinaryOperatorKind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
+            var boundOperatorKind = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
 
             if (boundOperatorKind is null)
             {
-                _diagnostics.Add($"Unary operator {syntax.OperatorToken.Text} is not defined for types {boundLeft.Type}, {boundRight.Type}");
+                _diagnostics.Add($"Binary operator {syntax.OperatorToken.Text} is not defined for types {boundLeft.Type}, {boundRight.Type}");
                 return boundLeft;
             }
 
-            return new BoundBinaryExpression(boundLeft, boundOperatorKind.Value, boundRight);
+            return new BoundBinaryExpression(boundLeft, boundOperatorKind, boundRight);
         }
 
-        private BoundUnaryOperatorKind? BindUnaryOperatorKind(SyntaxKind kind, Type operandType)
+        private BoundExpression BindParenthesisedExpression(ParenthesisedExpressionSyntax syntax)
         {
-            if (operandType == typeof(int))
+            var expression = BindExpression(syntax.Expression);
 
-                switch (kind)
-                {
-                    case SyntaxKind.PlusToken:
-                        return BoundUnaryOperatorKind.Identity;
-
-                    case SyntaxKind.MinusToken:
-                        return BoundUnaryOperatorKind.Negation;
-                }
-
-            if (operandType == typeof(bool))
-
-                switch (kind)
-                {
-                    case SyntaxKind.ExclamationToken:
-                        return BoundUnaryOperatorKind.LogicalNot;
-                }
-
-            return null;
-        }
-
-        private BoundBinaryOperatorKind? BindBinaryOperatorKind(SyntaxKind kind, Type leftType, Type rightType)
-        {
-            if (leftType == typeof(int) && rightType == typeof(int))
-
-                switch (kind)
-                {
-                    case SyntaxKind.PlusToken:
-                        return BoundBinaryOperatorKind.Addition;
-
-                    case SyntaxKind.MinusToken:
-                        return BoundBinaryOperatorKind.Subtraction;
-
-                    case SyntaxKind.AsteriskToken:
-                        return BoundBinaryOperatorKind.Multiplication;
-
-                    case SyntaxKind.SlashToken:
-                        return BoundBinaryOperatorKind.Division;
-                }
-
-            if (leftType == typeof(bool) && rightType == typeof(bool))
-
-                switch (kind)
-                {
-                    case SyntaxKind.AmpersandAmpersandToken:
-                        return BoundBinaryOperatorKind.LogicalAnd;
-
-                    case SyntaxKind.PipePipeToken:
-                        return BoundBinaryOperatorKind.LogicalOr;
-                }
-
-            return null;
+            return new BoundParenthesisedExpression(expression);
         }
     }
 }

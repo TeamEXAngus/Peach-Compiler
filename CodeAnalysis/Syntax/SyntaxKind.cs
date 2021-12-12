@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal enum SyntaxKind
+    public enum SyntaxKind
     {
         // Tokens
 
@@ -23,6 +23,9 @@ namespace Peach.CodeAnalysis.Syntax
         AmpersandToken,
         PipePipeToken,
         PipeToken,
+        EqualsEqualsToken,
+        ExclamationEqualsToken,
+        EqualsToken,
         OpenParenToken,
         CloseParenToken,
         IdentifierToken,

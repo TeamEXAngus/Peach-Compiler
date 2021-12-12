@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal abstract class ExpressionSyntax : SyntaxNode
+    public abstract class ExpressionSyntax : SyntaxNode
     { }
 }
