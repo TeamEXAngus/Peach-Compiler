@@ -9,8 +9,8 @@ namespace Peach.CodeAnalysis.Syntax
     internal enum SyntaxKind
     {
         // Tokens
-        BadToken,
 
+        BadToken,
         EOFToken,
         WhitespaceToken,
         NumberToken,
@@ -18,14 +18,25 @@ namespace Peach.CodeAnalysis.Syntax
         MinusToken,
         AsteriskToken,
         SlashToken,
+        ExclamationToken,
+        AmpersandAmpersandToken,
+        AmpersandToken,
+        PipePipeToken,
+        PipeToken,
         OpenParenToken,
         CloseParenToken,
+        IdentifierToken,
+
+        // Keywords
+
+        TrueKeyword,
+        FalseKeyword,
 
         // Expressions
-        LiteralExpression,
 
+        LiteralExpression,
         BinaryExpression,
         UnaryExpression,
-        ParenthesisedExpression
+        ParenthesisedExpression,
     }
 }

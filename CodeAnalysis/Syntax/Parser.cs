@@ -98,16 +98,28 @@ namespace Peach.CodeAnalysis.Syntax
 
         public ExpressionSyntax ParsePrimaryExpression()
         {
-            if (Current.Kind == SyntaxKind.OpenParenToken)
+            switch (Current.Kind)
             {
-                var left = NextToken();
-                var expression = ParseExpression();
-                var right = MatchToken(SyntaxKind.CloseParenToken);
-                return new ParenthesisedExpressionSyntax(left, expression, right);
+                case SyntaxKind.OpenParenToken:
+                    {
+                        var left = NextToken();
+                        var expression = ParseExpression();
+                        var right = MatchToken(SyntaxKind.CloseParenToken);
+                        return new ParenthesisedExpressionSyntax(left, expression, right);
+                    }
+                case SyntaxKind.FalseKeyword:
+                case SyntaxKind.TrueKeyword:
+                    {
+                        var KeywordToken = NextToken();
+                        var Value = KeywordToken.Kind == SyntaxKind.TrueKeyword;
+                        return new LiteralExpressionSyntax(Current, Value);
+                    }
+                default:
+                    {
+                        var numberToken = MatchToken(SyntaxKind.NumberToken);
+                        return new LiteralExpressionSyntax(numberToken);
+                    }
             }
-
-            var numberToken = MatchToken(SyntaxKind.NumberToken);
-            return new LiteralExpressionSyntax(numberToken);
         }
     }
 }

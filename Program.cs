@@ -48,7 +48,7 @@ namespace Peach
 
                     Console.ResetColor();
                 }
-                if (diagnostics.Any())
+                if (!diagnostics.Any())
                 {
                     var e = new Evaluator(boundExpression);
                     Console.WriteLine(e.Evaluate());

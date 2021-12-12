@@ -11,6 +11,8 @@ namespace Peach.CodeAnalysis.Binding
         Addition,
         Subtraction,
         Multiplication,
-        Division
+        Division,
+        LogicalAnd,
+        LogicalOr,
     }
 }

@@ -28,7 +28,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            var value = syntax.LiteralToken.Value as int? ?? 0;
+            var value = syntax.Value ?? 0;
             return new BoundLiteralExpresion(value);
         }
 
@@ -63,32 +63,59 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundUnaryOperatorKind? BindUnaryOperatorKind(SyntaxKind kind, Type operandType)
         {
-            if (operandType != typeof(int))
-                return null;
+            if (operandType == typeof(int))
 
-            return kind switch
-            {
-                SyntaxKind.PlusToken => BoundUnaryOperatorKind.Identity,
-                SyntaxKind.MinusToken => BoundUnaryOperatorKind.Negation,
+                switch (kind)
+                {
+                    case SyntaxKind.PlusToken:
+                        return BoundUnaryOperatorKind.Identity;
 
-                _ => throw new Exception($"Unknown unary operator '{kind}'")
-            };
+                    case SyntaxKind.MinusToken:
+                        return BoundUnaryOperatorKind.Negation;
+                }
+
+            if (operandType == typeof(bool))
+
+                switch (kind)
+                {
+                    case SyntaxKind.ExclamationToken:
+                        return BoundUnaryOperatorKind.LogicalNot;
+                }
+
+            return null;
         }
 
         private BoundBinaryOperatorKind? BindBinaryOperatorKind(SyntaxKind kind, Type leftType, Type rightType)
         {
-            if (leftType != typeof(int) || rightType != typeof(int))
-                return null;
+            if (leftType == typeof(int) && rightType == typeof(int))
 
-            return kind switch
-            {
-                SyntaxKind.PlusToken => BoundBinaryOperatorKind.Addition,
-                SyntaxKind.MinusToken => BoundBinaryOperatorKind.Subtraction,
-                SyntaxKind.AsteriskToken => BoundBinaryOperatorKind.Multiplication,
-                SyntaxKind.SlashToken => BoundBinaryOperatorKind.Division,
+                switch (kind)
+                {
+                    case SyntaxKind.PlusToken:
+                        return BoundBinaryOperatorKind.Addition;
 
-                _ => throw new Exception($"Unknown unary operator '{kind}'")
-            };
+                    case SyntaxKind.MinusToken:
+                        return BoundBinaryOperatorKind.Subtraction;
+
+                    case SyntaxKind.AsteriskToken:
+                        return BoundBinaryOperatorKind.Multiplication;
+
+                    case SyntaxKind.SlashToken:
+                        return BoundBinaryOperatorKind.Division;
+                }
+
+            if (leftType == typeof(bool) && rightType == typeof(bool))
+
+                switch (kind)
+                {
+                    case SyntaxKind.AmpersandAmpersandToken:
+                        return BoundBinaryOperatorKind.LogicalAnd;
+
+                    case SyntaxKind.PipePipeToken:
+                        return BoundBinaryOperatorKind.LogicalOr;
+                }
+
+            return null;
         }
     }
 }

@@ -13,44 +13,65 @@ namespace Peach.CodeAnalysis
             _root = root;
         }
 
-        public int Evaluate()
+        public object Evaluate()
         {
             return EvaluateExpression(_root);
         }
 
-        private int EvaluateExpression(BoundExpression node)
+        private object EvaluateExpression(BoundExpression node)
         {
             // BinaryExpression
             // NumberExpression
 
             if (node is BoundLiteralExpresion n)
-                return (int)n.Value;
+                return n.Value;
 
             if (node is BoundUnaryExpression u)
             {
                 var operand = EvaluateExpression(u.Operand);
 
-                if (u.OperatorKind == BoundUnaryOperatorKind.Identity)
-                    return operand;
+                switch (u.OperatorKind)
+                {
+                    case BoundUnaryOperatorKind.Identity:
+                        return (int)operand;
 
-                if (u.OperatorKind == BoundUnaryOperatorKind.Negation)
-                    return -operand;
+                    case BoundUnaryOperatorKind.Negation:
+                        return -(int)operand;
+
+                    case BoundUnaryOperatorKind.LogicalNot:
+                        return !(bool)operand;
+                }
 
                 throw new Exception($"Unexpected unary operator '{u.OperatorKind}'");
             }
 
             if (node is BoundBinaryExpression b)
+
             {
                 var left = EvaluateExpression(b.Left);
+
                 var right = EvaluateExpression(b.Right);
 
-                return b.OperatorKind switch
+                switch (b.OperatorKind)
                 {
-                    BoundBinaryOperatorKind.Addition => left + right,
-                    BoundBinaryOperatorKind.Subtraction => left - right,
-                    BoundBinaryOperatorKind.Multiplication => left * right,
-                    BoundBinaryOperatorKind.Division => left / right
-                };
+                    case BoundBinaryOperatorKind.Addition:
+                        return (int)left + (int)right;
+
+                    case BoundBinaryOperatorKind.Subtraction:
+                        return (int)left - (int)right;
+
+                    case BoundBinaryOperatorKind.Multiplication:
+                        return (int)left * (int)right;
+
+                    case BoundBinaryOperatorKind.Division:
+                        return (int)left / (int)right;
+
+                    case BoundBinaryOperatorKind.LogicalAnd:
+                        return (bool)left && (bool)right;
+
+                    case BoundBinaryOperatorKind.LogicalOr:
+                        return (bool)left || (bool)right;
+                }
 
                 throw new Exception($"Unexpected binary operator '{b.OperatorKind}'");
             }

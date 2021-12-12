@@ -26,6 +26,17 @@ namespace Peach.CodeAnalysis.Syntax
             }
         }
 
+        private char Lookahead => Peek(1);
+
+        private char Peek(int offset)
+        {
+            var index = _position + offset;
+            if (index >= _text.Length)
+                return '\0';
+
+            return _text[index];
+        }
+
         private void Next()
         {
             _position++;
@@ -68,6 +79,21 @@ namespace Peach.CodeAnalysis.Syntax
                 return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
             }
 
+            if (char.IsLetter(Current))
+            {
+                var start = _position;
+
+                while (char.IsLetter(Current))
+                {
+                    Next();
+                }
+
+                var length = _position - start;
+                var text = _text.Substring(start, length);
+                var kind = SyntaxFacts.GetKeywordKind(text);
+                return new SyntaxToken(kind, start, text, null);
+            }
+
             switch (Current)
             {
                 case '+':
@@ -87,6 +113,19 @@ namespace Peach.CodeAnalysis.Syntax
 
                 case ')':
                     return new SyntaxToken(SyntaxKind.CloseParenToken, _position++, ")", null);
+
+                case '!':
+                    return new SyntaxToken(SyntaxKind.ExclamationToken, _position++, "!", null);
+
+                case '&':
+                    if (Lookahead == '&')
+                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, _position += 2, "&&", null);
+                    return new SyntaxToken(SyntaxKind.AmpersandToken, _position++, "&", null);
+
+                case '|':
+                    if (Lookahead == '|')
+                        return new SyntaxToken(SyntaxKind.PipePipeToken, _position += 2, "&&", null);
+                    return new SyntaxToken(SyntaxKind.PipeToken, _position++, "&", null);
             }
 
             _diagnostics.Add($"ERROR: bad character input: '{Current}'");
