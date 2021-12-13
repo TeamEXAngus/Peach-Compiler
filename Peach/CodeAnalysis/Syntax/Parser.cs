@@ -58,7 +58,7 @@ namespace Peach.CodeAnalysis.Syntax
 
         public SyntaxTree Parse()
         {
-            var expression = ParseExpression();
+            var expression = ParseAssignmentExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
             return new SyntaxTree(_diagnostics, expression, endOfFileToken);
@@ -86,7 +86,7 @@ namespace Peach.CodeAnalysis.Syntax
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
-                var operand = ParseExpression(unaryOperatorPrecedence);
+                var operand = ParseExpression(parentPrecedence);
                 left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
