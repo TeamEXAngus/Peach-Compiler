@@ -10,7 +10,7 @@ namespace Peach.CodeAnalysis.Syntax
             Operand = operand;
         }
 
-        public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
+        public override SyntaxKind Kind => SyntaxKind.UnaryExpression;
         public SyntaxToken OperatorToken;
         public ExpressionSyntax Operand;
 

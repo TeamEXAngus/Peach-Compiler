@@ -64,11 +64,6 @@ namespace Peach.CodeAnalysis.Syntax
             return new SyntaxTree(_diagnostics, expression, endOfFileToken);
         }
 
-        private ExpressionSyntax ParseExpression()
-        {
-            return ParseAssignmentExpression();
-        }
-
         private ExpressionSyntax ParseAssignmentExpression()
         {
             if (Peek(0).Kind == SyntaxKind.IdentifierToken &&
@@ -80,10 +75,10 @@ namespace Peach.CodeAnalysis.Syntax
                 return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
             }
 
-            return ParseBinaryExpression();
+            return ParseExpression();
         }
 
-        private ExpressionSyntax ParseBinaryExpression(int parentPrecedence = 0)
+        private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
             ExpressionSyntax left;
 
@@ -91,7 +86,7 @@ namespace Peach.CodeAnalysis.Syntax
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
-                var operand = ParseBinaryExpression(unaryOperatorPrecedence);
+                var operand = ParseExpression(unaryOperatorPrecedence);
                 left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
@@ -108,7 +103,7 @@ namespace Peach.CodeAnalysis.Syntax
                 }
 
                 var operatorToken = NextToken();
-                var right = ParseBinaryExpression(precedence);
+                var right = ParseExpression(precedence);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 

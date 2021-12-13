@@ -79,7 +79,7 @@ namespace Peach
 
                         ColourPrint(prefix, DefaultColor);
                         ColourPrint(error, ConsoleColor.Red);
-                        ColourPrint(suffix, DefaultColor);
+                        ColourPrintln(suffix, DefaultColor);
                     }
                 }
             }
