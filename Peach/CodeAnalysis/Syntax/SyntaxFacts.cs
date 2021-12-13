@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Peach.CodeAnalysis.Syntax
 {
@@ -45,6 +46,26 @@ namespace Peach.CodeAnalysis.Syntax
                 "false" => SyntaxKind.FalseKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
+        }
+
+        public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds()
+        {
+            var kinds = Enum.GetValues(typeof(SyntaxKind)) as SyntaxKind[];
+            foreach (var kind in kinds)
+            {
+                if (GetBinaryOperatorPrecedence(kind) > 0)
+                    yield return kind;
+            }
+        }
+
+        public static IEnumerable<SyntaxKind> GetUnaryOperatorKinds()
+        {
+            var kinds = Enum.GetValues(typeof(SyntaxKind)) as SyntaxKind[];
+            foreach (var kind in kinds)
+            {
+                if (GetUnaryOperatorPrecedence(kind) > 0)
+                    yield return kind;
+            }
         }
 
         public static string GetText(SyntaxKind kind)

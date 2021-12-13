@@ -14,7 +14,7 @@ namespace Peach
         private static readonly ConsoleColor TreeColour = ConsoleColor.DarkGray;
         private static readonly ConsoleColor ResultColour = ConsoleColor.White;
 
-        private static void Repl()
+        private static void Main()
         {
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
@@ -93,10 +93,19 @@ namespace Peach
             ColourPrint(marker, TreeColour);
             ColourPrint(node.Kind, TreeColour);
 
-            if (node is SyntaxToken t && t.Value is not null)
+            if (node is SyntaxToken t)
             {
-                ColourPrint(" ");
-                ColourPrint(t.Value);
+                if (t.Value is not null)
+                {
+                    ColourPrint(" ");
+                    ColourPrint(t.Value);
+                }
+
+                if (t.Kind == SyntaxKind.IdentifierToken)
+                {
+                    ColourPrint(" ");
+                    ColourPrint(t.Text);
+                }
             }
 
             ColourPrintln();
