@@ -8,6 +8,24 @@ namespace Peach_Tests.CodeAnalysis.Syntax
 {
     public class LexerTests
     {
+        [Fact]
+        public void Lexer_Tests_AllTokens()
+        {
+            var tokenKinds = Enum.GetValues(typeof(SyntaxKind))
+                                .Cast<SyntaxKind>()
+                                .Where(k => k.ToString().EndsWith("Keyword") ||
+                                            k.ToString().EndsWith("Token"));
+
+            var testedTokenKinds = GetTokens().Concat(GetSeparators()).Select(t => t.kind);
+
+            var untestedTokenKinds = new SortedSet<SyntaxKind>(tokenKinds);
+            untestedTokenKinds.Remove(SyntaxKind.EOFToken);
+            untestedTokenKinds.Remove(SyntaxKind.BadToken);
+            untestedTokenKinds.ExceptWith(testedTokenKinds);
+
+            Assert.Empty(untestedTokenKinds);
+        }
+
         [Theory]
         [MemberData(nameof(GetTokensData))]
         public void Lexer_Lexes_Token(SyntaxKind kind, string text)
@@ -79,7 +97,7 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             }
         }
 
-        private static IEnumerable<(SyntaxKind, string)> GetTokens()
+        private static IEnumerable<(SyntaxKind kind, string)> GetTokens()
         {
             var fixedTokens = Enum.GetValues(typeof(SyntaxKind))
                                 .Cast<SyntaxKind>()
@@ -100,7 +118,7 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             return fixedTokens.Concat(dynamicTokens);
         }
 
-        private static IEnumerable<(SyntaxKind, string)> GetSeparators()
+        private static IEnumerable<(SyntaxKind kind, string)> GetSeparators()
         {
             return new[]
             {
