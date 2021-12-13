@@ -134,19 +134,23 @@
                     }
                     break;
 
-                default:
+                case '0' or '1' or '2' or '3' or '4':
+                case '5' or '6' or '7' or '8' or '9':
+                    ReadNumberToken();
+                    break;
 
-                    if (char.IsDigit(Current))
-                    {
-                        ReadNumberToken();
-                    }
-                    else if (char.IsWhiteSpace(Current))
-                    {
-                        ReadWhitespaceToken();
-                    }
-                    else if (char.IsLetter(Current))
+                case ' ' or '\t' or '\n' or '\r':   // common whitespace
+                    ReadWhitespaceToken();
+                    break;
+
+                default:
+                    if (char.IsLetter(Current))
                     {
                         ReadIdentifierOrKeyword();
+                    }
+                    else if (char.IsWhiteSpace(Current))    // handle uncommon whitespace
+                    {
+                        ReadWhitespaceToken();
                     }
                     else
                     {
@@ -194,10 +198,6 @@
             var length = _position - _start;
             var text = _text.Substring(_start, length);
             _kind = SyntaxFacts.GetKeywordKind(text);
-        }
-
-        private void ReadToken()
-        {
         }
     }
 }

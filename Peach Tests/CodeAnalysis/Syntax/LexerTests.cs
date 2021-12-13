@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Xunit;
+using System;
 
 namespace Peach_Tests.CodeAnalysis.Syntax
 {
@@ -80,25 +81,13 @@ namespace Peach_Tests.CodeAnalysis.Syntax
 
         private static IEnumerable<(SyntaxKind, string)> GetTokens()
         {
-            return new[]
-            {
-                (SyntaxKind.PlusToken, "+"),
-                (SyntaxKind.MinusToken, "-"),
-                (SyntaxKind.AsteriskToken, "*"),
-                (SyntaxKind.SlashToken, "/"),
-                (SyntaxKind.AmpersandToken, "&"),
-                (SyntaxKind.AmpersandAmpersandToken, "&&"),
-                (SyntaxKind.PipeToken, "|"),
-                (SyntaxKind.PipePipeToken, "||"),
-                (SyntaxKind.ExclamationToken, "!"),
-                (SyntaxKind.EqualsToken, "="),
-                (SyntaxKind.EqualsEqualsToken, "=="),
-                (SyntaxKind.ExclamationEqualsToken, "!="),
-                (SyntaxKind.OpenParenToken, "("),
-                (SyntaxKind.CloseParenToken, ")"),
-                (SyntaxKind.TrueKeyword, "true"),
-                (SyntaxKind.FalseKeyword, "false"),
+            var fixedTokens = Enum.GetValues(typeof(SyntaxKind))
+                                .Cast<SyntaxKind>()
+                                .Select(k => (kind: k, text: SyntaxFacts.GetText(k)))
+                                .Where(t => t.text is not null);
 
+            var dynamicTokens = new[]
+            {
                 (SyntaxKind.IdentifierToken, "a"),
                 (SyntaxKind.IdentifierToken, "abc"),
                 (SyntaxKind.IdentifierToken, "ihfijgdj"),
@@ -107,6 +96,8 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 (SyntaxKind.NumberToken, "243"),
                 (SyntaxKind.NumberToken, "8374943"),
             };
+
+            return fixedTokens.Concat(dynamicTokens);
         }
 
         private static IEnumerable<(SyntaxKind, string)> GetSeparators()
