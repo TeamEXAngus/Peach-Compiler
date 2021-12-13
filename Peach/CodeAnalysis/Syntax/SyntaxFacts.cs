@@ -2,7 +2,7 @@
 
 namespace Peach.CodeAnalysis.Syntax
 {
-    internal static class SyntaxFacts
+    public static class SyntaxFacts
     {
         internal static int GetUnaryOperatorPrecedence(this SyntaxKind kind)
         {
@@ -44,6 +44,30 @@ namespace Peach.CodeAnalysis.Syntax
                 "true" => SyntaxKind.TrueKeyword,
                 "false" => SyntaxKind.FalseKeyword,
                 _ => SyntaxKind.IdentifierToken
+            };
+        }
+
+        public static string GetText(SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.PlusToken => "+",
+                SyntaxKind.MinusToken => "-",
+                SyntaxKind.AsteriskToken => "*",
+                SyntaxKind.SlashToken => "/",
+                SyntaxKind.AmpersandToken => "&",
+                SyntaxKind.AmpersandAmpersandToken => "&&",
+                SyntaxKind.PipeToken => "|",
+                SyntaxKind.PipePipeToken => "||",
+                SyntaxKind.ExclamationToken => "!",
+                SyntaxKind.EqualsToken => "=",
+                SyntaxKind.EqualsEqualsToken => "==",
+                SyntaxKind.ExclamationEqualsToken => "!=",
+                SyntaxKind.OpenParenToken => "(",
+                SyntaxKind.CloseParenToken => ")",
+                SyntaxKind.TrueKeyword => "true",
+                SyntaxKind.FalseKeyword => "false",
+                _ => null,
             };
         }
     }
