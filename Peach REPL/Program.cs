@@ -8,14 +8,20 @@ namespace Peach
 {
     internal static class Program
     {
-        private static void Main()
+        private static readonly ConsoleColor DefaultColor = ConsoleColor.White;
+        private static readonly ConsoleColor ErrorColour = ConsoleColor.Red;
+        private static readonly ConsoleColor ExceptionColour = ConsoleColor.DarkRed;
+        private static readonly ConsoleColor TreeColour = ConsoleColor.DarkGray;
+        private static readonly ConsoleColor ResultColour = ConsoleColor.White;
+
+        private static void Repl()
         {
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
 
             for (; ; )
             {
-                Console.Write(">");
+                ColourPrint(">", DefaultColor);
                 var line = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(line))
@@ -24,7 +30,7 @@ namespace Peach
                 if (line == "#showTree")
                 {
                     showTree = !showTree;
-                    Console.WriteLine(showTree ? "Showing parse trees" : "Stopped showing parse trees");
+                    ColourPrintln(showTree ? "Showing parse trees" : "Stopped showing parse trees", DefaultColor);
                     continue;
                 }
 
@@ -34,9 +40,21 @@ namespace Peach
                     continue;
                 }
 
-                var syntaxTree = SyntaxTree.Parse(line);
-                var compilation = new Compilation(syntaxTree);
-                var result = compilation.Evaluate(variables);
+                SyntaxTree syntaxTree;
+                Compilation compilation;
+                EvaluationResult result;
+
+                try
+                {
+                    syntaxTree = SyntaxTree.Parse(line);
+                    compilation = new Compilation(syntaxTree);
+                    result = compilation.Evaluate(variables);
+                }
+                catch (Exception e)
+                {
+                    ColourPrintln($"Exception thrown by interpreter: {e.Message}\n", ExceptionColour);
+                    continue;
+                }
 
                 var diagnostics = result.Diagnostics;
 
@@ -46,22 +64,22 @@ namespace Peach
                 }
                 if (!diagnostics.Any())
                 {
-                    Console.WriteLine(result.Value);
+                    ColourPrintln(result.Value, ResultColour);
                 }
                 else
                 {
                     foreach (var diagnostic in diagnostics)
                     {
                         Console.WriteLine();
-                        ColourPrintln(diagnostic, ConsoleColor.Red);
+                        ColourPrintln(diagnostic, ErrorColour);
 
                         var prefix = line.Substring(0, diagnostic.Span.Start);
                         var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
                         var suffix = line[diagnostic.Span.End..];
 
-                        ColourPrint("    " + prefix, ConsoleColor.DarkYellow);
+                        ColourPrint(prefix, DefaultColor);
                         ColourPrint(error, ConsoleColor.Red);
-                        ColourPrint(suffix + "\n\n", ConsoleColor.DarkYellow);
+                        ColourPrint(suffix, DefaultColor);
                     }
                 }
             }
@@ -71,17 +89,17 @@ namespace Peach
         {
             var marker = isLast ? "└──" : "├──";
 
-            ColourPrint(indent, ConsoleColor.DarkGray);
-            ColourPrint(marker, ConsoleColor.DarkGray);
-            ColourPrint(node.Kind, ConsoleColor.DarkGray);
+            ColourPrint(indent, TreeColour);
+            ColourPrint(marker, TreeColour);
+            ColourPrint(node.Kind, TreeColour);
 
             if (node is SyntaxToken t && t.Value is not null)
             {
-                Console.Write(" ");
-                Console.Write(t.Value);
+                ColourPrint(" ");
+                ColourPrint(t.Value);
             }
 
-            Console.WriteLine();
+            ColourPrintln();
 
             indent += isLast ? "   " : "│  ";
 
@@ -93,17 +111,17 @@ namespace Peach
             }
         }
 
-        private static void ColourPrint(object Str, ConsoleColor Colour)
+        private static void ColourPrint(object Str = null, ConsoleColor? Colour = null)
         {
-            Console.ForegroundColor = Colour;
-            Console.Write(Str);
+            Console.ForegroundColor = Colour ?? DefaultColor;
+            Console.Write(Str ?? "");
             Console.ResetColor();
         }
 
-        private static void ColourPrintln(object Str, ConsoleColor Colour)
+        private static void ColourPrintln(object Str = null, ConsoleColor? Colour = null)
         {
-            Console.ForegroundColor = Colour;
-            Console.WriteLine(Str);
+            Console.ForegroundColor = Colour ?? DefaultColor;
+            Console.WriteLine(Str ?? "");
             Console.ResetColor();
         }
     }

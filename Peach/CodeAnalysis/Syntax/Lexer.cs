@@ -130,9 +130,9 @@ namespace Peach.CodeAnalysis.Syntax
                     if (Lookahead == '|')
                     {
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "&&", null);
+                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
                     }
-                    return new SyntaxToken(SyntaxKind.PipeToken, _position++, "&", null);
+                    return new SyntaxToken(SyntaxKind.PipeToken, _position++, "|", null);
 
                 case '=':
                     if (Lookahead == '=')
