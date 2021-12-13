@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
-
-namespace Peach.CodeAnalysis.Syntax
+﻿namespace Peach.CodeAnalysis.Syntax
 {
     internal sealed class Lexer
     {
         private readonly string _text;
+        private readonly DiagnosticBag _diagnostics = new();
+
         private int _position;
-        private DiagnosticBag _diagnostics = new();
+
+        private int _start;
+        private SyntaxKind _kind;
+        private object _value;
 
         public DiagnosticBag Diagnostics => _diagnostics;
 
@@ -37,114 +40,164 @@ namespace Peach.CodeAnalysis.Syntax
             return _text[index];
         }
 
-        private void Next()
-        {
-            _position++;
-        }
-
         public SyntaxToken Lex()
         {
-            if (_position >= _text.Length)
-                return new SyntaxToken(SyntaxKind.EOFToken, _position, "\0", null);
-
-            var start = _position;
-
-            if (char.IsDigit(Current))
-            {
-                while (char.IsDigit(Current))
-                {
-                    Next();
-                }
-
-                var len = _position - start;
-                var text = _text.Substring(start, len);
-                if (!int.TryParse(text, out var value))
-                {
-                    _diagnostics.ReportInvalidNumber(new TextSpan(start, len), _text, typeof(int));
-                }
-                return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
-            }
-
-            if (char.IsWhiteSpace(Current))
-            {
-                while (char.IsWhiteSpace(Current))
-                {
-                    Next();
-                }
-
-                var len = _position - start;
-                var text = _text.Substring(start, len);
-                return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
-            }
-
-            if (char.IsLetter(Current))
-            {
-                while (char.IsLetter(Current))
-                {
-                    Next();
-                }
-
-                var length = _position - start;
-                var text = _text.Substring(start, length);
-                var kind = SyntaxFacts.GetKeywordKind(text);
-                return new SyntaxToken(kind, start, text, null);
-            }
+            _start = _position;
+            _kind = SyntaxKind.BadToken;
+            _value = null;
 
             switch (Current)
             {
+                case '\0':
+                    _kind = SyntaxKind.EOFToken;
+                    break;
+
                 case '+':
-                    return new SyntaxToken(SyntaxKind.PlusToken, _position++, "+", null);
+                    _kind = SyntaxKind.PlusToken;
+                    _position++;
+                    break;
 
                 case '-':
-                    return new SyntaxToken(SyntaxKind.MinusToken, _position++, "-", null);
+                    _kind = SyntaxKind.MinusToken;
+                    _position++;
+                    break;
 
                 case '*':
-                    return new SyntaxToken(SyntaxKind.AsteriskToken, _position++, "*", null);
+                    _kind = SyntaxKind.AsteriskToken;
+                    _position++;
+                    break;
 
                 case '/':
-                    return new SyntaxToken(SyntaxKind.SlashToken, _position++, "/", null);
+                    _kind = SyntaxKind.SlashToken;
+                    _position++;
+                    break;
 
                 case '(':
-                    return new SyntaxToken(SyntaxKind.OpenParenToken, _position++, "(", null);
+                    _kind = SyntaxKind.OpenParenToken;
+                    _position++;
+                    break;
 
                 case ')':
-                    return new SyntaxToken(SyntaxKind.CloseParenToken, _position++, ")", null);
+                    _kind = SyntaxKind.CloseParenToken;
+                    _position++;
+                    break;
 
                 case '!':
                     if (Lookahead == '=')
                     {
+                        _kind = SyntaxKind.ExclamationEqualsToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.ExclamationEqualsToken, start, "!=", null);
                     }
-                    return new SyntaxToken(SyntaxKind.ExclamationToken, _position++, "!", null);
+                    else
+                    {
+                        _kind = SyntaxKind.ExclamationToken;
+                        _position += 1;
+                    }
+                    break;
 
                 case '&':
                     if (Lookahead == '&')
                     {
+                        _kind = SyntaxKind.AmpersandAmpersandToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, start, "&&", null);
                     }
-                    return new SyntaxToken(SyntaxKind.AmpersandToken, _position++, "&", null);
+                    else
+                    {
+                        _kind = SyntaxKind.AmpersandToken;
+                        _position += 1;
+                    }
+                    break;
 
                 case '|':
                     if (Lookahead == '|')
                     {
+                        _kind = SyntaxKind.PipePipeToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
                     }
-                    return new SyntaxToken(SyntaxKind.PipeToken, _position++, "|", null);
+                    else
+                    {
+                        _kind = SyntaxKind.PipeToken;
+                        _position += 1;
+                    }
+                    break;
 
                 case '=':
                     if (Lookahead == '=')
                     {
+                        _kind = SyntaxKind.EqualsEqualsToken;
                         _position += 2;
-                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
                     }
-                    return new SyntaxToken(SyntaxKind.EqualsToken, _position++, "=", null);
+                    else
+                    {
+                        _kind = SyntaxKind.EqualsToken;
+                        _position += 1;
+                    }
+                    break;
+
+                default:
+
+                    if (char.IsDigit(Current))
+                    {
+                        ReadNumberToken();
+                    }
+                    else if (char.IsWhiteSpace(Current))
+                    {
+                        ReadWhitespaceToken();
+                    }
+                    else if (char.IsLetter(Current))
+                    {
+                        ReadIdentifierOrKeyword();
+                    }
+                    else
+                    {
+                        _diagnostics.ReportBadCharacter(_position, Current);
+                        _position++;
+                    }
+                    break;
             }
 
-            _diagnostics.ReportBadCharacter(_position, Current);
-            return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
+            var length = _position - _start;
+            var text = SyntaxFacts.GetText(_kind);
+            if (text is null)
+                text = _text.Substring(_start, length);
+
+            return new SyntaxToken(_kind, _start, text, _value);
+        }
+
+        private void ReadNumberToken()
+        {
+            while (char.IsDigit(Current))
+                _position++;
+
+            var len = _position - _start;
+            var text = _text.Substring(_start, len);
+            if (!int.TryParse(text, out var value))
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, len), _text, typeof(int));
+
+            _value = value;
+            _kind = SyntaxKind.NumberToken;
+        }
+
+        private void ReadWhitespaceToken()
+        {
+            while (char.IsWhiteSpace(Current))
+                _position++;
+
+            _kind = SyntaxKind.WhitespaceToken;
+        }
+
+        private void ReadIdentifierOrKeyword()
+        {
+            while (char.IsLetter(Current))
+                _position++;
+
+            var length = _position - _start;
+            var text = _text.Substring(_start, length);
+            _kind = SyntaxFacts.GetKeywordKind(text);
+        }
+
+        private void ReadToken()
+        {
         }
     }
 }
