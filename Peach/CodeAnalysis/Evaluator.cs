@@ -24,29 +24,16 @@ namespace Peach.CodeAnalysis
 
         private object EvaluateExpression(BoundExpression node)
         {
-            switch (node.Kind)
+            return node.Kind switch
             {
-                case BoundNodeKind.ParenthesisedExpression:
-                    return EvaluateParenthesisedExpression(node as BoundParenthesisedExpression);
-
-                case BoundNodeKind.LiteralExpression:
-                    return EvaluateLiteralExpression(node as BoundLiteralExpresion);
-
-                case BoundNodeKind.VariableExpression:
-                    return EvaluateVariableExpression(node as BoundVariableExpression);
-
-                case BoundNodeKind.AssignmentExpression:
-                    return EvaluateAssignmentExpression(node as BoundAssignmentExpression);
-
-                case BoundNodeKind.UnaryExpression:
-                    return EvaluateUnaryExpression(node as BoundUnaryExpression);
-
-                case BoundNodeKind.BinaryExpression:
-                    return EvaluateBinaryExpression(node as BoundBinaryExpression);
-
-                default:
-                    throw new Exception($"Unexpected node '{node.Kind}'");
-            }
+                BoundNodeKind.ParenthesisedExpression => EvaluateParenthesisedExpression(node as BoundParenthesisedExpression),
+                BoundNodeKind.LiteralExpression => EvaluateLiteralExpression(node as BoundLiteralExpresion),
+                BoundNodeKind.VariableExpression => EvaluateVariableExpression(node as BoundVariableExpression),
+                BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression(node as BoundAssignmentExpression),
+                BoundNodeKind.UnaryExpression => EvaluateUnaryExpression(node as BoundUnaryExpression),
+                BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
+                _ => throw new Exception($"Unexpected node '{node.Kind}'"),
+            };
         }
 
         private object EvaluateParenthesisedExpression(BoundParenthesisedExpression node)
