@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Peach.CodeAnalysis.Syntax
 {
     internal sealed class Parser
     {
-        private readonly SyntaxToken[] _tokens;
+        private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
         private DiagnosticBag _diagnostics = new();
         public DiagnosticBag Diagnostics => _diagnostics;
@@ -25,7 +26,7 @@ namespace Peach.CodeAnalysis.Syntax
                 }
             } while (token.Kind != SyntaxKind.EOFToken);
 
-            _tokens = tokens.ToArray();
+            _tokens = tokens.ToImmutableArray();
             _diagnostics.AddRange(lexer.Diagnostics);
         }
 
@@ -61,7 +62,7 @@ namespace Peach.CodeAnalysis.Syntax
             var expression = ParseAssignmentExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
-            return new SyntaxTree(_diagnostics, expression, endOfFileToken);
+            return new SyntaxTree(_diagnostics.ToImmutableArray(), expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseAssignmentExpression()
