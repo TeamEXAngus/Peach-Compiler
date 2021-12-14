@@ -11,7 +11,7 @@ namespace Peach_Tests.CodeAnalysis
 {
     public class EvaluatorTests
     {
-        private static Dictionary<VariableSymbol, object> _variables = new();
+        private static readonly Dictionary<VariableSymbol, object> _variables = new();
 
         [Theory]
         [MemberData(nameof(GetExpressionData))]

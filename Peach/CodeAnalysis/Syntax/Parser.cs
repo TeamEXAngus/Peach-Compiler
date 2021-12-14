@@ -7,7 +7,7 @@ namespace Peach.CodeAnalysis.Syntax
     {
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
-        private DiagnosticBag _diagnostics = new();
+        private readonly DiagnosticBag _diagnostics = new();
         public DiagnosticBag Diagnostics => _diagnostics;
 
         public Parser(string text)
@@ -34,7 +34,7 @@ namespace Peach.CodeAnalysis.Syntax
         {
             var index = _position + offset;
             if (index > _tokens.Length)
-                return _tokens[_tokens.Length - 1];
+                return _tokens[^1];
 
             return _tokens[index];
         }

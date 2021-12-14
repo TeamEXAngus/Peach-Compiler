@@ -28,7 +28,7 @@ namespace Peach.CodeAnalysis.Binding
         public Type RightType { get; }
         public Type ResultType { get; }
 
-        private static BoundBinaryOperator[] _operators =
+        private static readonly BoundBinaryOperator[] _operators =
         {
             new BoundBinaryOperator(SyntaxKind.PlusToken, BoundBinaryOperatorKind.Addition, typeof(int)),
             new BoundBinaryOperator(SyntaxKind.MinusToken, BoundBinaryOperatorKind.Subtraction, typeof(int)),

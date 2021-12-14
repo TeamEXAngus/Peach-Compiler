@@ -19,28 +19,16 @@ namespace Peach.CodeAnalysis.Binding
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
-            switch (syntax.Kind)
+            return syntax.Kind switch
             {
-                case SyntaxKind.LiteralExpression:
-                    return BindLiteralExpression(syntax as LiteralExpressionSyntax);
-
-                case SyntaxKind.UnaryExpression:
-                    return BindUnaryExpression(syntax as UnaryExpressionSyntax);
-
-                case SyntaxKind.BinaryExpression:
-                    return BindBinaryExpression(syntax as BinaryExpressionSyntax);
-
-                case SyntaxKind.ParenthesisedExpression:
-                    return BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax);
-
-                case SyntaxKind.NameExpression:
-                    return BindNameExpression(syntax as NameExpressionSyntax);
-
-                case SyntaxKind.AssignmentExpression:
-                    return BindAssignmentExpression(syntax as AssignmentExpressionSyntax);
-            }
-
-            throw new Exception($"Unexpected syntax {syntax.Kind}");
+                SyntaxKind.LiteralExpression => BindLiteralExpression(syntax as LiteralExpressionSyntax),
+                SyntaxKind.UnaryExpression => BindUnaryExpression(syntax as UnaryExpressionSyntax),
+                SyntaxKind.BinaryExpression => BindBinaryExpression(syntax as BinaryExpressionSyntax),
+                SyntaxKind.ParenthesisedExpression => BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax),
+                SyntaxKind.NameExpression => BindNameExpression(syntax as NameExpressionSyntax),
+                SyntaxKind.AssignmentExpression => BindAssignmentExpression(syntax as AssignmentExpressionSyntax),
+                _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
+            };
         }
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
