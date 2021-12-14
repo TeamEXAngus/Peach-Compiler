@@ -31,7 +31,8 @@ namespace Peach.CodeAnalysis.Binding
             };
         }
 
-        private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
+        // does not access instance data
+        private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
             var value = syntax.Value ?? 0;
             return new BoundLiteralExpresion(value);

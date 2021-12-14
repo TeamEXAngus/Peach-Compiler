@@ -1,6 +1,5 @@
 ﻿using Peach.CodeAnalysis.Binding;
 using Peach.CodeAnalysis.Syntax;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;

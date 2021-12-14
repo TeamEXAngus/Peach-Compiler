@@ -1,4 +1,6 @@
-﻿namespace Peach.CodeAnalysis.Syntax
+﻿using Peach.CodeAnalysis.Text;
+
+namespace Peach.CodeAnalysis.Syntax
 {
     internal sealed class Lexer
     {
