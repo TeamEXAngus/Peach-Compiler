@@ -112,33 +112,40 @@ namespace Peach.CodeAnalysis.Syntax
 
         public ExpressionSyntax ParsePrimaryExpression()
         {
-            switch (Current.Kind)
+            return Current.Kind switch
             {
-                case SyntaxKind.OpenParenToken:
-                    {
-                        var left = NextToken();
-                        var expression = ParseExpression();
-                        var right = MatchToken(SyntaxKind.CloseParenToken);
-                        return new ParenthesisedExpressionSyntax(left, expression, right);
-                    }
-                case SyntaxKind.FalseKeyword:
-                case SyntaxKind.TrueKeyword:
-                    {
-                        var KeywordToken = NextToken();
-                        var Value = KeywordToken.Kind == SyntaxKind.TrueKeyword;
-                        return new LiteralExpressionSyntax(KeywordToken, Value);
-                    }
-                case SyntaxKind.IdentifierToken:
-                    {
-                        var identifierToken = NextToken();
-                        return new NameExpressionSyntax(identifierToken);
-                    }
-                default:
-                    {
-                        var numberToken = MatchToken(SyntaxKind.NumberToken);
-                        return new LiteralExpressionSyntax(numberToken);
-                    }
-            }
+                SyntaxKind.OpenParenToken => ParseParenthesisedExpression(),
+                SyntaxKind.FalseKeyword or SyntaxKind.TrueKeyword => ParseBooleanLiteral(),
+                SyntaxKind.NumberToken => ParseNumberLiteral(),
+                SyntaxKind.IdentifierToken or _ => ParseNameExpression(),
+            };
+        }
+
+        private ExpressionSyntax ParseParenthesisedExpression()
+        {
+            var left = MatchToken(SyntaxKind.OpenParenToken);
+            var expression = ParseExpression();
+            var right = MatchToken(SyntaxKind.CloseParenToken);
+            return new ParenthesisedExpressionSyntax(left, expression, right);
+        }
+
+        private ExpressionSyntax ParseBooleanLiteral()
+        {
+            var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
+            var KeywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
+            return new LiteralExpressionSyntax(KeywordToken, isTrue);
+        }
+
+        private ExpressionSyntax ParseNumberLiteral()
+        {
+            var numberToken = MatchToken(SyntaxKind.NumberToken);
+            return new LiteralExpressionSyntax(numberToken);
+        }
+
+        private ExpressionSyntax ParseNameExpression()
+        {
+            var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
+            return new NameExpressionSyntax(identifierToken);
         }
     }
 }
