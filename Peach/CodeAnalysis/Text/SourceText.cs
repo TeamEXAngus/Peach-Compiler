@@ -70,7 +70,7 @@ namespace Peach.CodeAnalysis.Text
                 }
             }
 
-            if (pos > lineStart)
+            if (pos >= lineStart)
                 result.AddLine(sourceText, pos, lineStart, 0);
 
             return result.ToImmutable();
