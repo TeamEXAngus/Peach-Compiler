@@ -40,6 +40,7 @@
         ElseKeyword,
         WhileKeyword,
         NotKeyword,
+        LoopKeyword,
         ForKeyword,
         FromKeyword,
         ToKeyword,
@@ -67,5 +68,6 @@
         IfStatement,
         WhileStatement,
         ForStatement,
+        LoopStatement,
     }
 }

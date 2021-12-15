@@ -43,6 +43,10 @@ namespace Peach.CodeAnalysis
                     EvaluateWhileStatement(node as BoundWhileStatement);
                     break;
 
+                case BoundNodeKind.LoopStatement:
+                    EvaluateLoopStatement(node as BoundLoopStatement);
+                    break;
+
                 case BoundNodeKind.ForStatement:
                     EvaluateForStatement(node as BoundForStatement);
                     break;
@@ -94,6 +98,14 @@ namespace Peach.CodeAnalysis
             }
 
             while (GetCondition())
+            {
+                EvaluateStatement(node.Body);
+            }
+        }
+
+        private void EvaluateLoopStatement(BoundLoopStatement node)
+        {
+            while (true)
             {
                 EvaluateStatement(node.Body);
             }

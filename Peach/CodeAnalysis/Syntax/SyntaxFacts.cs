@@ -58,6 +58,7 @@ namespace Peach.CodeAnalysis.Syntax
                 "from" => SyntaxKind.FromKeyword,
                 "to" => SyntaxKind.ToKeyword,
                 "step" => SyntaxKind.StepKeyword,
+                "loop" => SyntaxKind.LoopKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
         }
@@ -118,6 +119,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.FromKeyword => "from",
                 SyntaxKind.ToKeyword => "to",
                 SyntaxKind.StepKeyword => "step",
+                SyntaxKind.LoopKeyword => "loop",
                 _ => null,
             };
         }
@@ -139,6 +141,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.FromKeyword => true,
                 SyntaxKind.ToKeyword => true,
                 SyntaxKind.StepKeyword => true,
+                SyntaxKind.LoopKeyword => true,
                 _ => false,
             };
         }

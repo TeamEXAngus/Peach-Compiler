@@ -50,8 +50,8 @@ namespace Peach
                 }
                 else
                 {
-                    input = inputLines[0];
-                    inputLines = inputLines.Length > 1 ? inputLines[1..] : null;
+                    input = string.Join('\n', inputLines);
+                    inputLines = null;
                     isBlank = false;
                 }
 

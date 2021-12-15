@@ -64,6 +64,7 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.VariableDeclaration => BindVariableDeclaration(syntax as VariableDeclarationSyntax),
                 SyntaxKind.IfStatement => BindIfStatement(syntax as IfStatementSyntax),
                 SyntaxKind.WhileStatement => BindWhileStatement(syntax as WhileStatementSyntax),
+                SyntaxKind.LoopStatement => BindLoopStatement(syntax as LoopStatementSyntax),
                 SyntaxKind.ForStatement => BindForStatement(syntax as ForStatementSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
@@ -112,8 +113,14 @@ namespace Peach.CodeAnalysis.Binding
         private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
         {
             var condition = BindExpression(syntax.Condition, typeof(bool));
-            var statement = BindStatement(syntax.Body);
-            return new BoundWhileStatement(condition, syntax.IsNegated, statement);
+            var body = BindStatement(syntax.Body);
+            return new BoundWhileStatement(condition, syntax.IsNegated, body);
+        }
+
+        private BoundStatement BindLoopStatement(LoopStatementSyntax syntax)
+        {
+            var body = BindStatement(syntax.Body);
+            return new BoundLoopStatement(body);
         }
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)

@@ -9,6 +9,7 @@
         VariableDeclaration,
         IfStatement,
         WhileStatement,
+        LoopStatement,
         ForStatement,
 
         // Expressions
