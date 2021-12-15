@@ -66,7 +66,7 @@ namespace Peach.CodeAnalysis
             GetStatement().WriteTo(writer);
         }
 
-        private BoundStatement GetStatement()
+        private BoundBlockStatement GetStatement()
         {
             var result = GlobalScope.Statement;
             return Lowerer.Lower(result);

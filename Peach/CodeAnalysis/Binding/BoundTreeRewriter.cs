@@ -16,7 +16,10 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.WhileStatement => RewriteWhileStatement(node as BoundWhileStatement),
                 BoundNodeKind.LoopStatement => RewriteLoopStatement(node as BoundLoopStatement),
                 BoundNodeKind.ForStatement => RewriteForStatement(node as BoundForStatement),
-                _ => throw new Exception($"Unexpected node kind: {node.Kind}"),
+                BoundNodeKind.GotoStatement => RewriteGotoStatement(node as BoundGotoStatement),
+                BoundNodeKind.ConditionalGotoStatement => RewriteConditionalGotoStatement(node as BoundConditionalGotoStatement),
+                BoundNodeKind.LabelStatement => RewriteLabelStatement(node as BoundLabelStatement),
+                _ => throw new Exception($"Unexpected node kind in {nameof(RewriteStatement)}: {node.Kind}"),
             };
         }
 
@@ -113,6 +116,25 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundForStatement(node.Variable, start, stop, node.StopVar, step, body);
         }
 
+        protected virtual BoundStatement RewriteGotoStatement(BoundGotoStatement node)
+        {
+            return node;
+        }
+
+        protected virtual BoundStatement RewriteConditionalGotoStatement(BoundConditionalGotoStatement node)
+        {
+            var condition = RewriteExpression(node.Condition);
+            if (condition == node.Condition)
+                return node;
+
+            return new BoundConditionalGotoStatement(node.Label, condition, node.JumpIfFalse);
+        }
+
+        protected virtual BoundStatement RewriteLabelStatement(BoundLabelStatement node)
+        {
+            return node;
+        }
+
         public virtual BoundExpression RewriteExpression(BoundExpression node)
         {
             return node.Kind switch
@@ -122,7 +144,8 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.AssignmentExpression => RewriteAssignmentExpression(node as BoundAssignmentExpression),
                 BoundNodeKind.UnaryExpression => RewriteUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => RewriteBinaryExpresion(node as BoundBinaryExpression),
-                _ => throw new Exception($"Unexpected node kind: {node.Kind}"),
+                BoundNodeKind.ParenthesisedExpression => RewriteParenthesisedExpresion(node as BoundParenthesisedExpression),
+                _ => throw new Exception($"Unexpected node kind in {nameof(RewriteExpression)}: {node.Kind}"),
             };
         }
 
@@ -165,6 +188,16 @@ namespace Peach.CodeAnalysis.Binding
                 return node;
 
             return new BoundBinaryExpression(left, node.Op, right);
+        }
+
+        protected virtual BoundExpression RewriteParenthesisedExpresion(BoundParenthesisedExpression node)
+        {
+            var expression = RewriteExpression(node.Expression);
+
+            if (expression == node.Expression)
+                return node;
+
+            return new BoundParenthesisedExpression(expression);
         }
     }
 }

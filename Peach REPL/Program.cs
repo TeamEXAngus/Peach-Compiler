@@ -28,7 +28,7 @@ namespace Peach
         private static string[] inputLines = null;
         private static Compilation previous = null;
 
-        private static string DefaultFilePath = @"C:\Users\angus\code.pch";
+        private static readonly string DefaultFilePath = @"C:\Users\angus\code.pch";
 
         private static void Main()
         {
@@ -50,7 +50,7 @@ namespace Peach
                 }
                 else
                 {
-                    input = string.Join('\n', inputLines);
+                    input = "{" + string.Join('\n', inputLines) + "}";
                     inputLines = null;
                     isBlank = false;
                 }

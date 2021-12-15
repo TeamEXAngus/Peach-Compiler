@@ -71,30 +71,16 @@ namespace Peach.CodeAnalysis.Syntax
 
         private StatementSyntax ParseStatement()
         {
-            switch (Current.Kind)
+            return Current.Kind switch
             {
-                case SyntaxKind.OpenBraceToken:
-                    return ParseBlockStatement();
-
-                case SyntaxKind.LetKeyword:
-                case SyntaxKind.ConstKeyword:
-                    return ParseVariableDeclaration();
-
-                case SyntaxKind.IfKeyword:
-                    return ParseIfStatement();
-
-                case SyntaxKind.WhileKeyword:
-                    return ParseWhileStatement();
-
-                case SyntaxKind.LoopKeyword:
-                    return ParseLoopStatement();
-
-                case SyntaxKind.ForKeyword:
-                    return ParseForStatement();
-
-                default:
-                    return ParseExpressionStatement();
-            }
+                SyntaxKind.OpenBraceToken => ParseBlockStatement(),
+                SyntaxKind.LetKeyword or SyntaxKind.ConstKeyword => ParseVariableDeclaration(),
+                SyntaxKind.IfKeyword => ParseIfStatement(),
+                SyntaxKind.WhileKeyword => ParseWhileStatement(),
+                SyntaxKind.LoopKeyword => ParseLoopStatement(),
+                SyntaxKind.ForKeyword => ParseForStatement(),
+                _ => ParseExpressionStatement(),
+            };
         }
 
         private BlockStatementSyntax ParseBlockStatement()

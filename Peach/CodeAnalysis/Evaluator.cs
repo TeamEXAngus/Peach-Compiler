@@ -6,12 +6,12 @@ namespace Peach.CodeAnalysis
 {
     internal sealed class Evaluator
     {
-        private readonly BoundStatement _root;
+        private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _variables;
 
         private object _lastValue;
 
-        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _root = root;
             _variables = variables;
@@ -19,45 +19,56 @@ namespace Peach.CodeAnalysis
 
         public object Evaluate()
         {
-            EvaluateStatement(_root);
+            var labelToIndex = new Dictionary<LabelSymbol, int>();
+
+            for (int i = 0; i < _root.Statements.Length; i++)
+            {
+                var statement = _root.Statements[i];
+
+                if (statement is BoundLabelStatement l)
+                    labelToIndex.Add(l.Label, i + 1);
+            }
+
+            var index = 0;
+            while (index < _root.Statements.Length)
+            {
+                var s = _root.Statements[index];
+                switch (s.Kind)
+                {
+                    case BoundNodeKind.VariableDeclaration:
+                        EvaluateVariableDeclaration(s as BoundVariableDeclaration);
+                        index++;
+                        break;
+
+                    case BoundNodeKind.ExpressionStatement:
+                        EvaluateExpressionStatement(s as BoundExpressionStatement);
+                        index++;
+                        break;
+
+                    case BoundNodeKind.GotoStatement:
+                        index = labelToIndex[(s as BoundGotoStatement).Label];
+                        break;
+
+                    case BoundNodeKind.ConditionalGotoStatement:
+                        var _this = s as BoundConditionalGotoStatement;
+                        var condition = (bool)EvaluateExpression(_this.Condition);
+                        if ((condition && !_this.JumpIfFalse) ||
+                            (!condition && _this.JumpIfFalse))
+                            index = labelToIndex[_this.Label];
+                        else
+                            index++;
+                        break;
+
+                    case BoundNodeKind.LabelStatement:
+                        index++;
+                        break;
+
+                    default:
+                        throw new Exception($"Unexpected statement {s.Kind}");
+                }
+            }
+
             return _lastValue;
-        }
-
-        private void EvaluateStatement(BoundStatement node)
-        {
-            switch (node.Kind)
-            {
-                case BoundNodeKind.BlockStatement:
-                    EvaluateBlockStatement(node as BoundBlockStatement);
-                    break;
-
-                case BoundNodeKind.VariableDeclaration:
-                    EvaluateVariableDeclaration(node as BoundVariableDeclaration);
-                    break;
-
-                case BoundNodeKind.IfStatement:
-                    EvaluateIfStatement(node as BoundIfStatement);
-                    break;
-
-                case BoundNodeKind.WhileStatement:
-                    EvaluateWhileStatement(node as BoundWhileStatement);
-                    break;
-
-                case BoundNodeKind.ExpressionStatement:
-                    EvaluateExpressionStatement(node as BoundExpressionStatement);
-                    break;
-
-                default:
-                    throw new Exception($"Unexpected statement {node.Kind}");
-            }
-        }
-
-        private void EvaluateBlockStatement(BoundBlockStatement node)
-        {
-            foreach (var statement in node.Statements)
-            {
-                EvaluateStatement(statement);
-            }
         }
 
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
@@ -65,42 +76,6 @@ namespace Peach.CodeAnalysis
             var value = EvaluateExpression(node.Initializer);
             _variables[node.Variable] = value;
             _lastValue = value;
-        }
-
-        private void EvaluateIfStatement(BoundIfStatement node)
-        {
-            var condition = (bool)EvaluateExpression(node.Condition);
-            if (node.Negated)
-                condition = !condition;
-
-            if (condition)
-                EvaluateStatement(node.ThenStatment);
-            else if (node.ElseStatement is not null)
-                EvaluateStatement(node.ElseStatement);
-        }
-
-        private void EvaluateWhileStatement(BoundWhileStatement node)
-        {
-            int loops = 0;
-
-            bool GetCondition()
-            {
-                var Condition = (bool)EvaluateExpression(node.Condition);
-                if (node.Negated)
-                    Condition = !Condition;
-                return Condition;
-            }
-
-            while (GetCondition())
-            {
-                EvaluateStatement(node.Body);
-
-                if (loops++ > 1000)
-                {
-                    Console.WriteLine("Aborted possibly-infinite loop");
-                    break;
-                }
-            }
         }
 
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
@@ -116,9 +91,9 @@ namespace Peach.CodeAnalysis
                 BoundNodeKind.LiteralExpression => EvaluateLiteralExpression(node as BoundLiteralExpresion),
                 BoundNodeKind.VariableExpression => EvaluateVariableExpression(node as BoundVariableExpression),
                 BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression(node as BoundAssignmentExpression),
-                BoundNodeKind.BlockStatement => EvaluateUnaryExpression(node as BoundUnaryExpression),
+                BoundNodeKind.UnaryExpression => EvaluateUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
-                _ => throw new Exception($"Unexpected node '{node.Kind}'"),
+                _ => throw new Exception($"Unexpected node in {nameof(EvaluateExpression)} '{node.Kind}'"),
             };
         }
 
@@ -127,7 +102,7 @@ namespace Peach.CodeAnalysis
             return EvaluateExpression(node.Expression);
         }
 
-        private object EvaluateLiteralExpression(BoundLiteralExpresion node)
+        private static object EvaluateLiteralExpression(BoundLiteralExpresion node)
         {
             return node.Value;
         }
@@ -185,7 +160,7 @@ namespace Peach.CodeAnalysis
             };
         }
 
-        private object EvaluateBitwiseAnd(object left, object right)
+        private static object EvaluateBitwiseAnd(object left, object right)
         {
             if (left is int L && right is int R)
                 return L & R;
@@ -194,7 +169,7 @@ namespace Peach.CodeAnalysis
             throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
         }
 
-        private object EvaluateBitwiseOr(object left, object right)
+        private static object EvaluateBitwiseOr(object left, object right)
         {
             if (left is int L && right is int R)
                 return L | R;
@@ -203,7 +178,7 @@ namespace Peach.CodeAnalysis
             throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
         }
 
-        private object EvaluateBitwiseXor(object left, object right)
+        private static object EvaluateBitwiseXor(object left, object right)
         {
             if (left is int L && right is int R)
                 return L ^ R;

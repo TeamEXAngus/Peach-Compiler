@@ -11,6 +11,9 @@
         WhileStatement,
         LoopStatement,
         ForStatement,
+        GotoStatement,
+        ConditionalGotoStatement,
+        LabelStatement,
 
         // Expressions
 
