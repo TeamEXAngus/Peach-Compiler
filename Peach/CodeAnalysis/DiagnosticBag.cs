@@ -40,8 +40,13 @@ namespace Peach.CodeAnalysis
 
         internal void ReportUnexpectedToken(TextSpan span, SyntaxKind kind, SyntaxKind expected)
         {
-            var message = $"Unexpected token <{kind}>, expected <{expected}>";
+            string message = ReportUnexpectedTokenMessage(kind, expected);
             Report(span, message);
+        }
+
+        internal static string ReportUnexpectedTokenMessage(SyntaxKind kind, SyntaxKind expected)
+        {
+            return $"Unexpected token <{kind}>, expected <{expected}>";
         }
 
         internal void ReportUndefinedUnaryOperator(TextSpan span, string text, Type type)

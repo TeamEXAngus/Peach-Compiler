@@ -106,8 +106,13 @@ namespace Peach.CodeAnalysis.Syntax
             while (Current.Kind != SyntaxKind.EOFToken &&
                    Current.Kind != SyntaxKind.CloseBraceToken)
             {
+                var startToken = Current;
+
                 var statement = ParseStatement();
                 statements.Add(statement);
+
+                if (Current == startToken) // If no token consumed
+                    NextToken();           // skip so no infinite loop
             }
 
             var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);

@@ -55,6 +55,22 @@ namespace Peach_Tests.CodeAnalysis
         }
 
         [Fact]
+        public void Evaluator_BlockStatement_NoInfiniteLoop()
+        {
+            var text = @"
+                {
+                    [)][]
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.CloseParenToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.CloseParenToken, SyntaxKind.EOFToken)}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
         public void Evaluator_ReportUndefinedUnaryOperator()
         {
             var text = @"
@@ -103,6 +119,18 @@ namespace Peach_Tests.CodeAnalysis
 
             var diagnostics = @$"
                 {DiagnosticBag.ReportUndefinedNameMessage("peach")}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_NoCrashWhenInsertedToken()
+        {
+            var text = @"[]";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.IdentifierToken, SyntaxKind.EOFToken)}
             ";
 
             AssertHasDiagnostics(text, diagnostics);

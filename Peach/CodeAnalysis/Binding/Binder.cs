@@ -220,6 +220,9 @@ namespace Peach.CodeAnalysis.Binding
         {
             var name = syntax.IdentifierToken.Text;
 
+            if (string.IsNullOrEmpty(name))          // Token inserted by parser
+                return new BoundLiteralExpresion(0);
+
             if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
