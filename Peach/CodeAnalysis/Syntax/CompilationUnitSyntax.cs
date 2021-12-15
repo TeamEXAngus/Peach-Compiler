@@ -4,19 +4,19 @@ namespace Peach.CodeAnalysis.Syntax
 {
     public sealed class CompilationUnitSyntax : SyntaxNode
     {
-        public CompilationUnitSyntax(ExpressionSyntax expression, SyntaxToken eofToken)
+        public CompilationUnitSyntax(StatementSyntax statement, SyntaxToken eofToken)
         {
-            Expression = expression;
+            Statement = statement;
             EOFToken = eofToken;
         }
 
         public override SyntaxKind Kind => SyntaxKind.CompilationUnit;
-        public ExpressionSyntax Expression { get; }
+        public StatementSyntax Statement { get; }
         public SyntaxToken EOFToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Expression;
+            yield return Statement;
             yield return EOFToken;
         }
     }

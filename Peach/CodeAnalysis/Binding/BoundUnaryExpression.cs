@@ -10,7 +10,7 @@ namespace Peach.CodeAnalysis.Binding
             Operand = operand;
         }
 
-        public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
+        public override BoundNodeKind Kind => BoundNodeKind.BlockStatement;
         public BoundUnaryOperator Op { get; }
         public BoundExpression Operand { get; }
         public override Type Type => Op.ResultType;

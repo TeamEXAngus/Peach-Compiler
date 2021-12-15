@@ -86,6 +86,8 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ExclamationEqualsToken => "!=",
                 SyntaxKind.OpenParenToken => "(",
                 SyntaxKind.CloseParenToken => ")",
+                SyntaxKind.OpenBraceToken => "{",
+                SyntaxKind.CloseBraceToken => "}",
                 SyntaxKind.TrueKeyword => "true",
                 SyntaxKind.FalseKeyword => "false",
                 _ => null,

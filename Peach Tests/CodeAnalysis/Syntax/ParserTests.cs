@@ -14,8 +14,7 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             var op2Precedence = SyntaxFacts.GetBinaryOperatorPrecedence(op2);
             var op1Text = SyntaxFacts.GetText(op1);
             var op2Text = SyntaxFacts.GetText(op2);
-            var text = $"a {op1Text} b {op2Text} c";
-            var expression = SyntaxTree.Parse(text).Root;
+            var expression = ParseExpression($"a {op1Text} b {op2Text} c");
 
             if (op1Precedence >= op2Precedence)
             {
@@ -26,18 +25,16 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a     b
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
                 e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  ├──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │   │   └──IdentifierToken a
-                e.AssertToken(op1, op1Text);                        //  │  │   ├──<op1>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │  │       └──IdentifierToken b
-                e.AssertToken(op2, op2Text);                        //  │  ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //  │      └──IdentifierToken c
-                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
+                e.AssertNode(SyntaxKind.NameExpression);            //  │   ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │   │   └──IdentifierToken a
+                e.AssertToken(op1, op1Text);                        //  │   ├──<op1>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │   └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │       └──IdentifierToken b
+                e.AssertToken(op2, op2Text);                        //  ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //      └──IdentifierToken c
             }
             else
             {
@@ -48,18 +45,16 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //     b     c
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │   └──IdentifierToken a
-                e.AssertToken(op1, op1Text);                        //  │  ├──<op1>
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  └──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  │      ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │      │   └──IdentifierToken b
-                e.AssertToken(op2, op2Text);                        //  │      ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │      └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //  │          └──IdentifierToken c
-                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //  ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │   └──IdentifierToken a
+                e.AssertToken(op1, op1Text);                        //  ├──<op1>
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  └──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //      ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //      │   └──IdentifierToken b
+                e.AssertToken(op2, op2Text);                        //      ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //      └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //          └──IdentifierToken c
             }
         }
 
@@ -71,8 +66,7 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             var binaryPrecedence = SyntaxFacts.GetBinaryOperatorPrecedence(binaryKind);
             var unaryText = SyntaxFacts.GetText(unaryKind);
             var binaryText = SyntaxFacts.GetText(binaryKind);
-            var text = $"{unaryText} a {binaryText} b";
-            var expression = SyntaxTree.Parse(text).Root;
+            var expression = ParseExpression($"{unaryText} a {binaryText} b");
 
             if (unaryPrecedence >= binaryPrecedence)
             {
@@ -83,16 +77,14 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
-                e.AssertNode(SyntaxKind.UnaryExpression);           //  │  ├──UnaryExpression
-                e.AssertToken(unaryKind, unaryText);                //  │  │   ├──<op1>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │       └──IdentifierToken a
-                e.AssertToken(binaryKind, binaryText);              //  │  ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │  └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │      └──IdentifierToken b
-                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
+                e.AssertNode(SyntaxKind.UnaryExpression);           //  ├──UnaryExpression
+                e.AssertToken(unaryKind, unaryText);                //  │   ├──<op1>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │   └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │       └──IdentifierToken a
+                e.AssertToken(binaryKind, binaryText);              //  ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //      └──IdentifierToken b
             }
             else
             {
@@ -103,17 +95,23 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a     b
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
-                e.AssertNode(SyntaxKind.UnaryExpression);           //  ├──UnaryExpression
-                e.AssertToken(unaryKind, unaryText);                //  │  ├──<op1>
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  └──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  │      ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │      │   └──IdentifierToken a
-                e.AssertToken(binaryKind, binaryText);              //  │      ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │      └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │          └──IdentifierToken b
-                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
+                e.AssertNode(SyntaxKind.UnaryExpression);           //  UnaryExpression
+                e.AssertToken(unaryKind, unaryText);                //  ├──<op1>
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  └──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //      ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //      │   └──IdentifierToken a
+                e.AssertToken(binaryKind, binaryText);              //      ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //      └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //          └──IdentifierToken b
             }
+        }
+
+        private static ExpressionSyntax ParseExpression(string text)
+        {
+            var syntaxTree = SyntaxTree.Parse(text);
+            var root = syntaxTree.Root;
+            var statement = root.Statement;
+            return Assert.IsType<ExpressionStatementSyntax>(statement).Expression;
         }
 
         public static IEnumerable<object[]> GetBinaryOperatorPairsData()

@@ -22,6 +22,8 @@
         EqualsToken,
         OpenParenToken,
         CloseParenToken,
+        OpenBraceToken,
+        CloseBraceToken,
         IdentifierToken,
 
         // Keywords
@@ -41,5 +43,10 @@
         // Nodes
 
         CompilationUnit,
+
+        // Statements
+
+        BlockStatement,
+        ExpressionStatement,
     }
 }
