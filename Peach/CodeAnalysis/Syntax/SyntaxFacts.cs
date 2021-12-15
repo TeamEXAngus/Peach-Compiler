@@ -54,6 +54,10 @@ namespace Peach.CodeAnalysis.Syntax
                 "else" => SyntaxKind.ElseKeyword,
                 "while" => SyntaxKind.WhileKeyword,
                 "not" => SyntaxKind.NotKeyword,
+                "for" => SyntaxKind.ForKeyword,
+                "from" => SyntaxKind.FromKeyword,
+                "to" => SyntaxKind.ToKeyword,
+                "step" => SyntaxKind.StepKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
         }
@@ -110,6 +114,10 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ElseKeyword => "else",
                 SyntaxKind.WhileKeyword => "while",
                 SyntaxKind.NotKeyword => "not",
+                SyntaxKind.ForKeyword => "for",
+                SyntaxKind.FromKeyword => "from",
+                SyntaxKind.ToKeyword => "to",
+                SyntaxKind.StepKeyword => "step",
                 _ => null,
             };
         }
@@ -127,6 +135,10 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.WhileKeyword => true,
                 SyntaxKind.NotKeyword => true,
                 SyntaxKind.IdentifierToken => true,
+                SyntaxKind.ForKeyword => true,
+                SyntaxKind.FromKeyword => true,
+                SyntaxKind.ToKeyword => true,
+                SyntaxKind.StepKeyword => true,
                 _ => false,
             };
         }

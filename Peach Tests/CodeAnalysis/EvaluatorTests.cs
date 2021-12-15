@@ -150,6 +150,65 @@ namespace Peach_Tests.CodeAnalysis
         }
 
         [Fact]
+        public void Evaluator_IfStatement_ReportCannotConvertTypes()
+        {
+            var text = @"
+                {
+                    let x = 0
+                    if [69]
+                    {
+                        x = 10
+                    }
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_WhileStatement_ReportCannotConvertTypes()
+        {
+            var text = @"
+                {
+                    let x = 0
+                    while [69]
+                    {
+                        x = 10
+                    }
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ForStatement_ReportCannotConvertTypes()
+        {
+            var text = @"
+                {
+                    for i from [true] to [false] step [true]
+                    { }
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
         public void Evaluator_ReportCannotAssignToConst()
         {
             var text = @"
@@ -161,6 +220,25 @@ namespace Peach_Tests.CodeAnalysis
 
             var diagnostics = @$"
                 {DiagnosticBag.ReportCannotAssignToConstMessage("x")}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ForStatement_ReportCannotAssignToConst()
+        {
+            var text = @"
+                {
+                    for i from 1 to 10 step 1
+                    {
+                        i [=] 7
+                    }
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotAssignToConstMessage("i")}
             ";
 
             AssertHasDiagnostics(text, diagnostics);
@@ -252,10 +330,13 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "{ let a = 10 if (a == 10) {a = 5} a } ", 5 };
             yield return new object[] { "{ let a = 12 if (a == 10) {a = 5} a } ", 12 };
 
-            yield return new object[] { "{ let a = 0 while (a < 10) {a = a + 1} a } ", 10 };
-            yield return new object[] { "{ let a = 0 while not (a == 10) {a = a + 1} a } ", 10 };
-            yield return new object[] { "{ let a = 10 while (a > 0) {a = a - 1} a } ", 0 };
-            yield return new object[] { "{ let a = 10 while not (a == 0) {a = a - 1} a } ", 0 };
+            yield return new object[] { "{ let a = 0 while (a < 10) {a = a + 1} a }", 10 };
+            yield return new object[] { "{ let a = 0 while not (a == 10) {a = a + 1} a }", 10 };
+            yield return new object[] { "{ let a = 10 while (a > 0) {a = a - 1} a }", 0 };
+            yield return new object[] { "{ let a = 10 while not (a == 0) {a = a - 1} a }", 0 };
+
+            yield return new object[] { "{ let a = 0 for i from 1 to 10 step 1 { a = a + i} a }", 45 };
+            yield return new object[] { "{ let a = 0 for i from 0 to 10 step 2 { a = a + i} a }", 20 };
         }
 
         public static IEnumerable<object[]> GetVariableData()

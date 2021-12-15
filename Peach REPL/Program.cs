@@ -21,15 +21,17 @@ namespace Peach
         private static readonly ConsoleColor TokenColour = ConsoleColor.Blue;
         private static readonly ConsoleColor ResultColour = ConsoleColor.Magenta;
 
+        private static bool showTree = false;
+        private static Dictionary<VariableSymbol, object> variables = new();
+        private static StringBuilder textBuilder = new();
+        private static int indentLevel = 0;
+        private static string[] inputLines = null;
+        private static Compilation previous = null;
+
+        private static string DefaultFilePath = @"C:\Users\angus\code.pch";
+
         private static void Main()
         {
-            var showTree = false;
-            var variables = new Dictionary<VariableSymbol, object>();
-            var textBuilder = new StringBuilder();
-            var indentLevel = 0;
-            string[] inputLines = null;
-            Compilation previous = null;
-
             for (; ; )
             {
                 string input;
@@ -78,9 +80,13 @@ namespace Peach
                         continue;
                     }
 
-                    if (input.StartsWith("#run "))
+                    if (input.StartsWith("#run"))
                     {
-                        input = input[5..];
+                        if (input.Length <= 5)
+                            input = DefaultFilePath;
+                        else
+                            input = input[5..];
+
                         try
                         {
                             inputLines = File.ReadAllLines(input);

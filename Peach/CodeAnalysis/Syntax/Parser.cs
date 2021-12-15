@@ -86,6 +86,9 @@ namespace Peach.CodeAnalysis.Syntax
                 case SyntaxKind.WhileKeyword:
                     return ParseWhileStatement();
 
+                case SyntaxKind.ForKeyword:
+                    return ParseForStatement();
+
                 default:
                     return ParseExpressionStatement();
             }
@@ -152,6 +155,21 @@ namespace Peach.CodeAnalysis.Syntax
             var statement = ParseStatement();
 
             return new WhileStatementSyntax(keyword, notKeyword, condition, statement);
+        }
+
+        private ForStatementSyntax ParseForStatement()
+        {
+            var forKeyword = MatchToken(SyntaxKind.ForKeyword);
+            var variable = MatchToken(SyntaxKind.IdentifierToken);
+            var fromKeyword = MatchToken(SyntaxKind.FromKeyword);
+            var start = ParseExpression();
+            var toKeyword = MatchToken(SyntaxKind.ToKeyword);
+            var stop = ParseExpression();
+            var stepKeyword = MatchToken(SyntaxKind.StepKeyword);
+            var step = ParseExpression();
+            var body = ParseStatement();
+
+            return new ForStatementSyntax(forKeyword, variable, fromKeyword, start, toKeyword, stop, stepKeyword, step, body);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

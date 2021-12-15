@@ -40,6 +40,10 @@
         ElseKeyword,
         WhileKeyword,
         NotKeyword,
+        ForKeyword,
+        FromKeyword,
+        ToKeyword,
+        StepKeyword,
 
         // Expressions
 
@@ -62,5 +66,6 @@
         VariableDeclaration,
         IfStatement,
         WhileStatement,
+        ForStatement,
     }
 }

@@ -43,6 +43,10 @@ namespace Peach.CodeAnalysis
                     EvaluateWhileStatement(node as BoundWhileStatement);
                     break;
 
+                case BoundNodeKind.ForStatement:
+                    EvaluateForStatement(node as BoundForStatement);
+                    break;
+
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement(node as BoundExpressionStatement);
                     break;
@@ -72,6 +76,7 @@ namespace Peach.CodeAnalysis
             var condition = (bool)EvaluateExpression(node.Condition);
             if (node.Negated)
                 condition = !condition;
+
             if (condition)
                 EvaluateStatement(node.ThenStatment);
             else if (node.ElseStatement is not null)
@@ -90,6 +95,20 @@ namespace Peach.CodeAnalysis
 
             while (GetCondition())
             {
+                EvaluateStatement(node.Body);
+            }
+        }
+
+        private void EvaluateForStatement(BoundForStatement node)
+        {
+            var start = (int)EvaluateExpression(node.Start);
+            var stop = (int)EvaluateExpression(node.Stop);
+            int step() => (int)EvaluateExpression(node.Step);
+            var _var = node.Variable;
+
+            for (int i = start; i != stop; i += step())
+            {
+                _variables[_var] = i;
                 EvaluateStatement(node.Body);
             }
         }
