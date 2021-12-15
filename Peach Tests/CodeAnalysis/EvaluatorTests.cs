@@ -1,5 +1,6 @@
 ﻿using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -50,6 +51,143 @@ namespace Peach_Tests.CodeAnalysis
             finally
             {
                 _variables.Clear();
+            }
+        }
+
+        [Fact]
+        public void Evaluator_ReportUndefinedUnaryOperator()
+        {
+            var text = @"
+                {
+                    [-]false
+                    [!]10
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUndefinedUnaryOperatorMessage("-", typeof(bool))}
+                {DiagnosticBag.ReportUndefinedUnaryOperatorMessage("!", typeof(int))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ReportUndefinedBinaryOperator()
+        {
+            var text = @"
+                {
+                    true [+] true
+                    10 [&&] 10
+                    false [*] 7
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("+", typeof(bool), typeof(bool))}
+                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("&&", typeof(int), typeof(int))}
+                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("*", typeof(bool), typeof(int))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ReportUndefinedName()
+        {
+            var text = @"
+                {
+                    [peach]
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUndefinedNameMessage("peach")}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ReportVariableAlreadyDeclared()
+        {
+            var text = @"
+                {
+                    let x = 10
+                    {
+                        let x = false
+                    }
+                    let [x] = 5
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportVariableAlreadyDeclaredMessage("x")}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ReportCannotConvertTypes()
+        {
+            var text = @"
+                {
+                    let x = true
+                    x = [10]
+
+                    let foo = 20
+                    foo = [false]
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ReportCannotAssignToConst()
+        {
+            var text = @"
+                {
+                    const x = true
+                    x [=] false
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportCannotAssignToConstMessage("x")}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        private static void AssertHasDiagnostics(string text, string diagnosticText)
+        {
+            var annotatedText = AnnotatedText.Parse(text);
+
+            var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
+            var compilation = new Compilation(syntaxTree);
+            var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+
+            var diagnostics = result.Diagnostics;
+            var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
+
+            if (annotatedText.Spans.Length != expectedDiagnostics.Length)
+                throw new Exception("Must have same number of expected diagnostics and annotated spans");
+
+            Assert.Equal(expectedDiagnostics.Length, diagnostics.Length);
+
+            for (var i = 0; i < diagnostics.Length; i++)
+            {
+                var expectedSpan = annotatedText.Spans[i];
+                var actualSpan = diagnostics[i].Span;
+
+                Assert.Equal(expectedSpan, actualSpan);
             }
         }
 

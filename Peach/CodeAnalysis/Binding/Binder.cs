@@ -188,12 +188,12 @@ namespace Peach.CodeAnalysis.Binding
 
             if (variable.IsConst)
             {
-                _diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
+                _diagnostics.ReportCannotAssignToConst(syntax.EqualsToken.Span, name);
             }
 
             if (boundExpression.Type != variable.Type)
             {
-                _diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                _diagnostics.ReportCannotConvertTypes(syntax.Expression.Span, boundExpression.Type, variable.Type);
                 return boundExpression;
             }
 

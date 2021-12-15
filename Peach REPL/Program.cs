@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
 using Peach.CodeAnalysis.Text;
+using Peach_Tests.CodeAnalysis;
 
 namespace Peach
 {
@@ -24,18 +26,32 @@ namespace Peach
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
             var textBuilder = new StringBuilder();
+            var indentLevel = 0;
+            string[] inputLines = null;
             Compilation previous = null;
 
             for (; ; )
             {
-                if (textBuilder.Length == 0)
-                    ColourPrint("» ", PromptColour);
+                string input;
+                bool isBlank;
+
+                if (inputLines is null)
+                {
+                    if (textBuilder.Length == 0)
+                        ColourPrint("» ", PromptColour);
+                    else
+                        ColourPrint("· " + GenerateIndent(indentLevel), PromptColour);
+
+                    input = Console.ReadLine();
+
+                    isBlank = string.IsNullOrWhiteSpace(input);
+                }
                 else
-                    ColourPrint("· ", PromptColour);
-
-                var input = Console.ReadLine();
-
-                var isBlank = string.IsNullOrWhiteSpace(input);
+                {
+                    input = inputLines[0];
+                    inputLines = inputLines.Length > 1 ? inputLines[1..] : null;
+                    isBlank = false;
+                }
 
                 if (textBuilder.Length == 0)
                 {
@@ -61,6 +77,22 @@ namespace Peach
                         previous = null;
                         continue;
                     }
+
+                    if (input.StartsWith("#run "))
+                    {
+                        input = input[5..];
+                        try
+                        {
+                            inputLines = File.ReadAllLines(input);
+                            foreach (var line in inputLines)
+                                Console.WriteLine(line);
+                        }
+                        catch (Exception e)
+                        {
+                            ColourPrintln($"Exception when opening file {input} : {e.Message}", ExceptionColour);
+                        }
+                        continue;
+                    }
                 }
 
                 SyntaxTree syntaxTree;
@@ -74,8 +106,14 @@ namespace Peach
 
                     syntaxTree = SyntaxTree.Parse(text);
 
+                    if (input.Contains('{') && !input.Contains('}'))
+                        indentLevel++;
+
                     if (!isBlank && syntaxTree.Diagnostics.Any())
+
                         continue;
+
+                    indentLevel = 0;
 
                     compilation = previous is null ?
                                     new Compilation(syntaxTree) :
@@ -96,7 +134,8 @@ namespace Peach
                 }
                 if (!diagnostics.Any())
                 {
-                    ColourPrintln(result.Value, ResultColour);
+                    if (inputLines is null)
+                        ColourPrintln(result.Value, ResultColour);
                     previous = compilation;
                 }
                 else
@@ -128,6 +167,16 @@ namespace Peach
 
                 textBuilder.Clear();
             }
+        }
+
+        private static string GenerateIndent(int level)
+        {
+            var SB = new StringBuilder();
+
+            for (int i = 0; i < level; i++)
+                SB.Append('\t');
+
+            return SB.ToString();
         }
 
         private static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
