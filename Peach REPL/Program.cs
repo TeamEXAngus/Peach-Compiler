@@ -21,6 +21,7 @@ namespace Peach
         private static readonly ConsoleColor ResultColour = ConsoleColor.Magenta;
 
         private static bool showTree = false;
+        private static bool showProgram = false;
         private static readonly Dictionary<VariableSymbol, object> variables = new();
         private static readonly StringBuilder textBuilder = new();
         private static int indentLevel = 0;
@@ -64,6 +65,13 @@ namespace Peach
                     {
                         showTree = !showTree;
                         ColourPrintln(showTree ? "Showing parse trees" : "Stopped showing parse trees", DefaultColor);
+                        continue;
+                    }
+
+                    if (input == "#showProgram")
+                    {
+                        showProgram = !showProgram;
+                        ColourPrintln(showProgram ? "Showing bound trees" : "Stopped showing bound trees", DefaultColor);
                         continue;
                     }
 
@@ -134,9 +142,11 @@ namespace Peach
                 var diagnostics = result.Diagnostics;
 
                 if (showTree)
-                {
                     PrettyPrint(syntaxTree.Root);
-                }
+
+                if (showProgram)
+                    compilation.EmitTree(Console.Out);
+
                 if (!diagnostics.Any())
                 {
                     if (inputLines is null)
