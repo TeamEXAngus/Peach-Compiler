@@ -80,6 +80,9 @@ namespace Peach.CodeAnalysis.Syntax
                 case SyntaxKind.ConstKeyword:
                     return ParseVariableDeclaration();
 
+                case SyntaxKind.IfKeyword:
+                    return ParseIfStatement();
+
                 default:
                     return ParseExpressionStatement();
             }
@@ -111,6 +114,31 @@ namespace Peach.CodeAnalysis.Syntax
             var equals = MatchToken(SyntaxKind.EqualsToken);
             var intializer = ParseExpression();
             return new VariableDeclarationSyntax(keyword, identifier, equals, intializer);
+        }
+
+        private IfStatementSyntax ParseIfStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.IfKeyword);
+
+            var notKeyword = Current.Kind == SyntaxKind.NotKeyword ? NextToken() : null;
+
+            var condition = ParseExpression();
+            var statement = ParseStatement();
+            var elseClause = ParseElseClause();
+
+            return notKeyword == null ?
+                    new IfStatementSyntax(keyword, condition, statement, elseClause) :
+                    new IfStatementSyntax(keyword, notKeyword, condition, statement, elseClause);
+        }
+
+        private ElseClauseSyntax ParseElseClause()
+        {
+            if (Current.Kind != SyntaxKind.ElseKeyword)
+                return null;
+
+            var keyword = NextToken();
+            var statement = ParseStatement();
+            return new ElseClauseSyntax(keyword, statement);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

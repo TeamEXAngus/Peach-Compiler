@@ -50,6 +50,9 @@ namespace Peach.CodeAnalysis.Syntax
                 "false" => SyntaxKind.FalseKeyword,
                 "let" => SyntaxKind.LetKeyword,
                 "const" => SyntaxKind.ConstKeyword,
+                "if" => SyntaxKind.IfKeyword,
+                "else" => SyntaxKind.ElseKeyword,
+                "not" => SyntaxKind.NotKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
         }
@@ -102,6 +105,9 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.FalseKeyword => "false",
                 SyntaxKind.LetKeyword => "let",
                 SyntaxKind.ConstKeyword => "const",
+                SyntaxKind.IfKeyword => "if",
+                SyntaxKind.ElseKeyword => "else",
+                SyntaxKind.NotKeyword => "not",
                 _ => null,
             };
         }
@@ -114,6 +120,9 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.FalseKeyword => true,
                 SyntaxKind.LetKeyword => true,
                 SyntaxKind.ConstKeyword => true,
+                SyntaxKind.IfKeyword => true,
+                SyntaxKind.ElseKeyword => true,
+                SyntaxKind.NotKeyword => true,
                 SyntaxKind.IdentifierToken => true,
                 _ => false,
             };

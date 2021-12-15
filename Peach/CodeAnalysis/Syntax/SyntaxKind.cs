@@ -36,6 +36,9 @@
         FalseKeyword,
         LetKeyword,
         ConstKeyword,
+        IfKeyword,
+        ElseKeyword,
+        NotKeyword,
 
         // Expressions
 
@@ -49,11 +52,13 @@
         // Nodes
 
         CompilationUnit,
+        ElseClause,
 
         // Statements
 
         BlockStatement,
         ExpressionStatement,
         VariableDeclaration,
+        IfStatement,
     }
 }

@@ -62,6 +62,7 @@ namespace Peach.CodeAnalysis.Binding
             {
                 SyntaxKind.BlockStatement => BindBlockStatement(syntax as BlockStatementSyntax),
                 SyntaxKind.VariableDeclaration => BindVariableDeclaration(syntax as VariableDeclarationSyntax),
+                SyntaxKind.IfStatement => BindIfStatement(syntax as IfStatementSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
             };
@@ -98,11 +99,28 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundVariableDeclaration(variable, initializer);
         }
 
+        private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+        {
+            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var statement = BindStatement(syntax.ThenStatement);
+            var elseClause = syntax.ElseClause is null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+            return new BoundIfStatement(condition, syntax.IsNegated, statement, elseClause);
+        }
+
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
         {
             var expression = BindExpression(syntax.Expression);
 
             return new BoundExpressionStatement(expression);
+        }
+
+        private BoundExpression BindExpression(ExpressionSyntax syntax, Type expectedType)
+        {
+            var result = BindExpression(syntax);
+            if (result.Type != expectedType)
+                _diagnostics.ReportCannotConvertTypes(syntax.Span, result.Type, expectedType);
+
+            return result;
         }
 
         private BoundExpression BindExpression(ExpressionSyntax syntax)
