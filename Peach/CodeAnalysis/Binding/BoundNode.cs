@@ -41,7 +41,8 @@ namespace Peach.CodeAnalysis.Binding
             foreach (var property in properties)
             {
                 if (property.Name == nameof(Kind) ||
-                    property.Name == nameof(BoundBinaryExpression.Op))
+                    property.Name == nameof(BoundBinaryExpression.Op) ||
+                    property.Name == nameof(BoundVariableExpression.Variable))
                     continue;
 
                 if (typeof(BoundNode).IsAssignableFrom(property.PropertyType) ||

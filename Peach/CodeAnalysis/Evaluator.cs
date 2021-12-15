@@ -43,14 +43,6 @@ namespace Peach.CodeAnalysis
                     EvaluateWhileStatement(node as BoundWhileStatement);
                     break;
 
-                case BoundNodeKind.LoopStatement:
-                    EvaluateLoopStatement(node as BoundLoopStatement);
-                    break;
-
-                case BoundNodeKind.ForStatement:
-                    EvaluateForStatement(node as BoundForStatement);
-                    break;
-
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement(node as BoundExpressionStatement);
                     break;
@@ -89,6 +81,8 @@ namespace Peach.CodeAnalysis
 
         private void EvaluateWhileStatement(BoundWhileStatement node)
         {
+            int loops = 0;
+
             bool GetCondition()
             {
                 var Condition = (bool)EvaluateExpression(node.Condition);
@@ -100,28 +94,12 @@ namespace Peach.CodeAnalysis
             while (GetCondition())
             {
                 EvaluateStatement(node.Body);
-            }
-        }
 
-        private void EvaluateLoopStatement(BoundLoopStatement node)
-        {
-            while (true)
-            {
-                EvaluateStatement(node.Body);
-            }
-        }
-
-        private void EvaluateForStatement(BoundForStatement node)
-        {
-            var start = (int)EvaluateExpression(node.Start);
-            var stop = (int)EvaluateExpression(node.Stop);
-            int step() => (int)EvaluateExpression(node.Step);
-            var _var = node.Variable;
-
-            for (int i = start; i != stop; i += step())
-            {
-                _variables[_var] = i;
-                EvaluateStatement(node.Body);
+                if (loops++ > 1000)
+                {
+                    Console.WriteLine("Aborted possibly-infinite loop");
+                    break;
+                }
             }
         }
 

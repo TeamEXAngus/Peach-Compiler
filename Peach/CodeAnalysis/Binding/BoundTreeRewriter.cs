@@ -20,7 +20,7 @@ namespace Peach.CodeAnalysis.Binding
             };
         }
 
-        private BoundStatement RewriteBlockStatement(BoundBlockStatement node)
+        protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)
         {
             ImmutableArray<BoundStatement>.Builder builder = null;
 
@@ -52,12 +52,12 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundBlockStatement(builder.MoveToImmutable());
         }
 
-        private BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
+        protected virtual BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
         {
             return node;
         }
 
-        private BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
+        protected virtual BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
         {
             var initializer = RewriteExpression(node.Initializer);
 
@@ -67,7 +67,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundVariableDeclaration(node.Variable, initializer);
         }
 
-        private BoundStatement RewriteIfStatement(BoundIfStatement node)
+        protected virtual BoundStatement RewriteIfStatement(BoundIfStatement node)
         {
             var condition = RewriteExpression(node.Condition);
             var thenStatement = RewriteStatement(node.ThenStatment);
@@ -79,7 +79,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundIfStatement(condition, node.Negated, thenStatement, elseStatement);
         }
 
-        private BoundStatement RewriteWhileStatement(BoundWhileStatement node)
+        protected virtual BoundStatement RewriteWhileStatement(BoundWhileStatement node)
         {
             var condition = RewriteExpression(node.Condition);
             var body = RewriteStatement(node.Body);
@@ -90,7 +90,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundWhileStatement(condition, node.Negated, body);
         }
 
-        private BoundStatement RewriteLoopStatement(BoundLoopStatement node)
+        protected virtual BoundStatement RewriteLoopStatement(BoundLoopStatement node)
         {
             var body = RewriteStatement(node.Body);
 
@@ -100,7 +100,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundLoopStatement(body);
         }
 
-        private BoundStatement RewriteForStatement(BoundForStatement node)
+        protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
         {
             var start = RewriteExpression(node.Start);
             var stop = RewriteExpression(node.Stop);
@@ -110,7 +110,7 @@ namespace Peach.CodeAnalysis.Binding
             if (start == node.Start && stop == node.Stop && step == node.Step && body == node.Body)
                 return node;
 
-            return new BoundForStatement(node.Variable, start, stop, step, body);
+            return new BoundForStatement(node.Variable, start, stop, node.StopVar, step, body);
         }
 
         public virtual BoundExpression RewriteExpression(BoundExpression node)
