@@ -9,8 +9,9 @@ namespace Peach.CodeAnalysis.Syntax
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
         private readonly DiagnosticBag _diagnostics = new();
+        private readonly SourceText _text;
+
         public DiagnosticBag Diagnostics => _diagnostics;
-        private SourceText _text { get; }
 
         public Parser(SourceText text)
         {
@@ -60,12 +61,12 @@ namespace Peach.CodeAnalysis.Syntax
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
-        public SyntaxTree Parse()
+        public CompilationUnitSyntax ParseCompilationUnit()
         {
             var expression = ParseAssignmentExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
-            return new SyntaxTree(_text, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
+            return new CompilationUnitSyntax(expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseAssignmentExpression()

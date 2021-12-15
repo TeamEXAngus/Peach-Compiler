@@ -43,5 +43,9 @@ namespace Peach.CodeAnalysis.Syntax
         ParenthesisedExpression,
         NameExpression,
         AssignmentExpression,
+
+        // Nodes
+
+        CompilationUnit,
     }
 }
