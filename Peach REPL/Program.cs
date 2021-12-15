@@ -11,10 +11,13 @@ namespace Peach
     internal static class Program
     {
         private static readonly ConsoleColor DefaultColor = ConsoleColor.White;
+        private static readonly ConsoleColor PromptColour = ConsoleColor.Green;
         private static readonly ConsoleColor ErrorColour = ConsoleColor.Red;
         private static readonly ConsoleColor ExceptionColour = ConsoleColor.DarkRed;
         private static readonly ConsoleColor TreeColour = ConsoleColor.DarkGray;
-        private static readonly ConsoleColor ResultColour = ConsoleColor.White;
+        private static readonly ConsoleColor NodeColour = ConsoleColor.Cyan;
+        private static readonly ConsoleColor TokenColour = ConsoleColor.Blue;
+        private static readonly ConsoleColor ResultColour = ConsoleColor.Magenta;
 
         private static void Main()
         {
@@ -25,9 +28,9 @@ namespace Peach
             for (; ; )
             {
                 if (textBuilder.Length == 0)
-                    ColourPrint(">", DefaultColor);
+                    ColourPrint("» ", PromptColour);
                 else
-                    ColourPrint("|", DefaultColor);
+                    ColourPrint("·", PromptColour);
 
                 var input = Console.ReadLine();
 
@@ -123,7 +126,7 @@ namespace Peach
 
             ColourPrint(indent, TreeColour);
             ColourPrint(marker, TreeColour);
-            ColourPrint(node.Kind, TreeColour);
+            ColourPrint(node.Kind, node is SyntaxToken ? TokenColour : NodeColour);
 
             if (node is SyntaxToken t)
             {
