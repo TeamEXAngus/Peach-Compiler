@@ -6,7 +6,6 @@ using System.Text;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
 using Peach.CodeAnalysis.Text;
-using Peach_Tests.CodeAnalysis;
 
 namespace Peach
 {
@@ -22,8 +21,8 @@ namespace Peach
         private static readonly ConsoleColor ResultColour = ConsoleColor.Magenta;
 
         private static bool showTree = false;
-        private static Dictionary<VariableSymbol, object> variables = new();
-        private static StringBuilder textBuilder = new();
+        private static readonly Dictionary<VariableSymbol, object> variables = new();
+        private static readonly StringBuilder textBuilder = new();
         private static int indentLevel = 0;
         private static string[] inputLines = null;
         private static Compilation previous = null;

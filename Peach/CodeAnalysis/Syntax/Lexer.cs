@@ -94,6 +94,16 @@ namespace Peach.CodeAnalysis.Syntax
                     _position++;
                     break;
 
+                case '~':
+                    _kind = SyntaxKind.TildeToken;
+                    _position++;
+                    break;
+
+                case '^':
+                    _kind = SyntaxKind.CaretToken;
+                    _position++;
+                    break;
+
                 case '&':
                     if (Lookahead == '&')
                     {

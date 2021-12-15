@@ -12,6 +12,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.PlusToken => 6,
                 SyntaxKind.MinusToken => 6,
                 SyntaxKind.ExclamationToken => 6,
+                SyntaxKind.TildeToken => 6,
 
                 _ => 0
             };
@@ -22,8 +23,11 @@ namespace Peach.CodeAnalysis.Syntax
             return kind switch
             {
                 SyntaxKind.PipePipeToken => 1,
+                SyntaxKind.PipeToken => 1,
+                SyntaxKind.CaretToken => 1,
 
                 SyntaxKind.AmpersandAmpersandToken => 2,
+                SyntaxKind.AmpersandToken => 2,
 
                 SyntaxKind.EqualsEqualsToken => 3,
                 SyntaxKind.ExclamationEqualsToken => 3,
@@ -92,8 +96,10 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.AsteriskToken => "*",
                 SyntaxKind.SlashToken => "/",
                 SyntaxKind.AmpersandToken => "&",
-                SyntaxKind.AmpersandAmpersandToken => "&&",
                 SyntaxKind.PipeToken => "|",
+                SyntaxKind.CaretToken => "^",
+                SyntaxKind.TildeToken => "~",
+                SyntaxKind.AmpersandAmpersandToken => "&&",
                 SyntaxKind.PipePipeToken => "||",
                 SyntaxKind.ExclamationToken => "!",
                 SyntaxKind.EqualsToken => "=",

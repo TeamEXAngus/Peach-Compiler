@@ -175,6 +175,7 @@ namespace Peach.CodeAnalysis
                 BoundUnaryOperatorKind.Identity => (int)operand,
                 BoundUnaryOperatorKind.Negation => -(int)operand,
                 BoundUnaryOperatorKind.LogicalNot => !(bool)operand,
+                BoundUnaryOperatorKind.BitwiseNot => ~(int)operand,
                 _ => throw new Exception($"Unexpected unary operator '{node.Op.Kind}'"),
             };
         }
@@ -199,8 +200,38 @@ namespace Peach.CodeAnalysis
                 BoundBinaryOperatorKind.LessOrEqual => (int)left <= (int)right,
                 BoundBinaryOperatorKind.GreaterThan => (int)left > (int)right,
                 BoundBinaryOperatorKind.GreaterOrEqual => (int)left >= (int)right,
+                BoundBinaryOperatorKind.BitwiseAnd => EvaluateBitwiseAnd(left, right),
+                BoundBinaryOperatorKind.BitwiseOr => EvaluateBitwiseOr(left, right),
+                BoundBinaryOperatorKind.BitwiseXor => EvaluateBitwiseXor(left, right),
                 _ => throw new Exception($"Unexpected binary operator '{node.Op.Kind}'"),
             };
+        }
+
+        private object EvaluateBitwiseAnd(object left, object right)
+        {
+            if (left is int L && right is int R)
+                return L & R;
+            else if (left is bool Lb && right is bool Rb)
+                return Lb & Rb;
+            throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
+        }
+
+        private object EvaluateBitwiseOr(object left, object right)
+        {
+            if (left is int L && right is int R)
+                return L | R;
+            else if (left is bool Lb && right is bool Rb)
+                return Lb | Rb;
+            throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
+        }
+
+        private object EvaluateBitwiseXor(object left, object right)
+        {
+            if (left is int L && right is int R)
+                return L ^ R;
+            else if (left is bool Lb && right is bool Rb)
+                return Lb ^ Rb;
+            throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
         }
     }
 }

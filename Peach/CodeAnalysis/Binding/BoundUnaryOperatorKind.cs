@@ -5,5 +5,6 @@
         Identity,
         Negation,
         LogicalNot,
+        BitwiseNot,
     }
 }

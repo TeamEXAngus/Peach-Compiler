@@ -307,6 +307,9 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "-(1)", -1 };
             yield return new object[] { "(-1)", -1 };
             yield return new object[] { "-(-1)", 1 };
+            yield return new object[] { "~1", -2 };
+            yield return new object[] { "~~1", 1 };
+            yield return new object[] { "-(-1)", 1 };
             yield return new object[] { "1 + 2 + 3", 6 };
             yield return new object[] { "1 - 2 + 3", 2 };
             yield return new object[] { "1 + 2 * 3", 7 };
@@ -326,6 +329,23 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "9 >= 9", true };
             yield return new object[] { "9 < 9", false };
             yield return new object[] { "9 <= 9", true };
+
+            yield return new object[] { "1 | 2", 3 };
+            yield return new object[] { "1 | 0", 1 };
+            yield return new object[] { "1 & 3", 1 };
+            yield return new object[] { "1 & 0", 0 };
+            yield return new object[] { "1 ^ 0", 1 };
+            yield return new object[] { "5 ^ 5", 0 };
+
+            yield return new object[] { "true & true", true };
+            yield return new object[] { "false & true", false };
+            yield return new object[] { "false & false", false };
+            yield return new object[] { "true | true", true };
+            yield return new object[] { "false | true", true };
+            yield return new object[] { "false | false", false };
+            yield return new object[] { "true ^ false", true };
+            yield return new object[] { "false ^ false", false };
+            yield return new object[] { "true ^ true", false };
 
             yield return new object[] { "true", true };
             yield return new object[] { "false", false };
