@@ -44,6 +44,8 @@ namespace Peach.CodeAnalysis.Syntax
             {
                 "true" => SyntaxKind.TrueKeyword,
                 "false" => SyntaxKind.FalseKeyword,
+                "let" => SyntaxKind.LetKeyword,
+                "const" => SyntaxKind.ConstKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
         }
@@ -90,6 +92,8 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.CloseBraceToken => "}",
                 SyntaxKind.TrueKeyword => "true",
                 SyntaxKind.FalseKeyword => "false",
+                SyntaxKind.LetKeyword => "let",
+                SyntaxKind.ConstKeyword => "const",
                 _ => null,
             };
         }

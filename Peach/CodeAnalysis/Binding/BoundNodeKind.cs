@@ -6,6 +6,7 @@
 
         BlockStatement,
         ExpressionStatement,
+        VariableDeclaration,
 
         // Expressions
 

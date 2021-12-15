@@ -61,6 +61,7 @@ namespace Peach.CodeAnalysis.Binding
             return syntax.Kind switch
             {
                 SyntaxKind.BlockStatement => BindBlockStatement(syntax as BlockStatementSyntax),
+                SyntaxKind.VariableDeclaration => BindVariableDeclaration(syntax as VariableDeclarationSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
             };
@@ -69,6 +70,7 @@ namespace Peach.CodeAnalysis.Binding
         private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
         {
             var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+            _scope = new BoundScope(_scope);
 
             foreach (var statementSyntax in syntax.Statements)
             {
@@ -76,7 +78,24 @@ namespace Peach.CodeAnalysis.Binding
                 statements.Add(statement);
             }
 
+            _scope = _scope.Parent;
+
             return new BoundBlockStatement(statements.ToImmutable());
+        }
+
+        private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
+        {
+            var name = syntax.Identifier.Text;
+            var isConst = syntax.Keyword.Kind == SyntaxKind.ConstKeyword;
+            var initializer = BindExpression(syntax.Initializer);
+            var variable = new VariableSymbol(name, isConst, initializer.Type);
+
+            if (!_scope.TryDeclare(variable))
+            {
+                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+            }
+
+            return new BoundVariableDeclaration(variable, initializer);
         }
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
@@ -163,15 +182,20 @@ namespace Peach.CodeAnalysis.Binding
 
             if (!_scope.TryLookup(name, out var variable))
             {
-                variable = new VariableSymbol(name, boundExpression.Type);
-                _scope.TryDeclare(variable);
+                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return boundExpression;
+            }
+
+            if (variable.IsConst)
+            {
+                _diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
             }
 
             if (boundExpression.Type != variable.Type)
             {
                 _diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
                 return boundExpression;
-            };
+            }
 
             return new BoundAssignmentExpression(variable, boundExpression);
         }

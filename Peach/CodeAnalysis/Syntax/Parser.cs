@@ -71,10 +71,18 @@ namespace Peach.CodeAnalysis.Syntax
 
         private StatementSyntax ParseStatement()
         {
-            if (Current.Kind == SyntaxKind.OpenBraceToken)
-                return ParseBlockStatement();
+            switch (Current.Kind)
+            {
+                case SyntaxKind.OpenBraceToken:
+                    return ParseBlockStatement();
 
-            return ParseExpressionStatement();
+                case SyntaxKind.LetKeyword:
+                case SyntaxKind.ConstKeyword:
+                    return ParseVariableDeclaration();
+
+                default:
+                    return ParseExpressionStatement();
+            }
         }
 
         private BlockStatementSyntax ParseBlockStatement()
@@ -93,6 +101,16 @@ namespace Peach.CodeAnalysis.Syntax
             var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
 
             return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+        }
+
+        private VariableDeclarationSyntax ParseVariableDeclaration()
+        {
+            var expectedKeyword = Current.Kind == SyntaxKind.ConstKeyword ? SyntaxKind.ConstKeyword : SyntaxKind.LetKeyword;
+            var keyword = MatchToken(expectedKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equals = MatchToken(SyntaxKind.EqualsToken);
+            var intializer = ParseExpression();
+            return new VariableDeclarationSyntax(keyword, identifier, equals, intializer);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

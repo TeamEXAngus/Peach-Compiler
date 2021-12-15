@@ -31,7 +31,7 @@ namespace Peach
                 if (textBuilder.Length == 0)
                     ColourPrint("» ", PromptColour);
                 else
-                    ColourPrint("·", PromptColour);
+                    ColourPrint("· ", PromptColour);
 
                 var input = Console.ReadLine();
 

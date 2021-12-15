@@ -31,6 +31,10 @@ namespace Peach.CodeAnalysis
                     EvaluateBlockStatement(node as BoundBlockStatement);
                     break;
 
+                case BoundNodeKind.VariableDeclaration:
+                    EvaluateVariableDeclaration(node as BoundVariableDeclaration);
+                    break;
+
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement(node as BoundExpressionStatement);
                     break;
@@ -46,6 +50,13 @@ namespace Peach.CodeAnalysis
             {
                 EvaluateStatement(statement);
             }
+        }
+
+        private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
+        {
+            var value = EvaluateExpression(node.Initializer);
+            _variables[node.Variable] = value;
+            _lastValue = value;
         }
 
         private void EvaluateExpressionStatement(BoundExpressionStatement node)

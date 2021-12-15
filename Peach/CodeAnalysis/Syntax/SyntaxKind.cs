@@ -30,6 +30,8 @@
 
         TrueKeyword,
         FalseKeyword,
+        LetKeyword,
+        ConstKeyword,
 
         // Expressions
 
@@ -48,5 +50,6 @@
 
         BlockStatement,
         ExpressionStatement,
+        VariableDeclaration,
     }
 }

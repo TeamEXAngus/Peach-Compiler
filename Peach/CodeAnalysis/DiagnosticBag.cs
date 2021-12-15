@@ -73,5 +73,11 @@ namespace Peach.CodeAnalysis
             var message = $"Cannot convert type {varType} to type {expressionType}";
             Report(span, message);
         }
+
+        internal void ReportCannotAssign(TextSpan span, string name)
+        {
+            var message = $"Cannot assign to constant variable '{name}'";
+            Report(span, message);
+        }
     }
 }

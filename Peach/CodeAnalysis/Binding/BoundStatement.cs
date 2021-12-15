@@ -1,31 +1,20 @@
-﻿using System.Collections.Immutable;
-
-namespace Peach.CodeAnalysis.Binding
+﻿namespace Peach.CodeAnalysis.Binding
 {
     internal abstract class BoundStatement : BoundNode
     {
     }
 
-    internal sealed class BoundBlockStatement : BoundStatement
+    internal sealed class BoundVariableDeclaration : BoundStatement
     {
-        public BoundBlockStatement(ImmutableArray<BoundStatement> statements)
+        public BoundVariableDeclaration(VariableSymbol variable, BoundExpression initializer)
         {
-            Statements = statements;
+            Variable = variable;
+            Initializer = initializer;
         }
 
-        public ImmutableArray<BoundStatement> Statements { get; }
+        public override BoundNodeKind Kind => BoundNodeKind.VariableDeclaration;
 
-        public override BoundNodeKind Kind => BoundNodeKind.BlockStatement;
-    }
-
-    internal sealed class BoundExpressionStatement : BoundStatement
-    {
-        public BoundExpressionStatement(BoundExpression expression)
-        {
-            Expression = expression;
-        }
-
-        public BoundExpression Expression { get; }
-        public override BoundNodeKind Kind => BoundNodeKind.ExpressionStatement;
+        public VariableSymbol Variable { get; }
+        public BoundExpression Initializer { get; }
     }
 }
