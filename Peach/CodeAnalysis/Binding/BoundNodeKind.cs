@@ -19,5 +19,6 @@
         ParenthesisedExpression,
         VariableExpression,
         AssignmentExpression,
+        UnaryExpression,
     }
 }
