@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Peach.CodeAnalysis.Text;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Peach.CodeAnalysis.Syntax
@@ -10,7 +11,7 @@ namespace Peach.CodeAnalysis.Syntax
         private readonly DiagnosticBag _diagnostics = new();
         public DiagnosticBag Diagnostics => _diagnostics;
 
-        public Parser(string text)
+        public Parser(SourceText text)
         {
             var tokens = new List<SyntaxToken>();
             var lexer = new Lexer(text);
