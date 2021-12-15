@@ -67,5 +67,11 @@ namespace Peach.CodeAnalysis
             var message = $"Cannot redeclare variable '{name}'";
             Report(span, message);
         }
+
+        internal void ReportCannotConvert(TextSpan span, Type varType, Type expressionType)
+        {
+            var message = $"Cannot convert type {varType} to type {expressionType}";
+            Report(span, message);
+        }
     }
 }

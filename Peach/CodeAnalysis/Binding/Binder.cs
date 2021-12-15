@@ -131,12 +131,18 @@ namespace Peach.CodeAnalysis.Binding
         {
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
-            var variable = new VariableSymbol(name, boundExpression.Type);
 
-            if (!_scope.TryDeclare(variable))
+            if (!_scope.TryLookup(name, out var variable))
             {
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.IdentifierToken.Span, name);
+                variable = new VariableSymbol(name, boundExpression.Type);
+                _scope.TryDeclare(variable);
             }
+
+            if (boundExpression.Type != variable.Type)
+            {
+                _diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                return boundExpression;
+            };
 
             return new BoundAssignmentExpression(variable, boundExpression);
         }
