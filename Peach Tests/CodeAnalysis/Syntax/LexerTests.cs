@@ -133,17 +133,11 @@ namespace Peach_Tests.CodeAnalysis.Syntax
 
         public static bool RequiresSeparator(SyntaxKind t1Kind, SyntaxKind t2Kind)
         {
+            if (SyntaxFacts.IsWord(t1Kind) && SyntaxFacts.IsWord(t2Kind))
+                return true;
+
             return (t1Kind, t2Kind) switch
             {
-                (SyntaxKind.IdentifierToken, SyntaxKind.IdentifierToken) => true,
-                (SyntaxKind.IdentifierToken, SyntaxKind.TrueKeyword) => true,
-                (SyntaxKind.IdentifierToken, SyntaxKind.FalseKeyword) => true,
-                (SyntaxKind.TrueKeyword, SyntaxKind.IdentifierToken) => true,
-                (SyntaxKind.TrueKeyword, SyntaxKind.TrueKeyword) => true,
-                (SyntaxKind.TrueKeyword, SyntaxKind.FalseKeyword) => true,
-                (SyntaxKind.FalseKeyword, SyntaxKind.IdentifierToken) => true,
-                (SyntaxKind.FalseKeyword, SyntaxKind.TrueKeyword) => true,
-                (SyntaxKind.FalseKeyword, SyntaxKind.FalseKeyword) => true,
                 (SyntaxKind.NumberToken, SyntaxKind.NumberToken) => true,
                 (SyntaxKind.EqualsToken, SyntaxKind.EqualsToken) => true,
                 (SyntaxKind.EqualsToken, SyntaxKind.EqualsEqualsToken) => true,

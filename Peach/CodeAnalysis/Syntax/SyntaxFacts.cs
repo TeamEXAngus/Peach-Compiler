@@ -97,5 +97,18 @@ namespace Peach.CodeAnalysis.Syntax
                 _ => null,
             };
         }
+
+        public static bool IsWord(SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.TrueKeyword => true,
+                SyntaxKind.FalseKeyword => true,
+                SyntaxKind.LetKeyword => true,
+                SyntaxKind.ConstKeyword => true,
+                SyntaxKind.IdentifierToken => true,
+                _ => false,
+            };
+        }
     }
 }

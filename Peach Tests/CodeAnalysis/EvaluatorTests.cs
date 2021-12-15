@@ -41,7 +41,7 @@ namespace Peach_Tests.CodeAnalysis
                 Assert.Empty(result1.Diagnostics);
 
                 var syntaxTree2 = SyntaxTree.Parse(line2);
-                var compilation2 = new Compilation(syntaxTree2);
+                var compilation2 = compilation1.ContinueWith(syntaxTree2);
                 var result2 = compilation2.Evaluate(_variables);
 
                 Assert.Empty(result2.Diagnostics);
@@ -74,6 +74,7 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "false", false };
             yield return new object[] { "!true", false };
             yield return new object[] { "!false", true };
+            yield return new object[] { "!!true", true };
             yield return new object[] { "true == true", true };
             yield return new object[] { "false == false", true };
             yield return new object[] { "true != false", true };
@@ -95,14 +96,38 @@ namespace Peach_Tests.CodeAnalysis
 
         public static IEnumerable<object[]> GetVariableData()
         {
-            yield return new object[] { "a = 1", "a", 1 };
-            yield return new object[] { "a = 1", "-a", -1 };
-            yield return new object[] { "a = b = 2", "a + b", 4 };
-            yield return new object[] { "a = b = 2", "a - b", 0 };
-            yield return new object[] { "a = b = 2", "a * b", 4 };
-            yield return new object[] { "a = b = 2", "a / b", 1 };
-            yield return new object[] { "a = 1 + 2 == 3", "a", true };
-            yield return new object[] { "a = 1 + 2 == 3", "!a", false };
+            foreach (var (line1, line2, result) in GetVariableDataWithoutKeyword())
+            {
+                yield return new object[] { "let " + line1, line2, result };
+                yield return new object[] { "const " + line1, line2, result };
+            }
+
+            foreach (var d in GetMutableVariableData())
+                yield return d;
+        }
+
+        private static IEnumerable<(string line1, string line2, object result)> GetVariableDataWithoutKeyword()
+        {
+            yield return ("a = 1", "a", 1);
+            yield return ("a = 1", "-a", -1);
+            yield return ("a = 2", "a + a", 4);
+            yield return ("a = 2", "a - a", 0);
+            yield return ("a = 2", "a * a", 4);
+            yield return ("a = 2", "a / a", 1);
+            yield return ("a = 1 + 2 == 3", "a", true);
+            yield return ("a = 1 + 2 == 3", "!a", false);
+        }
+
+        private static IEnumerable<object[]> GetMutableVariableData()
+        {
+            yield return new object[] { "let a = 10", "a = a - 1", 9 };
+            yield return new object[] { "let a = 10", "a = a + 1", 11 };
+            yield return new object[] { "let a = 10", "a = a * 2", 20 };
+            yield return new object[] { "let a = 10", "a = a / 2", 5 };
+            yield return new object[] { "let a = true", "a = !a", false };
+            yield return new object[] { "let a = false", "a = !a", true };
+            yield return new object[] { "let a = true", "a = a && a", true };
+            yield return new object[] { "let a = false", "a = a && a", false };
         }
     }
 }
