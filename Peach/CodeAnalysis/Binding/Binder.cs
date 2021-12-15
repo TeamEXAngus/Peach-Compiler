@@ -63,6 +63,7 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.BlockStatement => BindBlockStatement(syntax as BlockStatementSyntax),
                 SyntaxKind.VariableDeclaration => BindVariableDeclaration(syntax as VariableDeclarationSyntax),
                 SyntaxKind.IfStatement => BindIfStatement(syntax as IfStatementSyntax),
+                SyntaxKind.WhileStatement => BindWhileStatement(syntax as WhileStatementSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
             };
@@ -105,6 +106,13 @@ namespace Peach.CodeAnalysis.Binding
             var statement = BindStatement(syntax.ThenStatement);
             var elseClause = syntax.ElseClause is null ? null : BindStatement(syntax.ElseClause.ElseStatement);
             return new BoundIfStatement(condition, syntax.IsNegated, statement, elseClause);
+        }
+
+        private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
+        {
+            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var statement = BindStatement(syntax.Body);
+            return new BoundWhileStatement(condition, syntax.IsNegated, statement);
         }
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)

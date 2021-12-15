@@ -249,8 +249,13 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "if not true {10} else {5}", 5 };
             yield return new object[] { "if not false {10} else {5}", 10 };
 
-            yield return new object[] { "{ let a = 10 if a == 10 a = 5 a } ", 5 };
-            yield return new object[] { "{ let a = 12 if a == 10 a = 5 a } ", 12 };
+            yield return new object[] { "{ let a = 10 if (a == 10) {a = 5} a } ", 5 };
+            yield return new object[] { "{ let a = 12 if (a == 10) {a = 5} a } ", 12 };
+
+            yield return new object[] { "{ let a = 0 while (a < 10) {a = a + 1} a } ", 10 };
+            yield return new object[] { "{ let a = 0 while not (a == 10) {a = a + 1} a } ", 10 };
+            yield return new object[] { "{ let a = 10 while (a > 0) {a = a - 1} a } ", 0 };
+            yield return new object[] { "{ let a = 10 while not (a == 0) {a = a - 1} a } ", 0 };
         }
 
         public static IEnumerable<object[]> GetVariableData()

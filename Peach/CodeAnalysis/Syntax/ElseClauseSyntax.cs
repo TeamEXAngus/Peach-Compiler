@@ -16,7 +16,8 @@ namespace Peach.CodeAnalysis.Syntax
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            throw new System.NotImplementedException();
+            yield return ElseKeyword;
+            yield return ElseStatement;
         }
     }
 }

@@ -83,6 +83,9 @@ namespace Peach.CodeAnalysis.Syntax
                 case SyntaxKind.IfKeyword:
                     return ParseIfStatement();
 
+                case SyntaxKind.WhileKeyword:
+                    return ParseWhileStatement();
+
                 default:
                     return ParseExpressionStatement();
             }
@@ -126,9 +129,7 @@ namespace Peach.CodeAnalysis.Syntax
             var statement = ParseStatement();
             var elseClause = ParseElseClause();
 
-            return notKeyword == null ?
-                    new IfStatementSyntax(keyword, condition, statement, elseClause) :
-                    new IfStatementSyntax(keyword, notKeyword, condition, statement, elseClause);
+            return new IfStatementSyntax(keyword, notKeyword, condition, statement, elseClause);
         }
 
         private ElseClauseSyntax ParseElseClause()
@@ -139,6 +140,18 @@ namespace Peach.CodeAnalysis.Syntax
             var keyword = NextToken();
             var statement = ParseStatement();
             return new ElseClauseSyntax(keyword, statement);
+        }
+
+        private WhileStatementSyntax ParseWhileStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.WhileKeyword);
+
+            var notKeyword = Current.Kind == SyntaxKind.NotKeyword ? NextToken() : null;
+
+            var condition = ParseExpression();
+            var statement = ParseStatement();
+
+            return new WhileStatementSyntax(keyword, notKeyword, condition, statement);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

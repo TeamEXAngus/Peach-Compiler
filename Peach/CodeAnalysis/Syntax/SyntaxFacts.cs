@@ -52,6 +52,7 @@ namespace Peach.CodeAnalysis.Syntax
                 "const" => SyntaxKind.ConstKeyword,
                 "if" => SyntaxKind.IfKeyword,
                 "else" => SyntaxKind.ElseKeyword,
+                "while" => SyntaxKind.WhileKeyword,
                 "not" => SyntaxKind.NotKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
@@ -107,6 +108,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ConstKeyword => "const",
                 SyntaxKind.IfKeyword => "if",
                 SyntaxKind.ElseKeyword => "else",
+                SyntaxKind.WhileKeyword => "while",
                 SyntaxKind.NotKeyword => "not",
                 _ => null,
             };
@@ -122,6 +124,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ConstKeyword => true,
                 SyntaxKind.IfKeyword => true,
                 SyntaxKind.ElseKeyword => true,
+                SyntaxKind.WhileKeyword => true,
                 SyntaxKind.NotKeyword => true,
                 SyntaxKind.IdentifierToken => true,
                 _ => false,

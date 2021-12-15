@@ -5,14 +5,10 @@ namespace Peach.CodeAnalysis.Syntax
     public sealed class IfStatementSyntax : StatementSyntax
     {
         public IfStatementSyntax(SyntaxToken ifKeyword, SyntaxToken notKeyword, ExpressionSyntax condition, StatementSyntax thenStatement, ElseClauseSyntax elseClause)
-            : this(ifKeyword, condition, thenStatement, elseClause)
-        {
-            NotKeyword = notKeyword;
-        }
-
-        public IfStatementSyntax(SyntaxToken ifKeyword, ExpressionSyntax condition, StatementSyntax thenStatement, ElseClauseSyntax elseClause)
         {
             IfKeyword = ifKeyword;
+
+            NotKeyword = notKeyword;
             Condition = condition;
             ThenStatement = thenStatement;
             ElseClause = elseClause;

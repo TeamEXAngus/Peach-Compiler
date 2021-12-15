@@ -38,6 +38,7 @@
         ConstKeyword,
         IfKeyword,
         ElseKeyword,
+        WhileKeyword,
         NotKeyword,
 
         // Expressions
@@ -60,5 +61,6 @@
         ExpressionStatement,
         VariableDeclaration,
         IfStatement,
+        WhileStatement,
     }
 }
