@@ -61,5 +61,11 @@ namespace Peach.CodeAnalysis
             var message = $"Variable '{name}' is undefined";
             Report(span, message);
         }
+
+        internal void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        {
+            var message = $"Cannot redeclare variable '{name}'";
+            Report(span, message);
+        }
     }
 }

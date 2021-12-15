@@ -1,6 +1,7 @@
 ﻿using Peach.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Peach.CodeAnalysis.Binding
@@ -8,14 +9,53 @@ namespace Peach.CodeAnalysis.Binding
     internal sealed class Binder
     {
         private readonly DiagnosticBag _diagnostics = new();
-        public DiagnosticBag Diagnostics => _diagnostics;
+        private BoundScope _scope;
 
-        private readonly Dictionary<VariableSymbol, object> _variables;
-
-        public Binder(Dictionary<VariableSymbol, object> variables)
+        public Binder(BoundScope parent)
         {
-            _variables = variables;
+            _scope = new BoundScope(parent);
         }
+
+        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationUnitSyntax syntax)
+        {
+            var parentScope = CreateParentScopes(previous);
+            var binder = new Binder(parentScope);
+            var expression = binder.BindExpression(syntax.Expression);
+            var variables = binder._scope.GetDeclaredVariables();
+            var diagnostics = binder.Diagnostics.ToImmutableArray();
+
+            if (previous is not null)
+                diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
+
+            return new BoundGlobalScope(previous, diagnostics, variables, expression);
+        }
+
+        private static BoundScope CreateParentScopes(BoundGlobalScope previous)
+        {
+            var stack = new Stack<BoundGlobalScope>();
+
+            while (previous is not null)
+            {
+                stack.Push(previous);
+                previous = previous.Previous;
+            }
+
+            BoundScope parent = null;
+
+            while (stack.Count > 0)
+            {
+                previous = stack.Pop();
+                var scope = new BoundScope(parent);
+                foreach (var v in previous.Variables)
+                    scope.TryDeclare(v);
+
+                parent = scope;
+            }
+
+            return parent;
+        }
+
+        public DiagnosticBag Diagnostics => _diagnostics;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -78,9 +118,7 @@ namespace Peach.CodeAnalysis.Binding
         {
             var name = syntax.IdentifierToken.Text;
 
-            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-
-            if (variable is null)
+            if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
                 return new BoundLiteralExpresion(0);
@@ -93,14 +131,12 @@ namespace Peach.CodeAnalysis.Binding
         {
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
-
-            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-
-            if (existingVariable is not null)
-                _variables.Remove(existingVariable);
-
             var variable = new VariableSymbol(name, boundExpression.Type);
-            _variables[variable] = null;
+
+            if (!_scope.TryDeclare(variable))
+            {
+                _diagnostics.ReportVariableAlreadyDeclared(syntax.IdentifierToken.Span, name);
+            }
 
             return new BoundAssignmentExpression(variable, boundExpression);
         }

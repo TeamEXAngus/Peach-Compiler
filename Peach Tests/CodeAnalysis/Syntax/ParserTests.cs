@@ -26,16 +26,18 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a     b
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
+                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
                 e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  │   ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │   │   └──IdentifierToken a
-                e.AssertToken(op1, op1Text);                        //  │   ├──<op1>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │   └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │       └──IdentifierToken b
-                e.AssertToken(op2, op2Text);                        //  ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //      └──IdentifierToken c
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  ├──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │   │   └──IdentifierToken a
+                e.AssertToken(op1, op1Text);                        //  │  │   ├──<op1>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │  │       └──IdentifierToken b
+                e.AssertToken(op2, op2Text);                        //  │  ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //  │      └──IdentifierToken c
+                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
             }
             else
             {
@@ -46,16 +48,18 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //     b     c
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //  ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │   └──IdentifierToken a
-                e.AssertToken(op1, op1Text);                        //  ├──<op1>
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  └──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //      ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //      │   └──IdentifierToken b
-                e.AssertToken(op2, op2Text);                        //      ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //      └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //          └──IdentifierToken c
+                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │   └──IdentifierToken a
+                e.AssertToken(op1, op1Text);                        //  │  ├──<op1>
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  └──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //  │      ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │      │   └──IdentifierToken b
+                e.AssertToken(op2, op2Text);                        //  │      ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │      └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "c");     //  │          └──IdentifierToken c
+                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
             }
         }
 
@@ -79,14 +83,16 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  BinaryExpression
-                e.AssertNode(SyntaxKind.UnaryExpression);           //  ├──UnaryExpression
-                e.AssertToken(unaryKind, unaryText);                //  │   ├──<op1>
-                e.AssertNode(SyntaxKind.NameExpression);            //  │   └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │       └──IdentifierToken a
-                e.AssertToken(binaryKind, binaryText);              //  ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //  └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //      └──IdentifierToken b
+                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  ├──BinaryExpression
+                e.AssertNode(SyntaxKind.UnaryExpression);           //  │  ├──UnaryExpression
+                e.AssertToken(unaryKind, unaryText);                //  │  │   ├──<op1>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  │   └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │  │       └──IdentifierToken a
+                e.AssertToken(binaryKind, binaryText);              //  │  ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │  └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │      └──IdentifierToken b
+                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
             }
             else
             {
@@ -97,14 +103,16 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 //  a     b
 
                 using var e = new AssertingEnumerator(expression);
-                e.AssertNode(SyntaxKind.UnaryExpression);           //  UnaryExpression
-                e.AssertToken(unaryKind, unaryText);                //  ├──<op1>
-                e.AssertNode(SyntaxKind.BinaryExpression);          //  └──BinaryExpression
-                e.AssertNode(SyntaxKind.NameExpression);            //      ├──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //      │   └──IdentifierToken a
-                e.AssertToken(binaryKind, binaryText);              //      ├──<op2>
-                e.AssertNode(SyntaxKind.NameExpression);            //      └──NameExpression
-                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //          └──IdentifierToken b
+                e.AssertNode(SyntaxKind.CompilationUnit);           //  CompilationUnit
+                e.AssertNode(SyntaxKind.UnaryExpression);           //  ├──UnaryExpression
+                e.AssertToken(unaryKind, unaryText);                //  │  ├──<op1>
+                e.AssertNode(SyntaxKind.BinaryExpression);          //  │  └──BinaryExpression
+                e.AssertNode(SyntaxKind.NameExpression);            //  │      ├──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "a");     //  │      │   └──IdentifierToken a
+                e.AssertToken(binaryKind, binaryText);              //  │      ├──<op2>
+                e.AssertNode(SyntaxKind.NameExpression);            //  │      └──NameExpression
+                e.AssertToken(SyntaxKind.IdentifierToken, "b");     //  │          └──IdentifierToken b
+                e.AssertToken(SyntaxKind.EOFToken, string.Empty);   //  └──EOFToken
             }
         }
 

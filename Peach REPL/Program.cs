@@ -24,6 +24,7 @@ namespace Peach
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
             var textBuilder = new StringBuilder();
+            Compilation previous = null;
 
             for (; ; )
             {
@@ -54,6 +55,12 @@ namespace Peach
                         Console.Clear();
                         continue;
                     }
+
+                    if (input == "#reset")
+                    {
+                        previous = null;
+                        continue;
+                    }
                 }
 
                 SyntaxTree syntaxTree;
@@ -70,7 +77,9 @@ namespace Peach
                     if (!isBlank && syntaxTree.Diagnostics.Any())
                         continue;
 
-                    compilation = new Compilation(syntaxTree);
+                    compilation = previous is null ?
+                                    new Compilation(syntaxTree) :
+                                    previous.ContinueWith(syntaxTree);
                     result = compilation.Evaluate(variables);
                 }
                 catch (Exception e)
@@ -88,6 +97,7 @@ namespace Peach
                 if (!diagnostics.Any())
                 {
                     ColourPrintln(result.Value, ResultColour);
+                    previous = compilation;
                 }
                 else
                 {
