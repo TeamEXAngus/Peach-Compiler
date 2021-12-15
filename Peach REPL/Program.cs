@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
+using Peach.CodeAnalysis.Text;
 
 namespace Peach
 {
@@ -18,26 +20,37 @@ namespace Peach
         {
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
+            var textBuilder = new StringBuilder();
 
             for (; ; )
             {
-                ColourPrint(">", DefaultColor);
-                var line = Console.ReadLine();
+                if (textBuilder.Length == 0)
+                    ColourPrint(">", DefaultColor);
+                else
+                    ColourPrint("|", DefaultColor);
 
-                if (string.IsNullOrEmpty(line))
-                    return;
+                var input = Console.ReadLine();
 
-                if (line == "#showTree")
+                var isBlank = string.IsNullOrWhiteSpace(input);
+
+                if (textBuilder.Length == 0)
                 {
-                    showTree = !showTree;
-                    ColourPrintln(showTree ? "Showing parse trees" : "Stopped showing parse trees", DefaultColor);
-                    continue;
-                }
+                    if (isBlank)
+                    {
+                        break;
+                    }
+                    if (input == "#showTree")
+                    {
+                        showTree = !showTree;
+                        ColourPrintln(showTree ? "Showing parse trees" : "Stopped showing parse trees", DefaultColor);
+                        continue;
+                    }
 
-                if (line == "#cls")
-                {
-                    Console.Clear();
-                    continue;
+                    if (input == "#cls")
+                    {
+                        Console.Clear();
+                        continue;
+                    }
                 }
 
                 SyntaxTree syntaxTree;
@@ -46,7 +59,14 @@ namespace Peach
 
                 try
                 {
-                    syntaxTree = SyntaxTree.Parse(line);
+                    textBuilder.AppendLine(input);
+                    var text = textBuilder.ToString();
+
+                    syntaxTree = SyntaxTree.Parse(text);
+
+                    if (!isBlank && syntaxTree.Diagnostics.Any())
+                        continue;
+
                     compilation = new Compilation(syntaxTree);
                     result = compilation.Evaluate(variables);
                 }
@@ -74,20 +94,26 @@ namespace Peach
                     {
                         var lineIndex = text.GetLineIndex(diagnostic.Span.Start);
                         var lineNumber = lineIndex + 1;
-                        var character = diagnostic.Span.Start - text.Lines[lineIndex].Start + 1;
+                        var line = text.Lines[lineIndex];
+                        var character = diagnostic.Span.Start - line.Start + 1;
 
                         Console.WriteLine();
                         ColourPrintln($"Line {lineNumber}, pos {character} : {diagnostic}", ErrorColour);
 
-                        var prefix = line.Substring(0, diagnostic.Span.Start);
-                        var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                        var suffix = line[diagnostic.Span.End..];
+                        var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
+                        var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                        var prefix = text.ToString(prefixSpan);
+                        var error = text.ToString(diagnostic.Span);
+                        var suffix = text.ToString(suffixSpan);
 
                         ColourPrint(prefix, DefaultColor);
                         ColourPrint(error, ConsoleColor.Red);
                         ColourPrintln(suffix, DefaultColor);
                     }
                 }
+
+                textBuilder.Clear();
             }
         }
 

@@ -27,14 +27,14 @@ namespace Peach.CodeAnalysis
 
         internal void ReportInvalidNumber(TextSpan span, string text, Type type)
         {
-            var message = $"The number {text} isn't valid {type}";
+            var message = $"The number '{text}' isn't valid {type}";
             Report(span, message);
         }
 
         internal void ReportBadCharacter(int position, char current)
         {
             var span = new TextSpan(position, 1);
-            var message = $"Bad character input: {current}";
+            var message = $"Bad character input: '{current}'";
             Report(span, message);
         }
 
@@ -46,19 +46,19 @@ namespace Peach.CodeAnalysis
 
         internal void ReportUndefinedUnaryOperator(TextSpan span, string text, Type type)
         {
-            var message = $"Unary operator {text} is not defined for type {type}";
+            var message = $"Unary operator '{text}' is not defined for type {type}";
             Report(span, message);
         }
 
         internal void ReportUndefinedBinaryOperator(TextSpan span, string text, Type left, Type right)
         {
-            var message = $"Binary operator {text} is not defined for types {left} and {right}";
+            var message = $"Binary operator '{text}' is not defined for types {left} and {right}";
             Report(span, message);
         }
 
         internal void ReportUndefinedName(TextSpan span, string name)
         {
-            var message = $"Variable {name} is undefined";
+            var message = $"Variable '{name}' is undefined";
             Report(span, message);
         }
     }
