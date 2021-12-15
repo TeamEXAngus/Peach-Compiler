@@ -129,6 +129,10 @@ namespace Peach.CodeAnalysis
                 BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
                 BoundBinaryOperatorKind.Equality => Equals(left, right),
                 BoundBinaryOperatorKind.Inequality => !Equals(left, right),
+                BoundBinaryOperatorKind.LessThan => (int)left < (int)right,
+                BoundBinaryOperatorKind.LessOrEqual => (int)left <= (int)right,
+                BoundBinaryOperatorKind.GreaterThan => (int)left > (int)right,
+                BoundBinaryOperatorKind.GreaterOrEqual => (int)left >= (int)right,
                 _ => throw new Exception($"Unexpected binary operator '{node.Op.Kind}'"),
             };
         }

@@ -94,19 +94,6 @@ namespace Peach.CodeAnalysis.Syntax
                     _position++;
                     break;
 
-                case '!':
-                    if (Lookahead == '=')
-                    {
-                        _kind = SyntaxKind.ExclamationEqualsToken;
-                        _position += 2;
-                    }
-                    else
-                    {
-                        _kind = SyntaxKind.ExclamationToken;
-                        _position += 1;
-                    }
-                    break;
-
                 case '&':
                     if (Lookahead == '&')
                     {
@@ -133,6 +120,19 @@ namespace Peach.CodeAnalysis.Syntax
                     }
                     break;
 
+                case '!':
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.ExclamationEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.ExclamationToken;
+                        _position += 1;
+                    }
+                    break;
+
                 case '=':
                     if (Lookahead == '=')
                     {
@@ -142,6 +142,32 @@ namespace Peach.CodeAnalysis.Syntax
                     else
                     {
                         _kind = SyntaxKind.EqualsToken;
+                        _position += 1;
+                    }
+                    break;
+
+                case '<':
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.LessOrEqualToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.LessThanToken;
+                        _position += 1;
+                    }
+                    break;
+
+                case '>':
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.GreaterOrEqualToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.GreaterThanToken;
                         _position += 1;
                     }
                     break;

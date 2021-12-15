@@ -147,6 +147,14 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 (SyntaxKind.PipeToken, SyntaxKind.PipePipeToken) => true,
                 (SyntaxKind.AmpersandToken, SyntaxKind.AmpersandToken) => true,
                 (SyntaxKind.AmpersandToken, SyntaxKind.AmpersandAmpersandToken) => true,
+                (SyntaxKind.LessThanToken, SyntaxKind.EqualsToken) => true,
+                (SyntaxKind.LessThanToken, SyntaxKind.EqualsEqualsToken) => true,
+                (SyntaxKind.LessOrEqualToken, SyntaxKind.EqualsToken) => true,
+                (SyntaxKind.LessOrEqualToken, SyntaxKind.EqualsEqualsToken) => true,
+                (SyntaxKind.GreaterThanToken, SyntaxKind.EqualsToken) => true,
+                (SyntaxKind.GreaterThanToken, SyntaxKind.EqualsEqualsToken) => true,
+                (SyntaxKind.GreaterOrEqualToken, SyntaxKind.EqualsToken) => true,
+                (SyntaxKind.GreaterOrEqualToken, SyntaxKind.EqualsEqualsToken) => true,
                 _ => false,
             };
         }

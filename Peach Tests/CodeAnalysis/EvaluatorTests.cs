@@ -208,6 +208,19 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "4 / 2", 2 };
             yield return new object[] { "9 / 3", 3 };
 
+            yield return new object[] { "9 > 3", true };
+            yield return new object[] { "9 >= 3", true };
+            yield return new object[] { "9 < 3", false };
+            yield return new object[] { "9 <= 3", false };
+            yield return new object[] { "3 > 9", false };
+            yield return new object[] { "3 >= 9", false };
+            yield return new object[] { "3 < 9", true };
+            yield return new object[] { "3 <= 9", true };
+            yield return new object[] { "9 > 9", false };
+            yield return new object[] { "9 >= 9", true };
+            yield return new object[] { "9 < 9", false };
+            yield return new object[] { "9 <= 9", true };
+
             yield return new object[] { "true", true };
             yield return new object[] { "false", false };
             yield return new object[] { "!true", false };

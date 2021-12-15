@@ -27,6 +27,10 @@ namespace Peach.CodeAnalysis.Syntax
 
                 SyntaxKind.EqualsEqualsToken => 3,
                 SyntaxKind.ExclamationEqualsToken => 3,
+                SyntaxKind.LessThanToken => 3,
+                SyntaxKind.LessOrEqualToken => 3,
+                SyntaxKind.GreaterThanToken => 3,
+                SyntaxKind.GreaterOrEqualToken => 3,
 
                 SyntaxKind.PlusToken => 4,
                 SyntaxKind.MinusToken => 4,
@@ -86,6 +90,10 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.EqualsToken => "=",
                 SyntaxKind.EqualsEqualsToken => "==",
                 SyntaxKind.ExclamationEqualsToken => "!=",
+                SyntaxKind.LessThanToken => "<",
+                SyntaxKind.LessOrEqualToken => "<=",
+                SyntaxKind.GreaterThanToken => ">",
+                SyntaxKind.GreaterOrEqualToken => ">=",
                 SyntaxKind.OpenParenToken => "(",
                 SyntaxKind.CloseParenToken => ")",
                 SyntaxKind.OpenBraceToken => "{",
