@@ -10,9 +10,11 @@ namespace Peach.CodeAnalysis.Syntax
         private int _position;
         private readonly DiagnosticBag _diagnostics = new();
         public DiagnosticBag Diagnostics => _diagnostics;
+        private SourceText _text { get; }
 
         public Parser(SourceText text)
         {
+            _text = text;
             var tokens = new List<SyntaxToken>();
             var lexer = new Lexer(text);
             SyntaxToken token;
@@ -63,7 +65,7 @@ namespace Peach.CodeAnalysis.Syntax
             var expression = ParseAssignmentExpression();
             var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
-            return new SyntaxTree(_diagnostics.ToImmutableArray(), expression, endOfFileToken);
+            return new SyntaxTree(_text, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseAssignmentExpression()

@@ -68,10 +68,16 @@ namespace Peach
                 }
                 else
                 {
+                    var text = syntaxTree.Text;
+
                     foreach (var diagnostic in diagnostics)
                     {
+                        var lineIndex = text.GetLineIndex(diagnostic.Span.Start);
+                        var lineNumber = lineIndex + 1;
+                        var character = diagnostic.Span.Start - text.Lines[lineIndex].Start + 1;
+
                         Console.WriteLine();
-                        ColourPrintln(diagnostic, ErrorColour);
+                        ColourPrintln($"Line {lineNumber}, pos {character} : {diagnostic}", ErrorColour);
 
                         var prefix = line.Substring(0, diagnostic.Span.Start);
                         var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);

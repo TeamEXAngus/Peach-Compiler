@@ -18,7 +18,7 @@ namespace Peach.CodeAnalysis.Syntax
         public int Position { get; }
         public string Text { get; }
         public object Value { get; }
-        public override TextSpan Span => new(Position, Text.Length);
+        public override TextSpan Span => new(Position, Text?.Length ?? 0);
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {

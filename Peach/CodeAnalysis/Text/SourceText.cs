@@ -21,7 +21,7 @@ namespace Peach.CodeAnalysis.Text
         public int GetLineIndex(int pos)
         {
             var lower = 0;
-            var upper = _text.Length - 1;
+            var upper = Lines.Length - 1;
 
             while (lower <= upper)
             {
