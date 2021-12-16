@@ -90,15 +90,9 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
         {
-            var name = syntax.Identifier.Text;
             var isConst = syntax.Keyword.Kind == SyntaxKind.ConstKeyword;
             var initializer = BindExpression(syntax.Initializer);
-            var variable = new VariableSymbol(name, isConst, initializer.Type);
-
-            if (!_scope.TryDeclare(variable))
-            {
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
-            }
+            var variable = BindVariable(syntax.Identifier, isConst, initializer.Type);
 
             return new BoundVariableDeclaration(variable, initializer);
         }
@@ -132,10 +126,7 @@ namespace Peach.CodeAnalysis.Binding
 
             _scope = new BoundScope(_scope);
 
-            var name = syntax.Variable.Text;
-            var variable = new VariableSymbol(name, true, TypeSymbol.Int);
-            if (!_scope.TryDeclare(variable))
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Variable.Span, name);
+            var variable = BindVariable(syntax.Variable, isConst: true, TypeSymbol.Int);
 
             var body = BindStatement(syntax.Body);
 
@@ -154,8 +145,12 @@ namespace Peach.CodeAnalysis.Binding
         private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol expectedType)
         {
             var result = BindExpression(syntax);
-            if (result.Type != expectedType)
+            if (expectedType != TypeSymbol.Error &&
+                result.Type != TypeSymbol.Error &&
+                result.Type != expectedType)
+            {
                 _diagnostics.ReportCannotConvertTypes(syntax.Span, result.Type, expectedType);
+            }
 
             return result;
         }
@@ -264,6 +259,17 @@ namespace Peach.CodeAnalysis.Binding
             }
 
             return new BoundAssignmentExpression(variable, boundExpression);
+        }
+
+        private VariableSymbol BindVariable(SyntaxToken identifier, bool isConst, TypeSymbol type)
+        {
+            var name = identifier.Text ?? "<error>";
+            var shouldDeclare = !identifier.IsMissing;
+
+            var variable = new VariableSymbol(name, isConst, type);
+            if (shouldDeclare && !_scope.TryDeclare(variable))
+                _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, identifier.Text);
+            return variable;
         }
     }
 }

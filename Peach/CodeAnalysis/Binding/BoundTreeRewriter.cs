@@ -145,6 +145,7 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.UnaryExpression => RewriteUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => RewriteBinaryExpresion(node as BoundBinaryExpression),
                 BoundNodeKind.ParenthesisedExpression => RewriteParenthesisedExpresion(node as BoundParenthesisedExpression),
+                BoundNodeKind.ErrorExpression => RewriteErrorExpression(node as BoundErrorExpression),
                 _ => throw new Exception($"Unexpected node kind in {nameof(RewriteExpression)}: {node.Kind}"),
             };
         }
@@ -198,6 +199,11 @@ namespace Peach.CodeAnalysis.Binding
                 return node;
 
             return new BoundParenthesisedExpression(expression);
+        }
+
+        protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)
+        {
+            return node;
         }
     }
 }
