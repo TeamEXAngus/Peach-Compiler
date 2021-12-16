@@ -136,14 +136,12 @@ namespace Peach.CodeAnalysis.Binding
             var stopVar = new VariableSymbol("<end>", true, typeof(int));
             if (!_scope.TryDeclare(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(syntax.Variable.Span, name);
-            if (!_scope.TryDeclare(stopVar))
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Variable.Span, "internal variable <end>");
 
             var body = BindStatement(syntax.Body);
 
             _scope = _scope.Parent;
 
-            return new BoundForStatement(variable, start, stop, stopVar, step, body);
+            return new BoundForStatement(variable, start, stop, step, body);
         }
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)

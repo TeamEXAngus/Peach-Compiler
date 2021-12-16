@@ -122,7 +122,7 @@ namespace Peach.CodeAnalysis.Syntax
 
             var notKeyword = Current.Kind == SyntaxKind.NotKeyword ? NextToken() : null;
 
-            var condition = ParseExpression();
+            var condition = ParseParenthesisedExpression();
             var statement = ParseStatement();
             var elseClause = ParseElseClause();
 
@@ -145,7 +145,7 @@ namespace Peach.CodeAnalysis.Syntax
 
             var notKeyword = Current.Kind == SyntaxKind.NotKeyword ? NextToken() : null;
 
-            var condition = ParseExpression();
+            var condition = ParseParenthesisedExpression();
             var statement = ParseStatement();
 
             return new WhileStatementSyntax(keyword, notKeyword, condition, statement);

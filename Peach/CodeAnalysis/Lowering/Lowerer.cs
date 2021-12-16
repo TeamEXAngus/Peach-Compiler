@@ -68,7 +68,7 @@ namespace Peach.CodeAnalysis.Lowering
             */
             var endLabel = GenerateLabel();
             var endLabelStatement = new BoundLabelStatement(endLabel);
-            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfFalse: !node.Negated);
+            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
 
             var result = new BoundBlockStatement(ImmutableArray.Create(gotoFalse, node.ThenStatment, endLabelStatement));
             return RewriteStatement(result);
@@ -91,7 +91,7 @@ namespace Peach.CodeAnalysis.Lowering
             var endLabel = GenerateLabel();
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
-            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, jumpIfFalse: !node.Negated);
+            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, jumpIfTrue: node.IsNegated);
             var gotoEnd = new BoundGotoStatement(endLabel);
 
             var result = new BoundBlockStatement(ImmutableArray.Create(
@@ -120,7 +120,7 @@ namespace Peach.CodeAnalysis.Lowering
             var endLabel = GenerateLabel();
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
-            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfFalse: !node.Negated);
+            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
             var gotoStart = new BoundGotoStatement(startLabel);
 
             var result = new BoundBlockStatement(ImmutableArray.Create(
@@ -139,21 +139,24 @@ namespace Peach.CodeAnalysis.Lowering
             /*
                                                                              let <var> = <start>
                 for <var> from <start> to <stop> step <step>     -->         let <end> = <stop>      <-- stop should only be calculated once
-                {                                                            while <var> <= <end>
+                {                                                            while <var> < <end>
                     <body>                                                   {
                 }                                                                <body>
                                                                                  <var> = <var> + <step>
                                                                              }
             */
 
-            var declaration = new BoundVariableDeclaration(node.Variable, node.Start);
-            var endDeclaration = new BoundVariableDeclaration(node.StopVar, node.Stop);
+            var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.Start);
+
+            var endSymbol = new VariableSymbol("<end>", true, typeof(int));
+            var endDeclaration = new BoundVariableDeclaration(endSymbol, node.Stop);
+
             var variableExpression = new BoundVariableExpression(node.Variable);
 
             var condition = new BoundBinaryExpression(
                 variableExpression,
                 BoundBinaryOperator.Bind(SyntaxKind.LessThanToken, typeof(int), typeof(int)),
-                new BoundVariableExpression(node.StopVar)
+                new BoundVariableExpression(endSymbol)
             );
 
             var increment = new BoundExpressionStatement(
@@ -170,7 +173,7 @@ namespace Peach.CodeAnalysis.Lowering
             var whileBody = new BoundBlockStatement(ImmutableArray.Create(node.Body, increment));
             var whileStatement = new BoundWhileStatement(condition, false, whileBody);
 
-            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(declaration, endDeclaration, whileStatement));
+            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDeclaration, endDeclaration, whileStatement));
 
             return RewriteStatement(result);
         }

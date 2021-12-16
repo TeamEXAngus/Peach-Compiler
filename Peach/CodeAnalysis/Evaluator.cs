@@ -52,8 +52,7 @@ namespace Peach.CodeAnalysis
                     case BoundNodeKind.ConditionalGotoStatement:
                         var _this = s as BoundConditionalGotoStatement;
                         var condition = (bool)EvaluateExpression(_this.Condition);
-                        if ((condition && !_this.JumpIfFalse) ||
-                            (!condition && _this.JumpIfFalse))
+                        if (condition == _this.JumpIfTrue)
                             index = labelToIndex[_this.Label];
                         else
                             index++;

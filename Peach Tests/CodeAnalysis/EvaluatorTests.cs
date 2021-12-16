@@ -183,7 +183,7 @@ namespace Peach_Tests.CodeAnalysis
             var text = @"
                 {
                     let x = 0
-                    if [69]
+                    if [(69)]
                     {
                         x = 10
                     }
@@ -203,7 +203,7 @@ namespace Peach_Tests.CodeAnalysis
             var text = @"
                 {
                     let x = 0
-                    while [69]
+                    while [(69)]
                     {
                         x = 10
                     }
@@ -212,6 +212,34 @@ namespace Peach_Tests.CodeAnalysis
 
             var diagnostics = @$"
                 {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+            ";
+
+            AssertHasDiagnostics(text, diagnostics);
+        }
+
+        [Fact]
+        public void Evaluator_ConditionalStatement_ConditionRequiresParen()
+        {
+            var text = @"
+                {
+                    if [true] [{]}
+                    if (true) {}
+
+                    if not [false] [{]}
+                    if not (false) {}
+
+                    while not [true] [{]}
+                    while not (true) {}
+                }
+            ";
+
+            var diagnostics = @$"
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.FalseKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
             ";
 
             AssertHasDiagnostics(text, diagnostics);
@@ -370,10 +398,10 @@ namespace Peach_Tests.CodeAnalysis
             yield return new object[] { "(1 + 2 != 3)", false };
             yield return new object[] { "(1 + 2 == 4)", false };
 
-            yield return new object[] { "if true {10} else {5}", 10 };
-            yield return new object[] { "if false {10} else {5}", 5 };
-            yield return new object[] { "if not true {10} else {5}", 5 };
-            yield return new object[] { "if not false {10} else {5}", 10 };
+            yield return new object[] { "if (true) {10} else {5}", 10 };
+            yield return new object[] { "if (false) {10} else {5}", 5 };
+            yield return new object[] { "if not (true) {10} else {5}", 5 };
+            yield return new object[] { "if not (false) {10} else {5}", 10 };
 
             yield return new object[] { "{ let a = 10 if (a == 10) {a = 5} a } ", 5 };
             yield return new object[] { "{ let a = 12 if (a == 10) {a = 5} a } ", 12 };
