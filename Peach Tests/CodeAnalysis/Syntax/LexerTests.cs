@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Xunit;
 using System;
+using Peach.CodeAnalysis;
 
 namespace Peach_Tests.CodeAnalysis.Syntax
 {
@@ -24,6 +25,25 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             untestedTokenKinds.ExceptWith(testedTokenKinds);
 
             Assert.Empty(untestedTokenKinds);
+        }
+
+        [Fact]
+        public void Lexer_Error_UnterminatedString()
+        {
+            var text = @"
+            {
+                let foo = ""foo""
+                let bar = [""]bar
+            }
+            ";
+
+
+
+            var diagnostics = $@"
+                {DiagnosticBag.GetUnterminatedStringErrorMesage()}
+            ";
+
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Theory]
@@ -113,6 +133,9 @@ namespace Peach_Tests.CodeAnalysis.Syntax
                 (SyntaxKind.NumberToken, "1"),
                 (SyntaxKind.NumberToken, "243"),
                 (SyntaxKind.NumberToken, "8374943"),
+                (SyntaxKind.StringToken, "\"Hello, World!\""),
+                (SyntaxKind.StringToken, "\"\\\"Sex money blaze it\\\"\""),
+                (SyntaxKind.StringToken, "\"ZZZZ__()\""),
             };
 
             return fixedTokens.Concat(dynamicTokens);

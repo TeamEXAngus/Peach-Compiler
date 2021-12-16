@@ -1,4 +1,5 @@
-﻿using Peach.CodeAnalysis.Syntax;
+﻿using Peach.CodeAnalysis;
+using Peach.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,34 @@ namespace Peach_Tests.CodeAnalysis.Syntax
             catch when (MarkFailed())
             {
                 throw;
+            }
+        }
+
+        internal static void AssertHasDiagnostics(string text, string diagnosticText)
+        {
+            var annotatedText = AnnotatedText.Parse(text);
+
+            var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
+            var compilation = new Compilation(syntaxTree);
+            var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+
+            var diagnostics = result.Diagnostics;
+            var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
+
+            if (annotatedText.Spans.Length != expectedDiagnostics.Length)
+                throw new Exception("Must have same number of expected diagnostics and annotated spans");
+
+            foreach (var diagnostic in diagnostics)
+                Console.WriteLine(diagnostic.Message);
+
+            Assert.Equal(expectedDiagnostics.Length, diagnostics.Length);
+
+            for (var i = 0; i < diagnostics.Length; i++)
+            {
+                var expectedSpan = annotatedText.Spans[i];
+                var actualSpan = diagnostics[i].Span;
+
+                Assert.Equal(expectedSpan, actualSpan);
             }
         }
     }

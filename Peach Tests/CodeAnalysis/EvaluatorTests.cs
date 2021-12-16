@@ -1,5 +1,6 @@
 ﻿using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
+using Peach_Tests.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -63,11 +64,11 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.CloseParenToken, SyntaxKind.CloseBraceToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.CloseParenToken, SyntaxKind.EOFToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.CloseParenToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.CloseParenToken, SyntaxKind.EOFToken)}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -81,11 +82,11 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUndefinedUnaryOperatorMessage("-", typeof(bool))}
-                {DiagnosticBag.ReportUndefinedUnaryOperatorMessage("!", typeof(int))}
+                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("-", typeof(bool))}
+                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("!", typeof(int))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -100,12 +101,12 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("+", typeof(bool), typeof(bool))}
-                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("&&", typeof(int), typeof(int))}
-                {DiagnosticBag.ReportUndefinedBinaryOperatorMessage("*", typeof(bool), typeof(int))}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("+", typeof(bool), typeof(bool))}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("&&", typeof(int), typeof(int))}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("*", typeof(bool), typeof(int))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -118,10 +119,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUndefinedNameMessage("peach")}
+                {DiagnosticBag.GetUndefinedNameErrorMessage("peach")}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -130,10 +131,10 @@ namespace Peach_Tests.CodeAnalysis
             var text = @"[]";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.IdentifierToken, SyntaxKind.EOFToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.IdentifierToken, SyntaxKind.EOFToken)}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -150,10 +151,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportVariableAlreadyDeclaredMessage("x")}
+                {DiagnosticBag.GetVariableAlreadyDeclaredErrorMessage("x")}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -170,11 +171,11 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -191,10 +192,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -211,10 +212,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -234,15 +235,15 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.FalseKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.ReportUnexpectedTokenMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.FalseKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -256,12 +257,12 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
-                {DiagnosticBag.ReportCannotConvertTypesMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -275,10 +276,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotAssignToConstMessage("x")}
+                {DiagnosticBag.GetCannotAssignToConstErrorMessage("x")}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         [Fact]
@@ -294,35 +295,10 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.ReportCannotAssignToConstMessage("i")}
+                {DiagnosticBag.GetCannotAssignToConstErrorMessage("i")}
             ";
 
-            AssertHasDiagnostics(text, diagnostics);
-        }
-
-        private static void AssertHasDiagnostics(string text, string diagnosticText)
-        {
-            var annotatedText = AnnotatedText.Parse(text);
-
-            var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
-            var compilation = new Compilation(syntaxTree);
-            var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
-
-            var diagnostics = result.Diagnostics;
-            var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
-
-            if (annotatedText.Spans.Length != expectedDiagnostics.Length)
-                throw new Exception("Must have same number of expected diagnostics and annotated spans");
-
-            Assert.Equal(expectedDiagnostics.Length, diagnostics.Length);
-
-            for (var i = 0; i < diagnostics.Length; i++)
-            {
-                var expectedSpan = annotatedText.Spans[i];
-                var actualSpan = diagnostics[i].Span;
-
-                Assert.Equal(expectedSpan, actualSpan);
-            }
+            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
         }
 
         public static IEnumerable<object[]> GetExpressionData()

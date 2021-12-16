@@ -1,4 +1,5 @@
 ﻿using Peach.CodeAnalysis.Text;
+using System.Text;
 
 namespace Peach.CodeAnalysis.Syntax
 {
@@ -182,6 +183,10 @@ namespace Peach.CodeAnalysis.Syntax
                     }
                     break;
 
+                case '"':
+                    ReadStringToken();
+                    break;
+
                 case '0' or '1' or '2' or '3' or '4':
                 case '5' or '6' or '7' or '8' or '9':
                     ReadNumberToken();
@@ -209,11 +214,57 @@ namespace Peach.CodeAnalysis.Syntax
             }
 
             var length = _position - _start;
+            //System.Console.WriteLine($"Pos: {_position}, Start: {_start}");
             var text = SyntaxFacts.GetText(_kind);
             if (text is null)
                 text = _text.ToString(_start, length);
 
             return new SyntaxToken(_kind, _start, text, _value);
+        }
+
+        private void ReadStringToken()
+        {
+            _position++;
+            var sb = new StringBuilder();
+            var done = false;
+
+            while (!done)
+            {
+                switch (Current)
+                {
+                    case '\0' or '\r' or '\n':
+                        var span = new TextSpan(_start, 1);
+                        _diagnostics.ReportUnterminatedString(span);
+                        done = true;
+                        break;
+
+                    case '\\':
+                        if (Lookahead == '"')
+                        {
+                            sb.Append('"');
+                            _position += 2;
+                        }
+                        else
+                        {
+                            sb.Append(Current);
+                            _position++;
+                        }
+                        break;
+
+                    case '"':
+                        done = true;
+                        _position++;
+                        break;
+
+                    default:
+                        sb.Append(Current);
+                        _position++;
+                        break;
+                }
+            }
+
+            _kind = SyntaxKind.StringToken;
+            _value = sb.ToString();
         }
 
         private void ReadNumberToken()

@@ -148,6 +148,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.StepKeyword => true,
                 SyntaxKind.LoopKeyword => true,
                 SyntaxKind.IdentifierToken => true,
+                SyntaxKind.StringToken => true,
 
                 _ => false,
             };
@@ -164,7 +165,7 @@ namespace Peach.CodeAnalysis.Syntax
             return kind switch
             {
                 SyntaxKind.IdentifierToken => TokenKind.Identifier,
-                SyntaxKind.NumberToken => TokenKind.Literal,
+                SyntaxKind.NumberToken or SyntaxKind.StringToken => TokenKind.Literal,
                 _ => IsWord(kind) ? TokenKind.Keyword :
                      IsOperator(kind) ? TokenKind.Operator : TokenKind.None,
             };

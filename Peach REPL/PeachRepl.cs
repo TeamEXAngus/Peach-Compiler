@@ -103,6 +103,14 @@ namespace Peach
             if (string.IsNullOrEmpty(text))
                 return true;
 
+            var lastTwoLinesAreBlank = text.Split('\n')
+                                           .Reverse()
+                                           .TakeWhile(s => string.IsNullOrEmpty(s))
+                                           .Count() == 2;
+
+            if (lastTwoLinesAreBlank)
+                return true;
+
             var syntaxTree = SyntaxTree.Parse(text);
 
             if (syntaxTree.Root.Statement.GetLastToken().IsMissing)
@@ -115,9 +123,9 @@ namespace Peach
         {
             return SyntaxFacts.GetTokenKind(kind) switch
             {
-                TokenKind.Identifier => ConsoleColor.Yellow,
+                TokenKind.Identifier => ConsoleColor.DarkYellow,
                 TokenKind.Keyword => ConsoleColor.Blue,
-                TokenKind.Literal => ConsoleColor.Cyan,
+                TokenKind.Literal => ConsoleColor.DarkCyan,
                 TokenKind.Operator => ConsoleColor.Gray,
                 _ => ConsoleColor.White,
             };

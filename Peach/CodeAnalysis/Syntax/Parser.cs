@@ -233,6 +233,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.OpenParenToken => ParseParenthesisedExpression(),
                 SyntaxKind.FalseKeyword or SyntaxKind.TrueKeyword => ParseBooleanLiteral(),
                 SyntaxKind.NumberToken => ParseNumberLiteral(),
+                SyntaxKind.StringToken => ParseStringLiteral(),
                 SyntaxKind.IdentifierToken or _ => ParseNameExpression(),
             };
         }
@@ -256,6 +257,12 @@ namespace Peach.CodeAnalysis.Syntax
         {
             var numberToken = MatchToken(SyntaxKind.NumberToken);
             return new LiteralExpressionSyntax(numberToken);
+        }
+
+        private ExpressionSyntax ParseStringLiteral()
+        {
+            var stringToken = MatchToken(SyntaxKind.StringToken);
+            return new LiteralExpressionSyntax(stringToken);
         }
 
         private ExpressionSyntax ParseNameExpression()

@@ -38,79 +38,90 @@ namespace Peach.CodeAnalysis
             Report(span, message);
         }
 
-        internal void ReportUnexpectedToken(TextSpan span, SyntaxKind kind, SyntaxKind expected)
+        internal void ReportUnterminatedString(TextSpan span)
         {
-            string message = ReportUnexpectedTokenMessage(kind, expected);
+            var message = GetUnterminatedStringErrorMesage();
             Report(span, message);
         }
 
-        internal static string ReportUnexpectedTokenMessage(SyntaxKind kind, SyntaxKind expected)
+        internal static string GetUnterminatedStringErrorMesage()
+        {
+            return "Unterminated string literal in input";
+        }
+
+        internal void ReportUnexpectedToken(TextSpan span, SyntaxKind kind, SyntaxKind expected)
+        {
+            string message = GetUnexpectedTokenErrorMessage(kind, expected);
+            Report(span, message);
+        }
+
+        internal static string GetUnexpectedTokenErrorMessage(SyntaxKind kind, SyntaxKind expected)
         {
             return $"Unexpected token <{kind}>, expected <{expected}>";
         }
 
         internal void ReportUndefinedUnaryOperator(TextSpan span, string text, Type type)
         {
-            string message = ReportUndefinedUnaryOperatorMessage(text, type);
+            string message = GetUndefinedUnaryOperatorErrorMessage(text, type);
             Report(span, message);
         }
 
-        internal static string ReportUndefinedUnaryOperatorMessage(string text, Type type)
+        internal static string GetUndefinedUnaryOperatorErrorMessage(string text, Type type)
         {
             return $"Unary operator '{text}' is not defined for type {type}";
         }
 
         internal void ReportUndefinedBinaryOperator(TextSpan span, string text, Type left, Type right)
         {
-            string message = ReportUndefinedBinaryOperatorMessage(text, left, right);
+            string message = GetUndefinedBinaryOperatorErrorMessage(text, left, right);
             Report(span, message);
         }
 
-        internal static string ReportUndefinedBinaryOperatorMessage(string text, Type left, Type right)
+        internal static string GetUndefinedBinaryOperatorErrorMessage(string text, Type left, Type right)
         {
             return $"Binary operator '{text}' is not defined for types {left} and {right}";
         }
 
         internal void ReportUndefinedName(TextSpan span, string name)
         {
-            string message = ReportUndefinedNameMessage(name);
+            string message = GetUndefinedNameErrorMessage(name);
             Report(span, message);
         }
 
-        internal static string ReportUndefinedNameMessage(string name)
+        internal static string GetUndefinedNameErrorMessage(string name)
         {
             return $"Variable '{name}' is undefined";
         }
 
         internal void ReportVariableAlreadyDeclared(TextSpan span, string name)
         {
-            string message = ReportVariableAlreadyDeclaredMessage(name);
+            string message = GetVariableAlreadyDeclaredErrorMessage(name);
             Report(span, message);
         }
 
-        internal static string ReportVariableAlreadyDeclaredMessage(string name)
+        internal static string GetVariableAlreadyDeclaredErrorMessage(string name)
         {
             return $"Cannot redeclare variable '{name}'";
         }
 
         internal void ReportCannotConvertTypes(TextSpan span, Type varType, Type expressionType)
         {
-            string message = ReportCannotConvertTypesMessage(varType, expressionType);
+            string message = GetCannotConvertTypesErrorMessage(varType, expressionType);
             Report(span, message);
         }
 
-        internal static string ReportCannotConvertTypesMessage(Type varType, Type expressionType)
+        internal static string GetCannotConvertTypesErrorMessage(Type varType, Type expressionType)
         {
             return $"Cannot convert type {varType} to type {expressionType}";
         }
 
         internal void ReportCannotAssignToConst(TextSpan span, string name)
         {
-            string message = ReportCannotAssignToConstMessage(name);
+            string message = GetCannotAssignToConstErrorMessage(name);
             Report(span, message);
         }
 
-        internal static string ReportCannotAssignToConstMessage(string name)
+        internal static string GetCannotAssignToConstErrorMessage(string name)
         {
             return $"Cannot assign to constant variable '{name}'";
         }
