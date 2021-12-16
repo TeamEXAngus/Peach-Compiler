@@ -15,7 +15,7 @@ namespace Peach.CodeAnalysis.Binding
             Expression = boundExpression;
         }
 
-        public override Type Type => Expression.Type;
+        public override TypeSymbol Type => Expression.Type;
 
         public override BoundNodeKind Kind => BoundNodeKind.AssignmentExpression;
     }

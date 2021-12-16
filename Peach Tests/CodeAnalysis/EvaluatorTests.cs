@@ -82,8 +82,8 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("-", typeof(bool))}
-                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("!", typeof(int))}
+                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("-", TypeSymbol.Bool)}
+                {DiagnosticBag.GetUndefinedUnaryOperatorErrorMessage("!", TypeSymbol.Int)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
@@ -101,9 +101,9 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("+", typeof(bool), typeof(bool))}
-                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("&&", typeof(int), typeof(int))}
-                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("*", typeof(bool), typeof(int))}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("+", TypeSymbol.Bool, TypeSymbol.Bool)}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("&&", TypeSymbol.Int, TypeSymbol.Int)}
+                {DiagnosticBag.GetUndefinedBinaryOperatorErrorMessage("*", TypeSymbol.Bool, TypeSymbol.Int)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
@@ -171,8 +171,8 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Bool, TypeSymbol.Int)}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Int, TypeSymbol.Bool)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
@@ -192,7 +192,7 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Bool, TypeSymbol.Int)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
@@ -212,7 +212,7 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(bool), typeof(int))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Bool, TypeSymbol.Int)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
@@ -257,9 +257,9 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
-                {DiagnosticBag.GetCannotConvertTypesErrorMessage(typeof(int), typeof(bool))}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Int, TypeSymbol.Bool)}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Int, TypeSymbol.Bool)}
+                {DiagnosticBag.GetCannotConvertTypesErrorMessage(TypeSymbol.Int, TypeSymbol.Bool)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);

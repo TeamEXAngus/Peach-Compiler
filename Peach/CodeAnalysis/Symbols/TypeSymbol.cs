@@ -2,7 +2,11 @@
 {
     public sealed class TypeSymbol : Symbol
     {
-        internal TypeSymbol(string name)
+        public static readonly TypeSymbol Int = new("int");
+        public static readonly TypeSymbol Bool = new("bool");
+        public static readonly TypeSymbol String = new("string");
+
+        private TypeSymbol(string name)
             : base(name)
         { }
 

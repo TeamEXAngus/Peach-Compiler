@@ -1,5 +1,4 @@
-﻿using System;
-using Peach.CodeAnalysis.Syntax;
+﻿using Peach.CodeAnalysis.Symbols;
 
 namespace Peach.CodeAnalysis.Binding
 {
@@ -16,6 +15,6 @@ namespace Peach.CodeAnalysis.Binding
         public BoundExpression Left { get; }
         public BoundBinaryOperator Op { get; }
         public BoundExpression Right { get; }
-        public override Type Type => Op.ResultType;
+        public override TypeSymbol Type => Op.ResultType;
     }
 }

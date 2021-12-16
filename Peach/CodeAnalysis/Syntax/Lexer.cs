@@ -1,4 +1,5 @@
-﻿using Peach.CodeAnalysis.Text;
+﻿using Peach.CodeAnalysis.Symbols;
+using Peach.CodeAnalysis.Text;
 using System.Text;
 
 namespace Peach.CodeAnalysis.Syntax
@@ -275,7 +276,7 @@ namespace Peach.CodeAnalysis.Syntax
             var len = _position - _start;
             var text = _text.ToString(_start, len);
             if (!int.TryParse(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, len), text, typeof(int));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, len), text, TypeSymbol.Int);
 
             _value = value;
             _kind = SyntaxKind.NumberToken;

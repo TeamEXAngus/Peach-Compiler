@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Peach.CodeAnalysis.Symbols;
 
 namespace Peach.CodeAnalysis.Binding
 {
@@ -11,7 +11,7 @@ namespace Peach.CodeAnalysis.Binding
 
         public BoundExpression Expression { get; }
 
-        public override Type Type => Expression.Type;
+        public override TypeSymbol Type => Expression.Type;
 
         public override BoundNodeKind Kind => BoundNodeKind.ParenthesisedExpression;
     }

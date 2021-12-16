@@ -149,14 +149,14 @@ namespace Peach.CodeAnalysis.Lowering
 
             var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.Start);
 
-            var endSymbol = new VariableSymbol("<end>", true, typeof(int));
+            var endSymbol = new VariableSymbol("<end>", true, TypeSymbol.Int);
             var endDeclaration = new BoundVariableDeclaration(endSymbol, node.Stop);
 
             var variableExpression = new BoundVariableExpression(node.Variable);
 
             var condition = new BoundBinaryExpression(
                 variableExpression,
-                BoundBinaryOperator.Bind(SyntaxKind.LessThanToken, typeof(int), typeof(int)),
+                BoundBinaryOperator.Bind(SyntaxKind.LessThanToken, TypeSymbol.Int, TypeSymbol.Int),
                 new BoundVariableExpression(endSymbol)
             );
 
@@ -165,7 +165,7 @@ namespace Peach.CodeAnalysis.Lowering
                     node.Variable,
                     new BoundBinaryExpression(
                         variableExpression,
-                        BoundBinaryOperator.Bind(SyntaxKind.PlusToken, typeof(int), typeof(int)),
+                        BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int),
                         node.Step
                     )
                 )

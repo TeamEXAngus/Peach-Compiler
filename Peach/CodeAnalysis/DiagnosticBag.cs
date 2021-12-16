@@ -1,4 +1,5 @@
-﻿using Peach.CodeAnalysis.Syntax;
+﻿using Peach.CodeAnalysis.Symbols;
+using Peach.CodeAnalysis.Syntax;
 using Peach.CodeAnalysis.Text;
 using System;
 using System.Collections;
@@ -25,7 +26,7 @@ namespace Peach.CodeAnalysis
             _diagnostics.Add(diagnostic);
         }
 
-        internal void ReportInvalidNumber(TextSpan span, string text, Type type)
+        internal void ReportInvalidNumber(TextSpan span, string text, TypeSymbol type)
         {
             var message = $"The number '{text}' isn't valid {type}";
             Report(span, message);
@@ -60,24 +61,24 @@ namespace Peach.CodeAnalysis
             return $"Unexpected token <{kind}>, expected <{expected}>";
         }
 
-        internal void ReportUndefinedUnaryOperator(TextSpan span, string text, Type type)
+        internal void ReportUndefinedUnaryOperator(TextSpan span, string text, TypeSymbol type)
         {
             string message = GetUndefinedUnaryOperatorErrorMessage(text, type);
             Report(span, message);
         }
 
-        internal static string GetUndefinedUnaryOperatorErrorMessage(string text, Type type)
+        internal static string GetUndefinedUnaryOperatorErrorMessage(string text, TypeSymbol type)
         {
             return $"Unary operator '{text}' is not defined for type {type}";
         }
 
-        internal void ReportUndefinedBinaryOperator(TextSpan span, string text, Type left, Type right)
+        internal void ReportUndefinedBinaryOperator(TextSpan span, string text, TypeSymbol left, TypeSymbol right)
         {
             string message = GetUndefinedBinaryOperatorErrorMessage(text, left, right);
             Report(span, message);
         }
 
-        internal static string GetUndefinedBinaryOperatorErrorMessage(string text, Type left, Type right)
+        internal static string GetUndefinedBinaryOperatorErrorMessage(string text, TypeSymbol left, TypeSymbol right)
         {
             return $"Binary operator '{text}' is not defined for types {left} and {right}";
         }
@@ -104,13 +105,13 @@ namespace Peach.CodeAnalysis
             return $"Cannot redeclare variable '{name}'";
         }
 
-        internal void ReportCannotConvertTypes(TextSpan span, Type varType, Type expressionType)
+        internal void ReportCannotConvertTypes(TextSpan span, TypeSymbol varType, TypeSymbol expressionType)
         {
             string message = GetCannotConvertTypesErrorMessage(varType, expressionType);
             Report(span, message);
         }
 
-        internal static string GetCannotConvertTypesErrorMessage(Type varType, Type expressionType)
+        internal static string GetCannotConvertTypesErrorMessage(TypeSymbol varType, TypeSymbol expressionType)
         {
             return $"Cannot convert type {varType} to type {expressionType}";
         }

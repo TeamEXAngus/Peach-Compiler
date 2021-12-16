@@ -105,7 +105,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundStatement BindIfStatement(IfStatementSyntax syntax)
         {
-            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
             var statement = BindStatement(syntax.ThenStatement);
             var elseClause = syntax.ElseClause is null ? null : BindStatement(syntax.ElseClause.ElseStatement);
             return new BoundIfStatement(condition, syntax.IsNegated, statement, elseClause);
@@ -113,7 +113,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
         {
-            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
             var body = BindStatement(syntax.Body);
             return new BoundWhileStatement(condition, syntax.IsNegated, body);
         }
@@ -126,14 +126,14 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)
         {
-            var start = BindExpression(syntax.Start, typeof(int));
-            var stop = BindExpression(syntax.Stop, typeof(int));
-            var step = BindExpression(syntax.Step, typeof(int));
+            var start = BindExpression(syntax.Start, TypeSymbol.Int);
+            var stop = BindExpression(syntax.Stop, TypeSymbol.Int);
+            var step = BindExpression(syntax.Step, TypeSymbol.Int);
 
             _scope = new BoundScope(_scope);
 
             var name = syntax.Variable.Text;
-            var variable = new VariableSymbol(name, true, typeof(int));
+            var variable = new VariableSymbol(name, true, TypeSymbol.Int);
             if (!_scope.TryDeclare(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(syntax.Variable.Span, name);
 
@@ -151,7 +151,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundExpressionStatement(expression);
         }
 
-        private BoundExpression BindExpression(ExpressionSyntax syntax, Type expectedType)
+        private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol expectedType)
         {
             var result = BindExpression(syntax);
             if (result.Type != expectedType)

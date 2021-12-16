@@ -1,9 +1,4 @@
 ﻿using Peach.CodeAnalysis.Symbols;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Peach.CodeAnalysis.Binding
 {
@@ -16,7 +11,7 @@ namespace Peach.CodeAnalysis.Binding
 
         public override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
         public string Name => Variable.Name;
-        public override Type Type => Variable.Type;
+        public override TypeSymbol Type => Variable.Type;
         public VariableSymbol Variable { get; }
     }
 }
