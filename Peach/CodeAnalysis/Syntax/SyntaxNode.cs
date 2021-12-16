@@ -27,6 +27,14 @@ namespace Peach.CodeAnalysis.Syntax
             PrettyPrint(writer, this, isToConsole: writer == Console.Out);
         }
 
+        public SyntaxToken GetLastToken()
+        {
+            if (this is SyntaxToken token)
+                return token;
+
+            return GetChildren().Last().GetLastToken();
+        }
+
         private static void PrettyPrint(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = true, bool isToConsole = true)
 
         {
