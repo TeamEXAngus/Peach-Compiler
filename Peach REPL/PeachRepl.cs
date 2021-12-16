@@ -105,10 +105,18 @@ namespace Peach
 
             var syntaxTree = SyntaxTree.Parse(text);
 
-            if (syntaxTree.Diagnostics.Any())
+            if (GetLastToken(syntaxTree.Root.Statement).IsMissing)
                 return false;
 
             return true;
+        }
+
+        private SyntaxToken GetLastToken(SyntaxNode node)
+        {
+            if (node is SyntaxToken token)
+                return token;
+
+            return GetLastToken(node.GetChildren().Last());
         }
 
         private static ConsoleColor GetColourOf(SyntaxKind kind)
