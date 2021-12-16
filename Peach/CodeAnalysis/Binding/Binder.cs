@@ -133,7 +133,6 @@ namespace Peach.CodeAnalysis.Binding
 
             var name = syntax.Variable.Text;
             var variable = new VariableSymbol(name, true, typeof(int));
-            var stopVar = new VariableSymbol("<end>", true, typeof(int));
             if (!_scope.TryDeclare(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(syntax.Variable.Span, name);
 

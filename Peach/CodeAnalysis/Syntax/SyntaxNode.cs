@@ -1,4 +1,5 @@
 ﻿using Peach.CodeAnalysis.Text;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,20 +24,28 @@ namespace Peach.CodeAnalysis.Syntax
 
         public void WriteTo(TextWriter writer)
         {
-            PrettyPrint(writer, this);
+            PrettyPrint(writer, this, isToConsole: writer == Console.Out);
         }
 
-        private static void PrettyPrint(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = true)
+        private static void PrettyPrint(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = true, bool isToConsole = true)
+
         {
             var marker = isLast ? "└──" : "├──";
 
+            if (isToConsole)
+                Console.ForegroundColor = ConsoleColor.DarkGray;
             writer.Write(indent);
             writer.Write(marker);
+
+            if (isToConsole)
+                Console.ForegroundColor = node is SyntaxToken ? ConsoleColor.Blue : ConsoleColor.Cyan;
             writer.Write(node.Kind);
 
             if (node is SyntaxToken t)
+
             {
                 if (t.Value is not null)
+
                 {
                     writer.Write(" ");
                     writer.Write(t.Value);
@@ -57,7 +66,7 @@ namespace Peach.CodeAnalysis.Syntax
 
             foreach (var child in node.GetChildren())
             {
-                PrettyPrint(writer, child, indent, child == lastChild);
+                PrettyPrint(writer, child, indent, child == lastChild, isToConsole);
             }
         }
 

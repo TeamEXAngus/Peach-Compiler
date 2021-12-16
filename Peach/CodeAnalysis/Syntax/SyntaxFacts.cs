@@ -142,13 +142,31 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ElseKeyword => true,
                 SyntaxKind.WhileKeyword => true,
                 SyntaxKind.NotKeyword => true,
-                SyntaxKind.IdentifierToken => true,
                 SyntaxKind.ForKeyword => true,
                 SyntaxKind.FromKeyword => true,
                 SyntaxKind.ToKeyword => true,
                 SyntaxKind.StepKeyword => true,
                 SyntaxKind.LoopKeyword => true,
+                SyntaxKind.IdentifierToken => true,
+
                 _ => false,
+            };
+        }
+
+        public static bool IsOperator(SyntaxKind kind)
+        {
+            var sum = GetUnaryOperatorPrecedence(kind) + GetBinaryOperatorPrecedence(kind);
+            return sum != 0;
+        }
+
+        public static TokenKind GetTokenKind(SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.IdentifierToken => TokenKind.Identifier,
+                SyntaxKind.NumberToken => TokenKind.Literal,
+                _ => IsWord(kind) ? TokenKind.Keyword :
+                     IsOperator(kind) ? TokenKind.Operator : TokenKind.None,
             };
         }
     }

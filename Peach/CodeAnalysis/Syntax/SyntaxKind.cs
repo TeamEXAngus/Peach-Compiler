@@ -72,4 +72,14 @@
         ForStatement,
         LoopStatement,
     }
+
+    public enum TokenKind
+    {
+        Keyword,
+        Operator,
+        Literal,
+        Identifier,
+
+        None
+    }
 }
