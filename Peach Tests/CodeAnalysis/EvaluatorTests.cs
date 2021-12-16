@@ -1,7 +1,7 @@
 ﻿using Peach.CodeAnalysis;
+using Peach.CodeAnalysis.Symbols;
 using Peach.CodeAnalysis.Syntax;
 using Peach_Tests.CodeAnalysis.Syntax;
-using System;
 using System.Collections.Generic;
 using Xunit;
 

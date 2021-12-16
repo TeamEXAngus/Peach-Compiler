@@ -1,4 +1,6 @@
-﻿namespace Peach.CodeAnalysis.Binding
+﻿using Peach.CodeAnalysis.Symbols;
+
+namespace Peach.CodeAnalysis.Binding
 {
     internal sealed class BoundVariableDeclaration : BoundStatement
     {

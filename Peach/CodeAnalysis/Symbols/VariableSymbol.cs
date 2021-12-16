@@ -1,17 +1,17 @@
 ﻿using System;
 
-namespace Peach.CodeAnalysis
+namespace Peach.CodeAnalysis.Symbols
 {
-    public sealed class VariableSymbol
+    public sealed class VariableSymbol : Symbol
     {
         internal VariableSymbol(string name, bool isConst, Type type)
+            : base(name)
         {
-            Name = name;
             IsConst = isConst;
             Type = type;
         }
 
-        public string Name { get; }
+        public override SymbolKind Kind => SymbolKind.Variable;
         public bool IsConst { get; }
         public Type Type { get; }
     }

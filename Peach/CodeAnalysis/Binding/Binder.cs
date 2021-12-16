@@ -1,4 +1,5 @@
-﻿using Peach.CodeAnalysis.Syntax;
+﻿using Peach.CodeAnalysis.Symbols;
+using Peach.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

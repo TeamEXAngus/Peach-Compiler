@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Peach.CodeAnalysis.Symbols;
+using System;
 
 namespace Peach.CodeAnalysis.Binding
 {

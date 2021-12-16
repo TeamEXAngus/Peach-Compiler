@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using Peach.CodeAnalysis.Symbols;
+using System.Collections.Immutable;
 
 namespace Peach.CodeAnalysis.Binding
 {

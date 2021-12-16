@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Text;
 using Peach.CodeAnalysis;
+using Peach.CodeAnalysis.Symbols;
 
 namespace Peach
 {
@@ -271,12 +271,12 @@ namespace Peach
             view.CurrentLineIndex = document.Count - 1;
         }
 
-        private void HandleControlEnter(ObservableCollection<string> document, SubmissionView view)
+        private static void HandleControlEnter(ObservableCollection<string> document, SubmissionView view)
         {
             InsertLine(document, view);
         }
 
-        private static void HandleLeftArrow(ObservableCollection<string> document, SubmissionView view)
+        private static void HandleLeftArrow(ObservableCollection<string> _, SubmissionView view)
         {
             if (view.CurrentCharIndex > 0)
                 view.CurrentCharIndex--;
@@ -344,7 +344,7 @@ namespace Peach
             document[lineIndex] = before + after;
         }
 
-        private static void HandleEnd(ObservableCollection<string> document, SubmissionView view)
+        private static void HandleEnd(ObservableCollection<string> _, SubmissionView view)
         {
             view.CurrentCharIndex = 0;
         }

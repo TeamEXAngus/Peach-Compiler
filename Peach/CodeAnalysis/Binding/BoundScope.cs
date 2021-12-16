@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Peach.CodeAnalysis.Symbols;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Peach.CodeAnalysis.Binding
 {
     internal sealed class BoundScope
     {
-        private Dictionary<string, VariableSymbol> _variables = new();
+        private readonly Dictionary<string, VariableSymbol> _variables = new();
 
         public BoundScope(BoundScope parent)
         {

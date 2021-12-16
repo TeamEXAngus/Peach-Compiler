@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Peach.CodeAnalysis.Binding;
+using Peach.CodeAnalysis.Symbols;
 
 namespace Peach.CodeAnalysis
 {
