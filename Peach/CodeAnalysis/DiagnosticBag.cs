@@ -112,7 +112,18 @@ namespace Peach.CodeAnalysis
 
         internal static string GetCannotConvertTypesErrorMessage(TypeSymbol from, TypeSymbol to)
         {
-            return $"Cannot convert type {from} to type {to}";
+            return $"Cannot convert type '{from}' to type '{to}'";
+        }
+
+        internal void ReportCannotConvertTypesImplicitly(TextSpan span, TypeSymbol from, TypeSymbol to)
+        {
+            string message = GetCannotConvertTypesImplicitlyErrorMessage(from, to);
+            Report(span, message);
+        }
+
+        internal static string GetCannotConvertTypesImplicitlyErrorMessage(TypeSymbol from, TypeSymbol to)
+        {
+            return $"Cannot implicitly convert from type '{from}' to type '{to}'. An explicit conversion exists, are you missing a cast?";
         }
 
         internal void ReportCannotAssignToConst(TextSpan span, string name)
@@ -124,6 +135,17 @@ namespace Peach.CodeAnalysis
         internal static string GetCannotAssignToConstErrorMessage(string name)
         {
             return $"Cannot assign to constant variable '{name}'";
+        }
+
+        internal void ReportUndefinedType(TextSpan span, string typeName)
+        {
+            string message = GetUndefinedTypeErrorMessage(typeName);
+            Report(span, message);
+        }
+
+        internal static string GetUndefinedTypeErrorMessage(string typeName)
+        {
+            return $"No type matching '{typeName}' exists";
         }
 
         internal void ReportUndefinedFunction(TextSpan span, string name)

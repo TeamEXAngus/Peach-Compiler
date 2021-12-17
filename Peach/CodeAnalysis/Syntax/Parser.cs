@@ -111,9 +111,21 @@ namespace Peach.CodeAnalysis.Syntax
             var expectedKeyword = Current.Kind == SyntaxKind.ConstKeyword ? SyntaxKind.ConstKeyword : SyntaxKind.LetKeyword;
             var keyword = MatchToken(expectedKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var typeClause = ParseTypeClause();
             var equals = MatchToken(SyntaxKind.EqualsToken);
             var intializer = ParseExpression();
-            return new VariableDeclarationSyntax(keyword, identifier, equals, intializer);
+            return new VariableDeclarationSyntax(keyword, identifier, typeClause, equals, intializer);
+        }
+
+        private TypeClauseSyntax ParseTypeClause()
+        {
+            if (Current.Kind != SyntaxKind.ColonToken)
+                return null;
+
+            var colonToken = MatchToken(SyntaxKind.ColonToken);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+
+            return new TypeClauseSyntax(colonToken, identifier);
         }
 
         private IfStatementSyntax ParseIfStatement()

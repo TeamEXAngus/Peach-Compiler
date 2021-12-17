@@ -104,10 +104,25 @@ namespace Peach.CodeAnalysis.Binding
         private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
         {
             var isConst = syntax.Keyword.Kind == SyntaxKind.ConstKeyword;
+            var type = BindTypeClause(syntax.TypeClause);
             var initializer = BindExpression(syntax.Initializer);
-            var variable = BindVariable(syntax.Identifier, isConst, initializer.Type);
+            var variableType = type ?? initializer.Type;
+            var convertedInitializer = BindExpression(syntax.Initializer, variableType);
+            var variable = BindVariable(syntax.Identifier, isConst, variableType);
 
-            return new BoundVariableDeclaration(variable, initializer);
+            return new BoundVariableDeclaration(variable, convertedInitializer);
+        }
+
+        private TypeSymbol BindTypeClause(TypeClauseSyntax syntax)
+        {
+            if (syntax is null)
+                return null;
+
+            var type = TypeSymbol.LookupTypeFromText(syntax.Identifier.Text);
+            if (type is null)
+                _diagnostics.ReportUndefinedType(syntax.Span, syntax.Identifier.Text);
+
+            return type;
         }
 
         private BoundStatement BindIfStatement(IfStatementSyntax syntax)
@@ -287,7 +302,7 @@ namespace Peach.CodeAnalysis.Binding
                     return new BoundErrorExpression();
                 }
 
-                return BindTypeCastExpression(syntax.Arguments[0], t);
+                return BindTypeCastExpression(syntax.Arguments[0], t, allowExplicit: true);
             }
 
             foreach (var arg in syntax.Arguments)
@@ -329,7 +344,7 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundFunctionCallExpression(function, boundArguments);
         }
 
-        private BoundExpression BindTypeCastExpression(ExpressionSyntax syntax, TypeSymbol type)
+        private BoundExpression BindTypeCastExpression(ExpressionSyntax syntax, TypeSymbol type, bool allowExplicit = false)
         {
             var expression = BindExpression(syntax);
 
@@ -341,6 +356,11 @@ namespace Peach.CodeAnalysis.Binding
                     _diagnostics.ReportCannotConvertTypes(syntax.Span, expression.Type, type);
 
                 return new BoundErrorExpression();
+            }
+
+            if (!allowExplicit && conversion.IsExplicit)
+            {
+                _diagnostics.ReportCannotConvertTypesImplicitly(syntax.Span, expression.Type, type);
             }
 
             if (conversion.IsIdentity)

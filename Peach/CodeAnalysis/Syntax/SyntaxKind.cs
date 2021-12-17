@@ -50,6 +50,9 @@
         FromKeyword,
         ToKeyword,
         StepKeyword,
+        //IntKeyword,
+        //BoolKeyword,
+        //StringKeyword,
 
         // Expressions
 
@@ -65,6 +68,7 @@
 
         CompilationUnit,
         ElseClause,
+        TypeClause,
 
         // Statements
 
