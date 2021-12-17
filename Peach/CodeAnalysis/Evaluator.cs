@@ -190,6 +190,8 @@ namespace Peach.CodeAnalysis
             throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
         }
 
+        private static Random Rand = null;
+
         private object EvaluateFunctionCallExpression(BoundFunctionCallExpression node)
         {
             if (node.Function == BuiltinFunctions.Input)
@@ -199,6 +201,14 @@ namespace Peach.CodeAnalysis
             {
                 Console.WriteLine(EvaluateExpression(node.Arguments[0]));
                 return null;
+            }
+
+            if (node.Function == BuiltinFunctions.Rand)
+            {
+                if (Rand is null)
+                    Rand = new Random();
+
+                return Rand.Next(int.MinValue, int.MaxValue);
             }
 
             throw new Exception($"Unknown function {node.Function.Name}");
