@@ -5,6 +5,7 @@
         Addition,
         Subtraction,
         Multiplication,
+        StringAddition,
         Division,
         LogicalAnd,
         LogicalOr,

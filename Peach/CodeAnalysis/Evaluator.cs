@@ -142,6 +142,7 @@ namespace Peach.CodeAnalysis
             return node.Op.Kind switch
             {
                 BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+                BoundBinaryOperatorKind.StringAddition => string.Concat(left as string, right as string),
                 BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
                 BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
                 BoundBinaryOperatorKind.Division => (int)left / (int)right,
