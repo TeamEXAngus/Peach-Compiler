@@ -53,9 +53,9 @@ namespace Peach
                     var error = text.ToString(diagnostic.Span);
                     var suffix = text.ToString(suffixSpan);
 
-                    ColourPrint(prefix, ErrorColour);
+                    ColourPrint(prefix);
                     ColourPrint(error, ErrorColour);
-                    ColourPrintln(suffix, ErrorColour);
+                    ColourPrintln(suffix);
                 }
             }
         }

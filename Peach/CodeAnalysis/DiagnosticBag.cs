@@ -159,5 +159,16 @@ namespace Peach.CodeAnalysis
         {
             return $"Incorrect argument type for function. Expected: '{expected}' Actual: '{type}'";
         }
+
+        internal void ReportExpressionCannotBeVoid(TextSpan span)
+        {
+            string message = GetExpressionCannotBeVoidErrorMessage();
+            Report(span, message);
+        }
+
+        internal static string GetExpressionCannotBeVoidErrorMessage()
+        {
+            return "Expression must have a value";
+        }
     }
 }
