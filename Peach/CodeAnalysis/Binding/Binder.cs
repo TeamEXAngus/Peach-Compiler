@@ -150,7 +150,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
         {
-            var expression = BindExpression(syntax.Expression);
+            var expression = BindExpression(syntax.Expression, canBeVoid: true);
 
             return new BoundExpressionStatement(expression);
         }
@@ -292,6 +292,9 @@ namespace Peach.CodeAnalysis.Binding
         {
             var argBuilder = ImmutableArray.CreateBuilder<BoundExpression>();
 
+            if (TypeSymbol.LookupTypeFromText(syntax.Identifier.Text) is TypeSymbol t)
+                return BindTypeCastExpression(t, syntax);
+
             foreach (var arg in syntax.Arguments)
             {
                 var boundArg = BindExpression(arg);
@@ -329,6 +332,26 @@ namespace Peach.CodeAnalysis.Binding
             }
 
             return new BoundFunctionCallExpression(function, boundArguments);
+        }
+
+        private BoundExpression BindTypeCastExpression(TypeSymbol type, FunctionCallExpressionSyntax syntax)
+        {
+            if (syntax.Arguments.Count != 1)
+            {
+                _diagnostics.ReportWrongNumberOfArguments(syntax.Span, syntax.Arguments.Count, 1);
+                return new BoundErrorExpression();
+            }
+
+            var expression = BindExpression(syntax.Arguments[0]);
+            var conversion = TypeCasting.Classify(expression.Type, type);
+
+            if (!conversion.Exists)
+            {
+                _diagnostics.ReportCannotConvertTypes(syntax.Span, expression.Type, type);
+                return new BoundErrorExpression();
+            }
+
+            return new BoundTypeCastExpression(type, expression);
         }
 
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isConst, TypeSymbol type)

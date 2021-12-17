@@ -146,6 +146,7 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.BinaryExpression => RewriteBinaryExpresion(node as BoundBinaryExpression),
                 BoundNodeKind.ParenthesisedExpression => RewriteParenthesisedExpresion(node as BoundParenthesisedExpression),
                 BoundNodeKind.FunctionCallExpression => RewriteFunctionCallExpression(node as BoundFunctionCallExpression),
+                BoundNodeKind.TypeCastExpression => RewriteTypeCastExpression(node as BoundTypeCastExpression),
                 BoundNodeKind.ErrorExpression => RewriteErrorExpression(node as BoundErrorExpression),
                 _ => throw new Exception($"Unexpected node kind in {nameof(RewriteExpression)}: {node.Kind}"),
             };
@@ -232,6 +233,16 @@ namespace Peach.CodeAnalysis.Binding
                 return node;
 
             return new BoundFunctionCallExpression(node.Function, builder.MoveToImmutable());
+        }
+
+        protected virtual BoundExpression RewriteTypeCastExpression(BoundTypeCastExpression node)
+        {
+            var expression = RewriteExpression(node.Expression);
+
+            if (expression == node.Expression)
+                return node;
+
+            return new BoundTypeCastExpression(node.Type, expression);
         }
 
         protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)

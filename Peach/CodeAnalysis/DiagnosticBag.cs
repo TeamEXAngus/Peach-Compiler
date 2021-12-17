@@ -1,7 +1,6 @@
 ﻿using Peach.CodeAnalysis.Symbols;
 using Peach.CodeAnalysis.Syntax;
 using Peach.CodeAnalysis.Text;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -105,15 +104,15 @@ namespace Peach.CodeAnalysis
             return $"Cannot redeclare variable '{name}'";
         }
 
-        internal void ReportCannotConvertTypes(TextSpan span, TypeSymbol varType, TypeSymbol expressionType)
+        internal void ReportCannotConvertTypes(TextSpan span, TypeSymbol from, TypeSymbol to)
         {
-            string message = GetCannotConvertTypesErrorMessage(varType, expressionType);
+            string message = GetCannotConvertTypesErrorMessage(from, to);
             Report(span, message);
         }
 
-        internal static string GetCannotConvertTypesErrorMessage(TypeSymbol varType, TypeSymbol expressionType)
+        internal static string GetCannotConvertTypesErrorMessage(TypeSymbol from, TypeSymbol to)
         {
-            return $"Cannot convert type {varType} to type {expressionType}";
+            return $"Cannot convert type {from} to type {to}";
         }
 
         internal void ReportCannotAssignToConst(TextSpan span, string name)

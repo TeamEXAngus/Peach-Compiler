@@ -95,6 +95,7 @@ namespace Peach.CodeAnalysis
                 BoundNodeKind.UnaryExpression => EvaluateUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
                 BoundNodeKind.FunctionCallExpression => EvaluateFunctionCallExpression(node as BoundFunctionCallExpression),
+                BoundNodeKind.TypeCastExpression => EvaluateTypeCastExpression(node as BoundTypeCastExpression),
                 _ => throw new Exception($"Unexpected node in {nameof(EvaluateExpression)} '{node.Kind}'"),
             };
         }
@@ -212,6 +213,36 @@ namespace Peach.CodeAnalysis
             }
 
             throw new Exception($"Unknown function {node.Function.Name}");
+        }
+
+        private object EvaluateTypeCastExpression(BoundTypeCastExpression node)
+        {
+            var from = node.Expression.Type.TypeID;
+            var to = node.Type.TypeID;
+            return (from, to) switch
+            {
+                (from: TypeID.Int, to: TypeID.String) => EvaluateExpression(node.Expression).ToString(),
+                (from: TypeID.Bool, to: TypeID.String) => EvaluateExpression(node.Expression).ToString(),
+                (from: TypeID.String, to: TypeID.Int) => IntFromString((string)EvaluateExpression(node.Expression)),
+                (from: TypeID.String, to: TypeID.Bool) => BoolFromString((string)EvaluateExpression(node.Expression)),
+                (_, _) => throw new Exception($"No conversion exists from {from} to {to}"),
+            };
+        }
+
+        private int IntFromString(string str)
+        {
+            if (int.TryParse(str, out var result))
+                return result;
+
+            return int.MinValue;
+        }
+
+        private bool BoolFromString(string str)
+        {
+            if (bool.TryParse(str, out var result))
+                return result;
+
+            return default(bool);
         }
     }
 }
