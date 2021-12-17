@@ -114,6 +114,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.OpenBraceToken => "{",
                 SyntaxKind.CloseBraceToken => "}",
                 SyntaxKind.CommaToken => ",",
+                SyntaxKind.ColonToken => ":",
                 SyntaxKind.TrueKeyword => "true",
                 SyntaxKind.FalseKeyword => "false",
                 SyntaxKind.LetKeyword => "let",
@@ -159,7 +160,8 @@ namespace Peach.CodeAnalysis.Syntax
         {
             var sum = GetUnaryOperatorPrecedence(kind) + GetBinaryOperatorPrecedence(kind);
             sum += kind == SyntaxKind.EqualsToken ? 1 :
-                   kind == SyntaxKind.CommaToken ? 1 : 0;
+                   kind == SyntaxKind.CommaToken ? 1 :
+                   kind == SyntaxKind.ColonToken ? 1 : 0;
             return sum != 0;
         }
 

@@ -212,6 +212,17 @@ namespace Peach.CodeAnalysis
                 return Rand.Next(int.MinValue, int.MaxValue);
             }
 
+            if (node.Function == BuiltinFunctions.RandRange)
+            {
+                if (Rand is null)
+                    Rand = new Random();
+
+                var lower = (int)EvaluateExpression(node.Arguments[0]);
+                var upper = (int)EvaluateExpression(node.Arguments[1]);
+
+                return Rand.Next(lower, upper);
+            }
+
             throw new Exception($"Unknown function {node.Function.Name}");
         }
 
@@ -229,7 +240,7 @@ namespace Peach.CodeAnalysis
             };
         }
 
-        private int IntFromString(string str)
+        private static int IntFromString(string str)
         {
             if (int.TryParse(str, out var result))
                 return result;
@@ -237,7 +248,7 @@ namespace Peach.CodeAnalysis
             return int.MinValue;
         }
 
-        private bool BoolFromString(string str)
+        private static bool BoolFromString(string str)
         {
             if (bool.TryParse(str, out var result))
                 return result;

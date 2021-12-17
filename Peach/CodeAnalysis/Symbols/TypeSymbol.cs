@@ -14,7 +14,6 @@ namespace Peach.CodeAnalysis.Symbols
         public static readonly TypeSymbol Bool = new("bool", TypeID.Bool);
         public static readonly TypeSymbol String = new("string", TypeID.String);
 
-
         private TypeSymbol(string name, TypeID typeID)
             : base(name)
         {
@@ -44,6 +43,11 @@ namespace Peach.CodeAnalysis.Symbols
 
                 _ => throw new System.Exception($"Unknown TypeID {typeID}"),
             };
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

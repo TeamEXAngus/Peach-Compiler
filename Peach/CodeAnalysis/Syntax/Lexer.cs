@@ -189,6 +189,11 @@ namespace Peach.CodeAnalysis.Syntax
                     _position++;
                     break;
 
+                case ':':
+                    _kind = SyntaxKind.ColonToken;
+                    _position++;
+                    break;
+
                 case '"':
                     ReadStringToken();
                     break;
@@ -220,7 +225,6 @@ namespace Peach.CodeAnalysis.Syntax
             }
 
             var length = _position - _start;
-            //System.Console.WriteLine($"Pos: {_position}, Start: {_start}");
             var text = SyntaxFacts.GetText(_kind);
             if (text is null)
                 text = _text.ToString(_start, length);

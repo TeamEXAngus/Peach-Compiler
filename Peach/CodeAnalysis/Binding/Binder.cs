@@ -157,15 +157,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol expectedType)
         {
-            var result = BindExpression(syntax);
-            if (expectedType != TypeSymbol.Error &&
-                result.Type != TypeSymbol.Error &&
-                result.Type != expectedType)
-            {
-                _diagnostics.ReportCannotConvertTypes(syntax.Span, result.Type, expectedType);
-            }
-
-            return result;
+            return BindTypeCastExpression(syntax, expectedType);
         }
 
         private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
@@ -266,12 +258,11 @@ namespace Peach.CodeAnalysis.Binding
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
         {
             var name = syntax.IdentifierToken.Text;
-            var boundExpression = BindExpression(syntax.Expression);
 
             if (!_scope.TryLookupVariable(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
-                return boundExpression;
+                return BindExpression(syntax.Expression);
             }
 
             if (variable.IsConst)
@@ -279,11 +270,7 @@ namespace Peach.CodeAnalysis.Binding
                 _diagnostics.ReportCannotAssignToConst(syntax.EqualsToken.Span, name);
             }
 
-            if (boundExpression.Type != variable.Type)
-            {
-                _diagnostics.ReportCannotConvertTypes(syntax.Expression.Span, boundExpression.Type, variable.Type);
-                return boundExpression;
-            }
+            var boundExpression = BindExpression(syntax.Expression, variable.Type);
 
             return new BoundAssignmentExpression(variable, boundExpression);
         }
@@ -293,7 +280,15 @@ namespace Peach.CodeAnalysis.Binding
             var argBuilder = ImmutableArray.CreateBuilder<BoundExpression>();
 
             if (TypeSymbol.LookupTypeFromText(syntax.Identifier.Text) is TypeSymbol t)
-                return BindTypeCastExpression(t, syntax);
+            {
+                if (syntax.Arguments.Count != 1)
+                {
+                    _diagnostics.ReportWrongNumberOfArguments(syntax.Span, syntax.Arguments.Count, 1);
+                    return new BoundErrorExpression();
+                }
+
+                return BindTypeCastExpression(syntax.Arguments[0], t);
+            }
 
             foreach (var arg in syntax.Arguments)
             {
@@ -334,22 +329,22 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundFunctionCallExpression(function, boundArguments);
         }
 
-        private BoundExpression BindTypeCastExpression(TypeSymbol type, FunctionCallExpressionSyntax syntax)
+        private BoundExpression BindTypeCastExpression(ExpressionSyntax syntax, TypeSymbol type)
         {
-            if (syntax.Arguments.Count != 1)
-            {
-                _diagnostics.ReportWrongNumberOfArguments(syntax.Span, syntax.Arguments.Count, 1);
-                return new BoundErrorExpression();
-            }
+            var expression = BindExpression(syntax);
 
-            var expression = BindExpression(syntax.Arguments[0]);
             var conversion = TypeCasting.Classify(expression.Type, type);
 
             if (!conversion.Exists)
             {
-                _diagnostics.ReportCannotConvertTypes(syntax.Span, expression.Type, type);
+                if (expression.Type != TypeSymbol.Error && type != TypeSymbol.Error)
+                    _diagnostics.ReportCannotConvertTypes(syntax.Span, expression.Type, type);
+
                 return new BoundErrorExpression();
             }
+
+            if (conversion.IsIdentity)
+                return expression;
 
             return new BoundTypeCastExpression(type, expression);
         }

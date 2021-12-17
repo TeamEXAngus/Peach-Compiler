@@ -1,13 +1,13 @@
 ﻿using Peach.CodeAnalysis.Symbols;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Peach.CodeAnalysis.Binding
 {
     internal sealed class BoundScope
     {
-        private Dictionary<string, VariableSymbol> _variables;
-        private Dictionary<string, FunctionSymbol> _functions;
+        private Dictionary<string, Symbol> _symbols;
 
         public BoundScope(BoundScope parent)
         {
@@ -17,69 +17,60 @@ namespace Peach.CodeAnalysis.Binding
         public BoundScope Parent { get; }
 
         public bool TryDeclareVariable(VariableSymbol variable)
-        {
-            if (_variables is null)
-                _variables = new();
-
-            if (_variables.ContainsKey(variable.Name))
-                return false;
-
-            _variables.Add(variable.Name, variable);
-            return true;
-        }
+            => TryDeclareSymbol(variable);
 
         public bool TryDeclareFunction(FunctionSymbol function)
-        {
-            if (_functions is null)
-                _functions = new();
+            => TryDeclareSymbol(function);
 
-            if (_functions.ContainsKey(function.Name))
+        private bool TryDeclareSymbol<TSymbol>(TSymbol symbol) where TSymbol : Symbol
+        {
+            if (_symbols is null)
+                _symbols = new();
+
+            // if symbols was null then it won't contain any keys
+            else if (_symbols.ContainsKey(symbol.Name))
                 return false;
 
-            _functions.Add(function.Name, function);
+            _symbols.Add(symbol.Name, symbol);
             return true;
         }
 
         public bool TryLookupVariable(string name, out VariableSymbol variable)
-        {
-            variable = null;
-
-            if (_variables?.TryGetValue(name, out variable) ?? false)
-                return true;
-
-            if (Parent is null)
-                return false;
-
-            return Parent.TryLookupVariable(name, out variable);
-        }
+            => TryLookupSymbol(name, out variable);
 
         public bool TryLookupFunction(string name, out FunctionSymbol function)
+            => TryLookupSymbol(name, out function);
+
+        private bool TryLookupSymbol<TSymbol>(string name, out TSymbol symbol) where TSymbol : Symbol
         {
-            function = null;
+            symbol = null;
 
-            if (_functions?.TryGetValue(name, out function) ?? false)
-                return true;
+            if (_symbols is not null && _symbols.TryGetValue(name, out var declaredSymbol))
+            {
+                if (declaredSymbol is TSymbol matchingSymbol)
+                {
+                    symbol = matchingSymbol;
+                    return true;
+                }
 
-            if (Parent is null)
                 return false;
+            }
 
-            return Parent.TryLookupFunction(name, out function);
+            return Parent.TryLookupSymbol(name, out symbol);
         }
 
         public ImmutableArray<VariableSymbol> GetDeclaredVariables()
-        {
-            if (_variables is null)
-                return ImmutableArray<VariableSymbol>.Empty;
-
-            return _variables.Values.ToImmutableArray();
-        }
+            => GetDeclaredSymbols<VariableSymbol>();
 
         public ImmutableArray<FunctionSymbol> GetDeclaredFunctions()
-        {
-            if (_functions is null)
-                return ImmutableArray<FunctionSymbol>.Empty;
+            => GetDeclaredSymbols<FunctionSymbol>();
 
-            return _functions.Values.ToImmutableArray();
+        private ImmutableArray<TSymbol> GetDeclaredSymbols<TSymbol>() where TSymbol : Symbol
+        {
+            if (_symbols is null)
+                return ImmutableArray<TSymbol>.Empty;
+
+            return _symbols.Values.OfType<TSymbol>().ToImmutableArray();
         }
     }
 }

@@ -33,6 +33,7 @@
         CloseBraceToken,
         IdentifierToken,
         CommaToken,
+        ColonToken,
 
         // Keywords
 
