@@ -5,19 +5,19 @@ namespace Peach.CodeAnalysis.Syntax
 {
     public sealed class CompilationUnitSyntax : SyntaxNode
     {
-        public CompilationUnitSyntax(ImmutableArray<MemberSyntax> statements, SyntaxToken eofToken)
+        public CompilationUnitSyntax(ImmutableArray<MemberSyntax> members, SyntaxToken eofToken)
         {
-            Statements = statements;
+            Members = members;
             EOFToken = eofToken;
         }
 
         public override SyntaxKind Kind => SyntaxKind.CompilationUnit;
-        public ImmutableArray<MemberSyntax> Statements { get; }
+        public ImmutableArray<MemberSyntax> Members { get; }
         public SyntaxToken EOFToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            foreach (var s in Statements)
+            foreach (var s in Members)
                 yield return s;
             yield return EOFToken;
         }

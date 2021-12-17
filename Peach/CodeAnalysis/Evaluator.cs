@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Peach.CodeAnalysis.Binding;
 using Peach.CodeAnalysis.Symbols;
 
@@ -7,33 +8,43 @@ namespace Peach.CodeAnalysis
 {
     internal sealed class Evaluator
     {
+        private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
         private readonly BoundBlockStatement _root;
-        private readonly Dictionary<VariableSymbol, object> _variables;
+        private readonly Dictionary<VariableSymbol, object> _globals;
+        private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
 
         private object _lastValue;
 
-        public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
+            _functionBodies = functionBodies;
             _root = root;
-            _variables = variables;
+            _globals = variables;
         }
 
         public object Evaluate()
         {
+            var body = _root;
+
+            return EvaluateStatement(body);
+        }
+
+        private object EvaluateStatement(BoundBlockStatement body)
+        {
             var labelToIndex = new Dictionary<BoundLabel, int>();
 
-            for (int i = 0; i < _root.Statements.Length; i++)
+            for (int i = 0; i < body.Statements.Length; i++)
             {
-                var statement = _root.Statements[i];
+                var statement = body.Statements[i];
 
                 if (statement is BoundLabelStatement l)
                     labelToIndex.Add(l.Label, i + 1);
             }
 
             var index = 0;
-            while (index < _root.Statements.Length)
+            while (index < body.Statements.Length)
             {
-                var s = _root.Statements[index];
+                var s = body.Statements[index];
 
                 switch (s.Kind)
                 {
@@ -75,8 +86,9 @@ namespace Peach.CodeAnalysis
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
         {
             var value = EvaluateExpression(node.Initializer);
-            _variables[node.Variable] = value;
             _lastValue = value;
+
+            Assign(node.Variable, value);
         }
 
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
@@ -112,13 +124,21 @@ namespace Peach.CodeAnalysis
 
         private object EvaluateVariableExpression(BoundVariableExpression node)
         {
-            return _variables[node.Variable];
+            if (node.Variable.Kind == SymbolKind.GlobalVariable)
+            {
+                return _globals[node.Variable];
+            }
+
+            var locals = _locals.Peek();
+            return locals[node.Variable];
         }
 
         private object EvaluateAssignmentExpression(BoundAssignmentExpression node)
         {
             var value = EvaluateExpression(node.Expression);
-            _variables[node.Variable] = value;
+
+            Assign(node.Variable, value);
+
             return value;
         }
 
@@ -223,7 +243,21 @@ namespace Peach.CodeAnalysis
                 return Rand.Next(lower, upper);
             }
 
-            throw new Exception($"Unknown function {node.Function.Name}");
+            var locals = new Dictionary<VariableSymbol, object>();
+            for (int i = 0; i < node.Arguments.Length; i++)
+            {
+                var param = node.Function.Parameters[i];
+                var value = EvaluateExpression(node.Arguments[i]);
+                locals.Add(param, value);
+            }
+            _locals.Push(locals);
+
+            var statement = _functionBodies[node.Function];
+            var result = EvaluateStatement(statement);
+
+            _locals.Pop();
+
+            return result;
         }
 
         private object EvaluateTypeCastExpression(BoundTypeCastExpression node)
@@ -253,7 +287,19 @@ namespace Peach.CodeAnalysis
             if (bool.TryParse(str, out var result))
                 return result;
 
-            return default(bool);
+            return default;
+        }
+
+        private void Assign(VariableSymbol variable, object value)
+        {
+            if (variable.Kind == SymbolKind.GlobalVariable)
+            {
+                _globals[variable] = value;
+                return;
+            }
+
+            var locals = _locals.Peek();
+            locals[variable] = value;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Peach.CodeAnalysis.Syntax;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Peach_Tests.CodeAnalysis.Syntax
@@ -110,7 +111,7 @@ namespace Peach_Tests.CodeAnalysis.Syntax
         {
             var syntaxTree = SyntaxTree.Parse(text);
             var root = syntaxTree.Root;
-            var statement = root.Statement;
+            var statement = root.Members.Last();
             return Assert.IsType<ExpressionStatementSyntax>(statement).Expression;
         }
 

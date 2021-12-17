@@ -1,8 +1,8 @@
 ﻿namespace Peach.CodeAnalysis.Symbols
 {
-    public sealed class ParamaterSymbol : VariableSymbol
+    public sealed class ParameterSymbol : LocalVariableSymbol
     {
-        public ParamaterSymbol(string name, TypeSymbol type)
+        public ParameterSymbol(string name, TypeSymbol type)
             : base(name, isConst: true, type)
         { }
 

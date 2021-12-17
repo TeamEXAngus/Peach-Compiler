@@ -93,15 +93,26 @@ namespace Peach.CodeAnalysis
             return $"Variable '{name}' is undefined";
         }
 
-        internal void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        internal void ReportSymbolAlreadyDeclared(TextSpan span, string name)
         {
-            string message = GetVariableAlreadyDeclaredErrorMessage(name);
+            string message = GetSymbolAlreadyDeclaredErrorMessage(name);
             Report(span, message);
         }
 
-        internal static string GetVariableAlreadyDeclaredErrorMessage(string name)
+        internal static string GetSymbolAlreadyDeclaredErrorMessage(string name)
         {
-            return $"Cannot redeclare variable '{name}'";
+            return $"A function or variable by the name '{name}' already exists in this scope";
+        }
+
+        internal void ReportParameterAlreadyDeclared(TextSpan span, string name)
+        {
+            string message = GetParameterAlreadyDeclaredErrorMessage(name);
+            Report(span, message);
+        }
+
+        internal static string GetParameterAlreadyDeclaredErrorMessage(string name)
+        {
+            return $"Parameter '{name}' is already declared";
         }
 
         internal void ReportCannotConvertTypes(TextSpan span, TypeSymbol from, TypeSymbol to)
@@ -190,6 +201,16 @@ namespace Peach.CodeAnalysis
         internal static string GetExpressionCannotBeVoidErrorMessage()
         {
             return "Expression must have a value";
+        }
+
+        /*
+         *          REMOVE THIS WHEN FUNCTIONS ARE ADDED
+         */
+
+        internal void TEMPORARY__ReportFunctionNotSupported(TextSpan span)
+        {
+            string message = "Functions with return types are currently unsupported. Try using globals?";
+            Report(span, message);
         }
     }
 }

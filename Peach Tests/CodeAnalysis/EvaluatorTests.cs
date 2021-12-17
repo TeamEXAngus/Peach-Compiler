@@ -151,7 +151,7 @@ namespace Peach_Tests.CodeAnalysis
             ";
 
             var diagnostics = @$"
-                {DiagnosticBag.GetVariableAlreadyDeclaredErrorMessage("x")}
+                {DiagnosticBag.GetSymbolAlreadyDeclaredErrorMessage("x")}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);

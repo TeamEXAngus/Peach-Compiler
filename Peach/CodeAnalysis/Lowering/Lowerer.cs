@@ -149,7 +149,7 @@ namespace Peach.CodeAnalysis.Lowering
 
             var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.Start);
 
-            var endSymbol = new VariableSymbol("<end>", true, TypeSymbol.Int);
+            var endSymbol = new LocalVariableSymbol("<end>", true, TypeSymbol.Int);
             var endDeclaration = new BoundVariableDeclaration(endSymbol, node.Stop);
 
             var variableExpression = new BoundVariableExpression(node.Variable);

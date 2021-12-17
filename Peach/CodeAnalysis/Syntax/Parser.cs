@@ -11,6 +11,8 @@ namespace Peach.CodeAnalysis.Syntax
         private readonly DiagnosticBag _diagnostics = new();
         private readonly SourceText _text;
 
+        private SyntaxToken previous;
+
         public DiagnosticBag Diagnostics => _diagnostics;
 
         public Parser(SourceText text)
@@ -63,10 +65,77 @@ namespace Peach.CodeAnalysis.Syntax
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var statment = ParseStatement();
+            var members = ParseMembers();
             var endOfFileToken = MatchToken(SyntaxKind.EOFToken);
 
-            return new CompilationUnitSyntax(statment, endOfFileToken);
+            return new CompilationUnitSyntax(members, endOfFileToken);
+        }
+
+        private ImmutableArray<MemberSyntax> ParseMembers()
+        {
+            var members = ImmutableArray.CreateBuilder<MemberSyntax>();
+
+            while (Current.Kind != SyntaxKind.EOFToken)
+            {
+                var startToken = Current;
+
+                var member = ParseMember();
+                members.Add(member);
+
+                if (Current == startToken) // If no token consumed
+                    NextToken();           // skip so no infinite loop
+            }
+
+            return members.ToImmutable();
+        }
+
+        private MemberSyntax ParseMember()
+        {
+            if (Current.Kind == SyntaxKind.DefKeyword)
+                return ParseFunctionDeclaration();
+
+            return ParseGlobalStatement();
+        }
+
+        private MemberSyntax ParseFunctionDeclaration()
+        {
+            var defKeyword = MatchToken(SyntaxKind.DefKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var openParen = MatchToken(SyntaxKind.OpenParenToken);
+            var parameters = ParseParameterList();
+            var closeParen = MatchToken(SyntaxKind.CloseParenToken);
+            var typeClause = ParseTypeClause(Optional: true);
+            var body = ParseBlockStatement();
+
+            return new FunctionDeclarationSyntax(defKeyword, identifier, openParen, parameters, closeParen, typeClause, body);
+        }
+
+        private SeparatedSyntaxList<ParameterSyntax> ParseParameterList()
+        {
+            var builder = ImmutableArray.CreateBuilder<SyntaxNode>();
+
+            while (Current.Kind != SyntaxKind.CloseParenToken &&
+                   Current.Kind != SyntaxKind.EOFToken)
+            {
+                var identifier = MatchToken(SyntaxKind.IdentifierToken);
+                var typeClause = ParseTypeClause();
+                var parameter = new ParameterSyntax(identifier, typeClause);
+                builder.Add(parameter);
+
+                if (Current.Kind != SyntaxKind.CloseParenToken) // e.g. this isn't the last argument
+                {
+                    var comma = MatchToken(SyntaxKind.CommaToken);
+                    builder.Add(comma);
+                }
+            }
+
+            return new SeparatedSyntaxList<ParameterSyntax>(builder.ToImmutable());
+        }
+
+        private MemberSyntax ParseGlobalStatement()
+        {
+            var statement = ParseStatement();
+            return new GlobalStatementSyntax(statement);
         }
 
         private StatementSyntax ParseStatement()
@@ -111,15 +180,15 @@ namespace Peach.CodeAnalysis.Syntax
             var expectedKeyword = Current.Kind == SyntaxKind.ConstKeyword ? SyntaxKind.ConstKeyword : SyntaxKind.LetKeyword;
             var keyword = MatchToken(expectedKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
-            var typeClause = ParseTypeClause();
+            var typeClause = ParseTypeClause(Optional: true);
             var equals = MatchToken(SyntaxKind.EqualsToken);
             var intializer = ParseExpression();
             return new VariableDeclarationSyntax(keyword, identifier, typeClause, equals, intializer);
         }
 
-        private TypeClauseSyntax ParseTypeClause()
+        private TypeClauseSyntax ParseTypeClause(bool Optional = false)
         {
-            if (Current.Kind != SyntaxKind.ColonToken)
+            if (Optional && Current.Kind != SyntaxKind.ColonToken)
                 return null;
 
             var colonToken = MatchToken(SyntaxKind.ColonToken);
@@ -213,6 +282,8 @@ namespace Peach.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
+            PreventInfiniteLoop();
+
             ExpressionSyntax left;
 
             var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
@@ -241,6 +312,14 @@ namespace Peach.CodeAnalysis.Syntax
             }
 
             return left;
+        }
+
+        private void PreventInfiniteLoop()
+        {
+            if (previous == Current)
+                NextToken();
+
+            previous = Current;
         }
 
         public ExpressionSyntax ParsePrimaryExpression()

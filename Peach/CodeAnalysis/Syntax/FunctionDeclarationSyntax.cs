@@ -4,7 +4,7 @@ namespace Peach.CodeAnalysis.Syntax
 {
     public sealed class FunctionDeclarationSyntax : MemberSyntax
     {
-        public FunctionDeclarationSyntax(SyntaxToken functionKeyword, SyntaxToken identifier, SyntaxToken openParenToken, SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParenToken, TypeClauseSyntax typeClause)
+        public FunctionDeclarationSyntax(SyntaxToken functionKeyword, SyntaxToken identifier, SyntaxToken openParenToken, SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParenToken, TypeClauseSyntax typeClause, BlockStatementSyntax body)
         {
             FunctionKeyword = functionKeyword;
             Identifier = identifier;
@@ -12,6 +12,7 @@ namespace Peach.CodeAnalysis.Syntax
             Parameters = parameters;
             CloseParenToken = closeParenToken;
             TypeClause = typeClause;
+            Body = body;
         }
 
         public override SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
@@ -22,6 +23,7 @@ namespace Peach.CodeAnalysis.Syntax
         public SeparatedSyntaxList<ParameterSyntax> Parameters { get; }
         public SyntaxToken CloseParenToken { get; }
         public TypeClauseSyntax TypeClause { get; }
+        public BlockStatementSyntax Body { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
@@ -33,6 +35,7 @@ namespace Peach.CodeAnalysis.Syntax
             yield return CloseParenToken;
             if (TypeClause is not null)
                 yield return TypeClause;
+            yield return Body;
         }
     }
 }

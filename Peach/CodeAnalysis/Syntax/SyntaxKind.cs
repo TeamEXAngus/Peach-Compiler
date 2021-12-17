@@ -50,6 +50,7 @@
         FromKeyword,
         ToKeyword,
         StepKeyword,
+        DefKeyword,
         IntKeyword,
         BoolKeyword,
         StringKeyword,
