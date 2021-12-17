@@ -113,6 +113,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.CloseParenToken => ")",
                 SyntaxKind.OpenBraceToken => "{",
                 SyntaxKind.CloseBraceToken => "}",
+                SyntaxKind.CommaToken => ",",
                 SyntaxKind.TrueKeyword => "true",
                 SyntaxKind.FalseKeyword => "false",
                 SyntaxKind.LetKeyword => "let",
@@ -157,6 +158,8 @@ namespace Peach.CodeAnalysis.Syntax
         public static bool IsOperator(SyntaxKind kind)
         {
             var sum = GetUnaryOperatorPrecedence(kind) + GetBinaryOperatorPrecedence(kind);
+            sum += kind == SyntaxKind.EqualsToken ? 1 :
+                   kind == SyntaxKind.CommaToken ? 1 : 0;
             return sum != 0;
         }
 

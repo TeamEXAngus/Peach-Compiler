@@ -34,6 +34,7 @@ namespace Peach.CodeAnalysis
             while (index < _root.Statements.Length)
             {
                 var s = _root.Statements[index];
+
                 switch (s.Kind)
                 {
                     case BoundNodeKind.VariableDeclaration:
@@ -93,6 +94,7 @@ namespace Peach.CodeAnalysis
                 BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression(node as BoundAssignmentExpression),
                 BoundNodeKind.UnaryExpression => EvaluateUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
+                BoundNodeKind.FunctionCallExpression => EvaluateFunctionCallExpression(node as BoundFunctionCallExpression),
                 _ => throw new Exception($"Unexpected node in {nameof(EvaluateExpression)} '{node.Kind}'"),
             };
         }
@@ -186,6 +188,20 @@ namespace Peach.CodeAnalysis
             else if (left is bool Lb && right is bool Rb)
                 return Lb ^ Rb;
             throw new Exception($"Invalid operand types {left.GetType()} and {right.GetType()}");
+        }
+
+        private object EvaluateFunctionCallExpression(BoundFunctionCallExpression node)
+        {
+            if (node.Function == BuiltinFunctions.Input)
+                return Console.ReadLine();
+
+            if (node.Function == BuiltinFunctions.Print)
+            {
+                Console.WriteLine(EvaluateExpression(node.Arguments[0]));
+                return null;
+            }
+
+            throw new Exception($"Unknown function {node.Function.Name}");
         }
     }
 }

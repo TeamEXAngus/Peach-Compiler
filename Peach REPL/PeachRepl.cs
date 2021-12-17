@@ -28,7 +28,8 @@ namespace Peach
 
             if (!diagnostics.Any())
             {
-                ColourPrintln(result.Value, ResultColour);
+                if (result is not null)
+                    ColourPrintln(result.Value, ResultColour);
                 _previous = compilation;
             }
             else
@@ -121,12 +122,15 @@ namespace Peach
 
         private static ConsoleColor GetColourOf(SyntaxKind kind)
         {
+            if (kind == SyntaxKind.StringToken)
+                return ConsoleColor.Red;
+
             return SyntaxFacts.GetTokenKind(kind) switch
             {
                 TokenKind.Identifier => ConsoleColor.DarkYellow,
                 TokenKind.Keyword => ConsoleColor.Blue,
                 TokenKind.Literal => ConsoleColor.DarkCyan,
-                TokenKind.Operator => ConsoleColor.Gray,
+                TokenKind.Operator => ConsoleColor.DarkGray,
                 _ => ConsoleColor.White,
             };
         }

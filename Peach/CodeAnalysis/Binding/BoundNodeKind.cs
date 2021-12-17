@@ -23,6 +23,7 @@
         VariableExpression,
         AssignmentExpression,
         UnaryExpression,
+        FunctionCallExpression,
         ErrorExpression,
     }
 }

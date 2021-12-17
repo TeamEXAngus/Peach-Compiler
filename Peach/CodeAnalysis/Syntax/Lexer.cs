@@ -184,6 +184,11 @@ namespace Peach.CodeAnalysis.Syntax
                     }
                     break;
 
+                case ',':
+                    _kind = SyntaxKind.CommaToken;
+                    _position++;
+                    break;
+
                 case '"':
                     ReadStringToken();
                     break;

@@ -32,6 +32,7 @@
         OpenBraceToken,
         CloseBraceToken,
         IdentifierToken,
+        CommaToken,
 
         // Keywords
 
@@ -57,6 +58,7 @@
         ParenthesisedExpression,
         NameExpression,
         AssignmentExpression,
+        FunctionCallExpression,
 
         // Nodes
 

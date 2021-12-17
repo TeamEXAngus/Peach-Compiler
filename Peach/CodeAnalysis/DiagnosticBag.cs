@@ -126,5 +126,38 @@ namespace Peach.CodeAnalysis
         {
             return $"Cannot assign to constant variable '{name}'";
         }
+
+        internal void ReportUndefinedFunction(TextSpan span, string name)
+        {
+            string message = GetUndefinedFunctionErrorMessage(name);
+            Report(span, message);
+        }
+
+        internal static string GetUndefinedFunctionErrorMessage(string name)
+        {
+            return $"The function '{name}' does not exist";
+        }
+
+        internal void ReportWrongNumberOfArguments(TextSpan span, int count, int expected)
+        {
+            string message = GetWrongNumberOfArgumentsErrorMessage(count, expected);
+            Report(span, message);
+        }
+
+        internal static string GetWrongNumberOfArgumentsErrorMessage(int count, int expected)
+        {
+            return $"Incorrect number of arguments. Expected: '{expected}' Actual: '{count}'";
+        }
+
+        internal void ReportIncorrectArgumentType(TextSpan span, TypeSymbol type, TypeSymbol expected)
+        {
+            string message = GetIncorrectArgumentTypeErrorMessage(type, expected);
+            Report(span, message);
+        }
+
+        internal static string GetIncorrectArgumentTypeErrorMessage(TypeSymbol type, TypeSymbol expected)
+        {
+            return $"Incorrect argument type for function. Expected: '{expected}' Actual: '{type}'";
+        }
     }
 }

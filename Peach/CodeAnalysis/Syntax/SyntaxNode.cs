@@ -76,6 +76,9 @@ namespace Peach.CodeAnalysis.Syntax
             {
                 PrettyPrint(writer, child, indent, child == lastChild, isToConsole);
             }
+
+            if (isToConsole)
+                Console.ResetColor();
         }
 
         public override string ToString()

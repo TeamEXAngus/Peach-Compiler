@@ -3,6 +3,7 @@ using Peach.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Peach.CodeAnalysis.Binding
 {
@@ -165,6 +166,7 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.ParenthesisedExpression => BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax),
                 SyntaxKind.NameExpression => BindNameExpression(syntax as NameExpressionSyntax),
                 SyntaxKind.AssignmentExpression => BindAssignmentExpression(syntax as AssignmentExpressionSyntax),
+                SyntaxKind.FunctionCallExpression => BindFunctionCallExpression(syntax as FunctionCallExpressionSyntax),
                 _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
             };
         }
@@ -259,6 +261,53 @@ namespace Peach.CodeAnalysis.Binding
             }
 
             return new BoundAssignmentExpression(variable, boundExpression);
+        }
+
+        private BoundExpression BindFunctionCallExpression(FunctionCallExpressionSyntax syntax)
+        {
+            var argBuilder = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            foreach (var arg in syntax.Arguments)
+            {
+                var boundArg = BindExpression(arg);
+                argBuilder.Add(boundArg);
+            }
+
+            var boundArguments = argBuilder.ToImmutable();
+
+            var functions = BuiltinFunctions.GetAll();
+
+            var function = functions.SingleOrDefault(f => f.Name == syntax.Identifier.Text);
+
+            if (function is null)
+            {
+                _diagnostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+                return new BoundErrorExpression();
+            }
+
+            if (syntax.Arguments.Count != function.Parameters.Length)
+            {
+                _diagnostics.ReportWrongNumberOfArguments(syntax.Span, syntax.Arguments.Count, function.Parameters.Length);
+                return new BoundErrorExpression();
+            }
+
+            for (int i = 0; i < syntax.Arguments.Count; i++)
+            {
+                var arg = boundArguments[i];
+                var param = function.Parameters[i];
+
+                if (arg.Type != param.Type)
+                {
+                    if (arg.Type != TypeSymbol.Error)
+                    {
+                        _diagnostics.ReportIncorrectArgumentType(syntax.Arguments[i].Span, arg.Type, param.Type);
+                    }
+
+                    return new BoundErrorExpression();
+                }
+            }
+
+            return new BoundFunctionCallExpression(function, boundArguments);
         }
 
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isConst, TypeSymbol type)

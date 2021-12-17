@@ -145,6 +145,7 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.UnaryExpression => RewriteUnaryExpression(node as BoundUnaryExpression),
                 BoundNodeKind.BinaryExpression => RewriteBinaryExpresion(node as BoundBinaryExpression),
                 BoundNodeKind.ParenthesisedExpression => RewriteParenthesisedExpresion(node as BoundParenthesisedExpression),
+                BoundNodeKind.FunctionCallExpression => RewriteFunctionCallExpression(node as BoundFunctionCallExpression),
                 BoundNodeKind.ErrorExpression => RewriteErrorExpression(node as BoundErrorExpression),
                 _ => throw new Exception($"Unexpected node kind in {nameof(RewriteExpression)}: {node.Kind}"),
             };
@@ -199,6 +200,38 @@ namespace Peach.CodeAnalysis.Binding
                 return node;
 
             return new BoundParenthesisedExpression(expression);
+        }
+
+        protected virtual BoundExpression RewriteFunctionCallExpression(BoundFunctionCallExpression node)
+        {
+            ImmutableArray<BoundExpression>.Builder builder = null;
+
+            for (int i = 0; i < node.Arguments.Length; i++)
+            {
+                var old = node.Arguments[i];
+                var statement = RewriteExpression(old);
+
+                if (statement != old)
+                {
+                    if (builder is null)
+                    {
+                        builder = ImmutableArray.CreateBuilder<BoundExpression>(node.Arguments.Length);
+
+                        for (int j = 0; j < i; j++)
+                        {
+                            builder.Add(node.Arguments[j]);
+                        }
+                    }
+                }
+
+                if (builder is not null)
+                    builder.Add(statement);
+            }
+
+            if (builder is null)
+                return node;
+
+            return new BoundFunctionCallExpression(node.Function, builder.MoveToImmutable());
         }
 
         protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)
