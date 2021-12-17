@@ -63,9 +63,9 @@ namespace Peach.CodeAnalysis.Syntax
                 "to" => SyntaxKind.ToKeyword,
                 "step" => SyntaxKind.StepKeyword,
                 "loop" => SyntaxKind.LoopKeyword,
-                //"int" => SyntaxKind.IntKeyword,
-                //"bool" => SyntaxKind.BoolKeyword,
-                //"string" => SyntaxKind.StringKeyword,
+                "int" => SyntaxKind.IntKeyword,
+                "bool" => SyntaxKind.BoolKeyword,
+                "string" => SyntaxKind.StringKeyword,
                 _ => SyntaxKind.IdentifierToken
             };
         }
@@ -131,9 +131,9 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ToKeyword => "to",
                 SyntaxKind.StepKeyword => "step",
                 SyntaxKind.LoopKeyword => "loop",
-                //SyntaxKind.IntKeyword => "int",
-                //SyntaxKind.BoolKeyword => "bool",
-                //SyntaxKind.StringKeyword => "string",
+                SyntaxKind.IntKeyword => "int",
+                SyntaxKind.BoolKeyword => "bool",
+                SyntaxKind.StringKeyword => "string",
                 _ => null,
             };
         }
@@ -155,9 +155,9 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ToKeyword => true,
                 SyntaxKind.StepKeyword => true,
                 SyntaxKind.LoopKeyword => true,
-                //SyntaxKind.IntKeyword => true,
-                //SyntaxKind.BoolKeyword => true,
-                //SyntaxKind.StringKeyword => true,
+                SyntaxKind.IntKeyword => true,
+                SyntaxKind.BoolKeyword => true,
+                SyntaxKind.StringKeyword => true,
                 SyntaxKind.IdentifierToken => true,
                 SyntaxKind.StringToken => true,
 
@@ -182,6 +182,18 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.NumberToken or SyntaxKind.StringToken => TokenKind.Literal,
                 _ => IsWord(kind) ? TokenKind.Keyword :
                      IsOperator(kind) ? TokenKind.Operator : TokenKind.None,
+            };
+        }
+
+        public static bool IsTypeKeyword(this SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.IntKeyword => true,
+                SyntaxKind.BoolKeyword => true,
+                SyntaxKind.StringKeyword => true,
+
+                _ => false,
             };
         }
     }

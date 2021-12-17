@@ -56,6 +56,9 @@ namespace Peach.CodeAnalysis.Binding
                 return false;
             }
 
+            if (Parent is null)
+                return false;
+
             return Parent.TryLookupSymbol(name, out symbol);
         }
 

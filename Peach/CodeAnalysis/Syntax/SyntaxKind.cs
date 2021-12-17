@@ -50,9 +50,9 @@
         FromKeyword,
         ToKeyword,
         StepKeyword,
-        //IntKeyword,
-        //BoolKeyword,
-        //StringKeyword,
+        IntKeyword,
+        BoolKeyword,
+        StringKeyword,
 
         // Expressions
 
@@ -67,8 +67,11 @@
         // Nodes
 
         CompilationUnit,
+        GlobalStatement,
+        FunctionDeclaration,
         ElseClause,
         TypeClause,
+        Paramater,
 
         // Statements
 

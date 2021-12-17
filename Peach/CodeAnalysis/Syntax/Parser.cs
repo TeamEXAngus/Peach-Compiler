@@ -123,7 +123,12 @@ namespace Peach.CodeAnalysis.Syntax
                 return null;
 
             var colonToken = MatchToken(SyntaxKind.ColonToken);
-            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            SyntaxToken identifier;
+
+            if (Current.Kind.IsTypeKeyword())
+                identifier = NextToken();
+            else
+                identifier = MatchToken(SyntaxKind.IdentifierToken);
 
             return new TypeClauseSyntax(colonToken, identifier);
         }
@@ -279,7 +284,8 @@ namespace Peach.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseNameOrCallExpression()
         {
-            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenParenToken)
+            if ((Peek(0).Kind == SyntaxKind.IdentifierToken || Peek(0).Kind.IsTypeKeyword()) &&
+                 Peek(1).Kind == SyntaxKind.OpenParenToken)
                 return ParseFunctionCallExpreson();
 
             return ParseNameExpression();
@@ -287,7 +293,7 @@ namespace Peach.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseFunctionCallExpreson()
         {
-            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var identifier = NextToken();
             var openParenToken = MatchToken(SyntaxKind.OpenParenToken);
             var argList = ParseArgumentList();
             var closeParenToken = MatchToken(SyntaxKind.CloseParenToken);

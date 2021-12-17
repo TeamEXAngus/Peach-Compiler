@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Peach.CodeAnalysis.Syntax
 {
     public sealed class CompilationUnitSyntax : SyntaxNode
     {
-        public CompilationUnitSyntax(StatementSyntax statement, SyntaxToken eofToken)
+        public CompilationUnitSyntax(ImmutableArray<MemberSyntax> statements, SyntaxToken eofToken)
         {
-            Statement = statement;
+            Statements = statements;
             EOFToken = eofToken;
         }
 
         public override SyntaxKind Kind => SyntaxKind.CompilationUnit;
-        public StatementSyntax Statement { get; }
+        public ImmutableArray<MemberSyntax> Statements { get; }
         public SyntaxToken EOFToken { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Statement;
+            foreach (var s in Statements)
+                yield return s;
             yield return EOFToken;
         }
     }
