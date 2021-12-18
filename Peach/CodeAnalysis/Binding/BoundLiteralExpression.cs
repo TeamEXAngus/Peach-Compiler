@@ -2,9 +2,9 @@
 
 namespace Peach.CodeAnalysis.Binding
 {
-    internal sealed class BoundLiteralExpresion : BoundExpression
+    internal sealed class BoundLiteralExpression : BoundExpression
     {
-        public BoundLiteralExpresion(object value)
+        public BoundLiteralExpression(object value)
         {
             Value = value;
 

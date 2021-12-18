@@ -101,7 +101,7 @@ namespace Peach.CodeAnalysis
             return node.Kind switch
             {
                 BoundNodeKind.ParenthesisedExpression => EvaluateParenthesisedExpression(node as BoundParenthesisedExpression),
-                BoundNodeKind.LiteralExpression => EvaluateLiteralExpression(node as BoundLiteralExpresion),
+                BoundNodeKind.LiteralExpression => EvaluateLiteralExpression(node as BoundLiteralExpression),
                 BoundNodeKind.VariableExpression => EvaluateVariableExpression(node as BoundVariableExpression),
                 BoundNodeKind.AssignmentExpression => EvaluateAssignmentExpression(node as BoundAssignmentExpression),
                 BoundNodeKind.UnaryExpression => EvaluateUnaryExpression(node as BoundUnaryExpression),
@@ -119,7 +119,7 @@ namespace Peach.CodeAnalysis
             return EvaluateExpression(node.Expression);
         }
 
-        private static object EvaluateLiteralExpression(BoundLiteralExpresion node)
+        private static object EvaluateLiteralExpression(BoundLiteralExpression node)
         {
             return node.Value;
         }

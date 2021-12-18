@@ -139,7 +139,7 @@ namespace Peach.CodeAnalysis.Binding
         {
             return node.Kind switch
             {
-                BoundNodeKind.LiteralExpression => RewriteLiteralExpression(node as BoundLiteralExpresion),
+                BoundNodeKind.LiteralExpression => RewriteLiteralExpression(node as BoundLiteralExpression),
                 BoundNodeKind.VariableExpression => RewriteVariableExpression(node as BoundVariableExpression),
                 BoundNodeKind.AssignmentExpression => RewriteAssignmentExpression(node as BoundAssignmentExpression),
                 BoundNodeKind.UnaryExpression => RewriteUnaryExpression(node as BoundUnaryExpression),
@@ -154,7 +154,7 @@ namespace Peach.CodeAnalysis.Binding
             };
         }
 
-        protected virtual BoundExpression RewriteLiteralExpression(BoundLiteralExpresion node)
+        protected virtual BoundExpression RewriteLiteralExpression(BoundLiteralExpression node)
         {
             return node;
         }

@@ -48,7 +48,7 @@ namespace Peach
             }
         }
 
-        private void ShowDiagnostics(SourceText text, IEnumerable<Diagnostic> diagnostics)
+        private static void ShowDiagnostics(SourceText text, IEnumerable<Diagnostic> diagnostics)
         {
             foreach (var diagnostic in diagnostics)
             {

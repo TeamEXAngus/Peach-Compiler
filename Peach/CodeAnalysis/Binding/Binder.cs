@@ -320,7 +320,7 @@ namespace Peach.CodeAnalysis.Binding
         private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
             var value = syntax.Value ?? 0;
-            return new BoundLiteralExpresion(value);
+            return new BoundLiteralExpression(value);
         }
 
         private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)

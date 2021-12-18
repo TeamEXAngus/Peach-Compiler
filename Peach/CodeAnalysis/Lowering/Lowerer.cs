@@ -14,10 +14,10 @@ namespace Peach.CodeAnalysis.Lowering
         private Lowerer()
         { }
 
-        private BoundLabel GenerateLabel()
+        private BoundLabel GenerateLabel(string name = null)
         {
-            var name = $"Label{++_labelCount}";
-            return new BoundLabel(name);
+            var labelName = $"{++_labelCount}__{name ?? "Label"}";
+            return new BoundLabel(labelName);
         }
 
         public static BoundBlockStatement Lower(BoundStatement statement)
@@ -67,7 +67,7 @@ namespace Peach.CodeAnalysis.Lowering
                                                 END:
 
             */
-            var endLabel = GenerateLabel();
+            var endLabel = GenerateLabel("end");
             var endLabelStatement = new BoundLabelStatement(endLabel);
             var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
 
@@ -86,10 +86,10 @@ namespace Peach.CodeAnalysis.Lowering
                                                 END:
             */
 
-            var elseLabel = GenerateLabel();
+            var elseLabel = GenerateLabel("else");
             var elseLabelStatement = new BoundLabelStatement(elseLabel);
 
-            var endLabel = GenerateLabel();
+            var endLabel = GenerateLabel("end");
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
             var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, jumpIfTrue: node.IsNegated);
@@ -115,10 +115,10 @@ namespace Peach.CodeAnalysis.Lowering
                                                     END:
             */
 
-            var startLabel = GenerateLabel();
+            var startLabel = GenerateLabel("start");
             var startLabelStatement = new BoundLabelStatement(startLabel);
 
-            var endLabel = GenerateLabel();
+            var endLabel = GenerateLabel("end");
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
             var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
@@ -149,7 +149,7 @@ namespace Peach.CodeAnalysis.Lowering
 
             var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.Start);
 
-            var endSymbol = new LocalVariableSymbol("<end>", true, TypeSymbol.Int);
+            var endSymbol = new GlobalVariableSymbol("<end>", true, TypeSymbol.Int);
             var endDeclaration = new BoundVariableDeclaration(endSymbol, node.Stop);
 
             var variableExpression = new BoundVariableExpression(node.Variable);
@@ -188,7 +188,7 @@ namespace Peach.CodeAnalysis.Lowering
                 }                       {
             */
 
-            var literal = new BoundLiteralExpresion(true);
+            var literal = new BoundLiteralExpression(true);
 
             var whileStatement = new BoundWhileStatement(literal, false, node.Body);
 
