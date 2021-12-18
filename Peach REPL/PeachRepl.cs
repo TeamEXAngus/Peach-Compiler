@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Peach.CodeAnalysis;
 using Peach.CodeAnalysis.Syntax;
@@ -16,9 +17,18 @@ namespace Peach
                                 new Compilation(syntaxTree) :
                                 _previous.ContinueWith(syntaxTree);
 
-            var result = compilation.Evaluate(_variables);
+            EvaluationResult result;
+            IEnumerable<Diagnostic> diagnostics;
 
-            var diagnostics = result.Diagnostics;
+            if (compilation.SyntaxTree.Diagnostics.Any())
+            {
+                ShowDiagnostics(syntaxTree.Text, syntaxTree.Diagnostics);
+                return;
+            }
+
+            result = compilation.Evaluate(_variables);
+
+            diagnostics = result.Diagnostics;
 
             if (_showTree)
                 syntaxTree.Root.WriteTo(Console.Out);
@@ -34,29 +44,32 @@ namespace Peach
             }
             else
             {
-                var text = syntaxTree.Text;
+                ShowDiagnostics(syntaxTree.Text, diagnostics);
+            }
+        }
 
-                foreach (var diagnostic in diagnostics)
-                {
-                    var lineIndex = text.GetLineIndex(diagnostic.Span.Start);
-                    var lineNumber = lineIndex + 1;
-                    var line = text.Lines[lineIndex];
-                    var character = diagnostic.Span.Start - line.Start + 1;
+        private void ShowDiagnostics(SourceText text, IEnumerable<Diagnostic> diagnostics)
+        {
+            foreach (var diagnostic in diagnostics)
+            {
+                var lineIndex = text.GetLineIndex(diagnostic.Span.Start);
+                var lineNumber = lineIndex + 1;
+                var line = text.Lines[lineIndex];
+                var character = diagnostic.Span.Start - line.Start + 1;
 
-                    Console.WriteLine();
-                    ColourPrintln($"Line {lineNumber}, pos {character} : {diagnostic}", ErrorColour);
+                Console.WriteLine();
+                ColourPrintln($"Line {lineNumber}, pos {character} : {diagnostic}", ErrorColour);
 
-                    var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
-                    var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+                var prefixSpan = TextSpan.FromBounds(line.Start, diagnostic.Span.Start);
+                var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
 
-                    var prefix = text.ToString(prefixSpan);
-                    var error = text.ToString(diagnostic.Span);
-                    var suffix = text.ToString(suffixSpan);
+                var prefix = text.ToString(prefixSpan);
+                var error = text.ToString(diagnostic.Span);
+                var suffix = text.ToString(suffixSpan);
 
-                    ColourPrint(prefix);
-                    ColourPrint(error, ErrorColour);
-                    ColourPrintln(suffix);
-                }
+                ColourPrint(prefix);
+                ColourPrint(error, ErrorColour);
+                ColourPrintln(suffix);
             }
         }
 

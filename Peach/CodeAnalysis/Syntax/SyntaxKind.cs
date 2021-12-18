@@ -31,6 +31,8 @@
         CloseParenToken,
         OpenBraceToken,
         CloseBraceToken,
+        OpenBracketToken,
+        CloseBracketToken,
         IdentifierToken,
         CommaToken,
         ColonToken,
@@ -58,12 +60,14 @@
         // Expressions
 
         LiteralExpression,
+        ListExpresion,
         BinaryExpression,
         UnaryExpression,
         ParenthesisedExpression,
         NameExpression,
         AssignmentExpression,
         FunctionCallExpression,
+        IndexingExpression,
 
         // Nodes
 
@@ -72,6 +76,7 @@
         FunctionDeclaration,
         ElseClause,
         TypeClause,
+        TypeName,
         Paramater,
 
         // Statements

@@ -147,6 +147,8 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.ParenthesisedExpression => RewriteParenthesisedExpresion(node as BoundParenthesisedExpression),
                 BoundNodeKind.FunctionCallExpression => RewriteFunctionCallExpression(node as BoundFunctionCallExpression),
                 BoundNodeKind.TypeCastExpression => RewriteTypeCastExpression(node as BoundTypeCastExpression),
+                BoundNodeKind.IndexingExpression => RewriteIndexingExpression(node as BoundIndexingExpression),
+                BoundNodeKind.ListExpression => RewriteListExpression(node as BoundListExpression),
                 BoundNodeKind.ErrorExpression => RewriteErrorExpression(node as BoundErrorExpression),
                 _ => throw new Exception($"Unexpected node kind in {nameof(RewriteExpression)}: {node.Kind}"),
             };
@@ -243,6 +245,48 @@ namespace Peach.CodeAnalysis.Binding
                 return node;
 
             return new BoundTypeCastExpression(node.Type, expression);
+        }
+
+        protected virtual BoundExpression RewriteIndexingExpression(BoundIndexingExpression node)
+        {
+            var expression = RewriteExpression(node.Index);
+
+            if (expression == node.Index)
+                return node;
+
+            return new BoundIndexingExpression(node.List, expression);
+        }
+
+        protected virtual BoundExpression RewriteListExpression(BoundListExpression node)
+        {
+            ImmutableArray<BoundExpression>.Builder builder = null;
+
+            for (int i = 0; i < node.Contents.Length; i++)
+            {
+                var old = node.Contents[i];
+                var statement = RewriteExpression(old);
+
+                if (statement != old)
+                {
+                    if (builder is null)
+                    {
+                        builder = ImmutableArray.CreateBuilder<BoundExpression>(node.Contents.Length);
+
+                        for (int j = 0; j < i; j++)
+                        {
+                            builder.Add(node.Contents[j]);
+                        }
+                    }
+                }
+
+                if (builder is not null)
+                    builder.Add(statement);
+            }
+
+            if (builder is null)
+                return node;
+
+            return new BoundListExpression(builder.MoveToImmutable());
         }
 
         protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)

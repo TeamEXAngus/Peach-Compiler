@@ -39,7 +39,7 @@ namespace Peach.CodeAnalysis.Syntax
         private SyntaxToken Peek(int offset)
         {
             var index = _position + offset;
-            if (index > _tokens.Length)
+            if (index >= _tokens.Length)
                 return _tokens[^1];
 
             return _tokens[index];
@@ -56,6 +56,8 @@ namespace Peach.CodeAnalysis.Syntax
 
         private SyntaxToken MatchToken(SyntaxKind kind)
         {
+            PreventInfiniteLoop();
+
             if (Current.Kind == kind)
                 return NextToken();
 
@@ -182,7 +184,7 @@ namespace Peach.CodeAnalysis.Syntax
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var typeClause = ParseTypeClause(Optional: true);
             var equals = MatchToken(SyntaxKind.EqualsToken);
-            var intializer = ParseExpression();
+            var intializer = ParseAssignmentExpression();
             return new VariableDeclarationSyntax(keyword, identifier, typeClause, equals, intializer);
         }
 
@@ -192,14 +194,33 @@ namespace Peach.CodeAnalysis.Syntax
                 return null;
 
             var colonToken = MatchToken(SyntaxKind.ColonToken);
-            SyntaxToken identifier;
 
-            if (Current.Kind.IsTypeKeyword())
-                identifier = NextToken();
-            else
-                identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var type = ParseType();
 
-            return new TypeClauseSyntax(colonToken, identifier);
+            return new TypeClauseSyntax(colonToken, type);
+        }
+
+        private TypeSyntax ParseType()
+        {
+            if (Current.Kind == SyntaxKind.OpenBracketToken)
+                return ParseListType();
+
+            return ParseTypeName();
+        }
+
+        private TypeNameSyntax ParseTypeName()
+        {
+            var identifier = Current.Kind.IsTypeKeyword() ? NextToken() : MatchToken(SyntaxKind.IdentifierToken);
+            return new TypeNameSyntax(identifier);
+        }
+
+        private ListTypeSyntax ParseListType()
+        {
+            var openBracketToken = MatchToken(SyntaxKind.OpenBracketToken);
+            var type = ParseType();
+            var closeBacketToken = MatchToken(SyntaxKind.CloseBracketToken);
+
+            return new ListTypeSyntax(openBracketToken, type, closeBacketToken);
         }
 
         private IfStatementSyntax ParseIfStatement()
@@ -277,13 +298,40 @@ namespace Peach.CodeAnalysis.Syntax
                 return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
             }
 
+            if (Peek(0).Kind == SyntaxKind.OpenBracketToken)
+                return ParseListExpression();
+
             return ParseExpression();
+        }
+
+        private ExpressionSyntax ParseListExpression()
+        {
+            var openBracketToken = MatchToken(SyntaxKind.OpenBracketToken);
+
+            var builder = ImmutableArray.CreateBuilder<SyntaxNode>();
+
+            while (Current.Kind != SyntaxKind.CloseBracketToken &&
+                   Current.Kind != SyntaxKind.EOFToken)
+            {
+                var expression = ParseAssignmentExpression();
+                builder.Add(expression);
+
+                if (Current.Kind != SyntaxKind.CloseBracketToken)
+                {
+                    var commaToken = MatchToken(SyntaxKind.CommaToken);
+                    builder.Add(commaToken);
+                }
+            }
+
+            var closeBracketToken = MatchToken(SyntaxKind.CloseBracketToken);
+
+            var expressions = new SeparatedSyntaxList<ExpressionSyntax>(builder.ToImmutable());
+
+            return new ListExpressionSyntax(openBracketToken, expressions, closeBracketToken);
         }
 
         private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
-            PreventInfiniteLoop();
-
             ExpressionSyntax left;
 
             var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
@@ -367,6 +415,9 @@ namespace Peach.CodeAnalysis.Syntax
                  Peek(1).Kind == SyntaxKind.OpenParenToken)
                 return ParseFunctionCallExpreson();
 
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenBracketToken)
+                return ParseIndexingExpression();
+
             return ParseNameExpression();
         }
 
@@ -384,20 +435,37 @@ namespace Peach.CodeAnalysis.Syntax
         {
             var builder = ImmutableArray.CreateBuilder<SyntaxNode>();
 
-            while (Current.Kind != SyntaxKind.CloseParenToken &&
+            var parseNext = true;
+
+            while (parseNext &&
+                   Current.Kind != SyntaxKind.CloseParenToken &&
                    Current.Kind != SyntaxKind.EOFToken)
             {
                 var expression = ParseExpression();
                 builder.Add(expression);
 
-                if (Current.Kind != SyntaxKind.CloseParenToken) // e.g. this isn't the last argument
+                if (Current.Kind == SyntaxKind.CommaToken)
                 {
                     var comma = MatchToken(SyntaxKind.CommaToken);
                     builder.Add(comma);
                 }
+                else
+                {
+                    parseNext = false;
+                }
             }
 
             return new SeparatedSyntaxList<ExpressionSyntax>(builder.ToImmutable());
+        }
+
+        private ExpressionSyntax ParseIndexingExpression()
+        {
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var openBracketToken = MatchToken(SyntaxKind.OpenBracketToken);
+            var index = ParseAssignmentExpression();
+            var closeBracketToken = MatchToken(SyntaxKind.CloseBracketToken);
+
+            return new IndexingExpressionSyntax(identifier, openBracketToken, index, closeBracketToken);
         }
 
         private ExpressionSyntax ParseNameExpression()

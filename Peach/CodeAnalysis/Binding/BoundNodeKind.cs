@@ -25,6 +25,8 @@
         UnaryExpression,
         FunctionCallExpression,
         TypeCastExpression,
+        IndexingExpression,
+        ListExpression,
         ErrorExpression,
     }
 }

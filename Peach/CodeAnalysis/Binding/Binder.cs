@@ -203,9 +203,35 @@ namespace Peach.CodeAnalysis.Binding
             if (syntax is null)
                 return null;
 
+            return BindType(syntax.Type);
+        }
+
+        private TypeSymbol BindType(TypeSyntax syntax)
+        {
+            if (syntax is TypeNameSyntax t)
+                return BindTypeName(t);
+
+            if (syntax is ListTypeSyntax l)
+                return BindListType(l);
+
+            throw new Exception($"Unknown type type {syntax}");
+        }
+
+        private TypeSymbol BindTypeName(TypeNameSyntax syntax)
+        {
             var type = TypeSymbol.LookupTypeFromText(syntax.Identifier.Text);
+
             if (type is null)
                 _diagnostics.ReportUndefinedType(syntax.Span, syntax.Identifier.Text);
+
+            return type;
+        }
+
+        private TypeSymbol BindListType(ListTypeSyntax syntax)
+        {
+            var heldType = BindType(syntax.Type);
+
+            var type = ListTypeSymbol.GetOrGenerateListTypeSymbol(heldType);
 
             return type;
         }
@@ -284,6 +310,8 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.NameExpression => BindNameExpression(syntax as NameExpressionSyntax),
                 SyntaxKind.AssignmentExpression => BindAssignmentExpression(syntax as AssignmentExpressionSyntax),
                 SyntaxKind.FunctionCallExpression => BindFunctionCallExpression(syntax as FunctionCallExpressionSyntax),
+                SyntaxKind.IndexingExpression => BindIndexingExpression(syntax as IndexingExpressionSyntax),
+                SyntaxKind.ListExpresion => BindListExpression(syntax as ListExpressionSyntax),
                 _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
             };
         }
@@ -452,6 +480,39 @@ namespace Peach.CodeAnalysis.Binding
                 return expression;
 
             return new BoundTypeCastExpression(type, expression);
+        }
+
+        private BoundExpression BindIndexingExpression(IndexingExpressionSyntax syntax)
+        {
+            if (!_scope.TryLookupVariable(syntax.Identifier.Text, out var list))
+            {
+                _diagnostics.ReportUndefinedName(syntax.Identifier.Span, syntax.Identifier.Text);
+                return new BoundErrorExpression();
+            }
+
+            var index = BindExpression(syntax.Index, TypeSymbol.Int);
+
+            return new BoundIndexingExpression(list, index);
+        }
+
+        private BoundExpression BindListExpression(ListExpressionSyntax syntax)
+        {
+            var builder = ImmutableArray.CreateBuilder<BoundExpression>();
+
+            if (!syntax.Initializer.Any())
+                return new BoundListExpression(ImmutableArray<BoundExpression>.Empty);
+
+            var first = BindExpression(syntax.Initializer[0]);
+            var type = first.Type;
+            builder.Add(first);
+
+            for (int i = 1; i < syntax.Initializer.Count; i++)
+            {
+                var expression = BindExpression(syntax.Initializer[i], type);
+                builder.Add(expression);
+            }
+
+            return new BoundListExpression(builder.ToImmutable());
         }
 
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isConst, TypeSymbol type)

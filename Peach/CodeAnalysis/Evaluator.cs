@@ -108,6 +108,8 @@ namespace Peach.CodeAnalysis
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
                 BoundNodeKind.FunctionCallExpression => EvaluateFunctionCallExpression(node as BoundFunctionCallExpression),
                 BoundNodeKind.TypeCastExpression => EvaluateTypeCastExpression(node as BoundTypeCastExpression),
+                BoundNodeKind.IndexingExpression => EvaluateIndexingExpression(node as BoundIndexingExpression),
+                BoundNodeKind.ListExpression => EvaluateListExpression(node as BoundListExpression),
                 _ => throw new Exception($"Unexpected node in {nameof(EvaluateExpression)} '{node.Kind}'"),
             };
         }
@@ -124,13 +126,18 @@ namespace Peach.CodeAnalysis
 
         private object EvaluateVariableExpression(BoundVariableExpression node)
         {
-            if (node.Variable.Kind == SymbolKind.GlobalVariable)
+            return AccessVariable(node.Variable);
+        }
+
+        private object AccessVariable(VariableSymbol variable)
+        {
+            if (variable.Kind == SymbolKind.GlobalVariable)
             {
-                return _globals[node.Variable];
+                return _globals[variable];
             }
 
             var locals = _locals.Peek();
-            return locals[node.Variable];
+            return locals[variable];
         }
 
         private object EvaluateAssignmentExpression(BoundAssignmentExpression node)
@@ -272,6 +279,26 @@ namespace Peach.CodeAnalysis
                 (from: TypeID.String, to: TypeID.Bool) => BoolFromString((string)EvaluateExpression(node.Expression)),
                 (_, _) => throw new Exception($"No conversion exists from {from} to {to}"),
             };
+        }
+
+        private object EvaluateIndexingExpression(BoundIndexingExpression node)
+        {
+            var list = AccessVariable(node.List) as Types.List;
+            var index = EvaluateExpression(node.Index);
+
+            return list.ElementAt((int)index);
+        }
+
+        private object EvaluateListExpression(BoundListExpression node)
+        {
+            var list = new Types.List();
+
+            foreach (var expression in node.Contents)
+            {
+                list.Add(EvaluateExpression(expression));
+            }
+
+            return list;
         }
 
         private static int IntFromString(string str)

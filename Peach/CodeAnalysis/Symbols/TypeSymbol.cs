@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Peach.CodeAnalysis.Symbols
 {
-    public sealed class TypeSymbol : Symbol
+    public class TypeSymbol : Symbol
     {
         public static readonly List<TypeSymbol> AllTypes = new();
 
@@ -14,7 +14,7 @@ namespace Peach.CodeAnalysis.Symbols
         public static readonly TypeSymbol Bool = new("bool", TypeID.Bool);
         public static readonly TypeSymbol String = new("string", TypeID.String);
 
-        private TypeSymbol(string name, TypeID typeID)
+        internal TypeSymbol(string name, TypeID typeID)
             : base(name)
         {
             TypeID = typeID;

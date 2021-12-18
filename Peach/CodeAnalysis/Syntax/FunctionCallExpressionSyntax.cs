@@ -24,7 +24,7 @@ namespace Peach.CodeAnalysis.Syntax
             yield return OpenParenToken;
             foreach (var arg in Arguments.NodesAndSeparators)
                 yield return arg;
-            
+
             yield return CloseParenToken;
         }
     }

@@ -117,6 +117,8 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.CloseParenToken => ")",
                 SyntaxKind.OpenBraceToken => "{",
                 SyntaxKind.CloseBraceToken => "}",
+                SyntaxKind.OpenBracketToken => "[",
+                SyntaxKind.CloseBracketToken => "]",
                 SyntaxKind.CommaToken => ",",
                 SyntaxKind.ColonToken => ":",
                 SyntaxKind.TrueKeyword => "true",
