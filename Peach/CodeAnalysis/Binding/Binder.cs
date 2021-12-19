@@ -14,6 +14,8 @@ namespace Peach.CodeAnalysis.Binding
         private readonly FunctionSymbol _function;
         private BoundScope _scope;
 
+        private readonly Stack<(BoundLabel breakLabel, BoundLabel continueLabel)> _loopStack = new();
+
         public Binder(BoundScope parent, FunctionSymbol function)
         {
             _scope = new BoundScope(parent);
@@ -165,6 +167,8 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.WhileStatement => BindWhileStatement(syntax as WhileStatementSyntax),
                 SyntaxKind.LoopStatement => BindLoopStatement(syntax as LoopStatementSyntax),
                 SyntaxKind.ForStatement => BindForStatement(syntax as ForStatementSyntax),
+                SyntaxKind.ContinueStatement => BindContinueStatement(syntax as ContinueStatementSyntax),
+                SyntaxKind.BreakStatement => BindBreakStatement(syntax as BreakStatementSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
             };
@@ -247,14 +251,14 @@ namespace Peach.CodeAnalysis.Binding
         private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
         {
             var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
-            var body = BindStatement(syntax.Body);
-            return new BoundWhileStatement(condition, syntax.IsNegated, body);
+            var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
+            return new BoundWhileStatement(condition, syntax.IsNegated, body, breakLabel, continueLabel);
         }
 
         private BoundStatement BindLoopStatement(LoopStatementSyntax syntax)
         {
-            var body = BindStatement(syntax.Body);
-            return new BoundLoopStatement(body);
+            var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
+            return new BoundLoopStatement(body, breakLabel, continueLabel);
         }
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)
@@ -267,11 +271,49 @@ namespace Peach.CodeAnalysis.Binding
 
             var variable = BindVariable(syntax.Variable, isConst: true, TypeSymbol.Int);
 
-            var body = BindStatement(syntax.Body);
+            var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
 
             _scope = _scope.Parent;
 
-            return new BoundForStatement(variable, start, stop, step, body);
+            return new BoundForStatement(variable, start, stop, step, body, breakLabel, continueLabel);
+        }
+
+        private BoundStatement BindLoopBody(StatementSyntax body, out BoundLabel breakLabel, out BoundLabel continueLabel)
+        {
+            _loopStack.Push((breakLabel, continueLabel) =
+                            (BoundLabel.GenerateLabel("break"), BoundLabel.GenerateLabel("continue")));
+
+            var boundBody = BindStatement(body);
+
+            _loopStack.Pop();
+
+            return boundBody;
+        }
+
+        private BoundStatement BindContinueStatement(ContinueStatementSyntax syntax)
+        {
+            if (_loopStack.Count == 0)
+            {
+                _diagnostics.ReportBreakContinueOutsideLoop(syntax.Span);
+                return BindErrorStatement();
+            }
+
+            var continueLabel = _loopStack.Peek().continueLabel;
+
+            return new BoundGotoStatement(continueLabel);
+        }
+
+        private BoundStatement BindBreakStatement(BreakStatementSyntax syntax)
+        {
+            if (_loopStack.Count == 0)
+            {
+                _diagnostics.ReportBreakContinueOutsideLoop(syntax.Span);
+                return BindErrorStatement();
+            }
+
+            var breakLabel = _loopStack.Peek().breakLabel;
+
+            return new BoundGotoStatement(breakLabel);
         }
 
         private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
@@ -279,6 +321,11 @@ namespace Peach.CodeAnalysis.Binding
             var expression = BindExpression(syntax.Expression, canBeVoid: true);
 
             return new BoundExpressionStatement(expression);
+        }
+
+        private static BoundStatement BindErrorStatement()
+        {
+            return new BoundExpressionStatement(new BoundErrorExpression());
         }
 
         private BoundExpression BindExpression(ExpressionSyntax syntax, TypeSymbol expectedType)

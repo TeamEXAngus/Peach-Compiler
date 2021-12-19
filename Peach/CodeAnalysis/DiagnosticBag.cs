@@ -203,8 +203,19 @@ namespace Peach.CodeAnalysis
             return "Expression must have a value";
         }
 
+        internal void ReportBreakContinueOutsideLoop(TextSpan span)
+        {
+            string message = GetBreakContineOutsideLoopErrorMessage();
+            Report(span, message);
+        }
+
+        internal static string GetBreakContineOutsideLoopErrorMessage()
+        {
+            return "Break and continue statements must be inside a loop";
+        }
+
         /*
-         *          REMOVE THIS WHEN FUNCTIONS ARE ADDED
+         *          TODO: REMOVE THIS WHEN FUNCTIONS ARE ADDED
          */
 
         internal void TEMPORARY__ReportFunctionNotSupported(TextSpan span)

@@ -90,7 +90,7 @@ namespace Peach.CodeAnalysis.Binding
             if (condition == node.Condition && body == node.Body)
                 return node;
 
-            return new BoundWhileStatement(condition, node.IsNegated, body);
+            return new BoundWhileStatement(condition, node.IsNegated, body, node.BreakLabel, node.ContinueLabel);
         }
 
         protected virtual BoundStatement RewriteLoopStatement(BoundLoopStatement node)
@@ -100,7 +100,7 @@ namespace Peach.CodeAnalysis.Binding
             if (body == node.Body)
                 return node;
 
-            return new BoundLoopStatement(body);
+            return new BoundLoopStatement(body, node.BreakLabel, node.ContinueLabel);
         }
 
         protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
@@ -113,7 +113,7 @@ namespace Peach.CodeAnalysis.Binding
             if (start == node.Start && stop == node.Stop && step == node.Step && body == node.Body)
                 return node;
 
-            return new BoundForStatement(node.Variable, start, stop, step, body);
+            return new BoundForStatement(node.Variable, start, stop, step, body, node.BreakLabel, node.ContinueLabel);
         }
 
         protected virtual BoundStatement RewriteGotoStatement(BoundGotoStatement node)

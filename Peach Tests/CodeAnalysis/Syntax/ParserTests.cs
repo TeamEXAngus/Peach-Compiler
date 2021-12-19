@@ -111,7 +111,9 @@ namespace Peach_Tests.CodeAnalysis.Syntax
         {
             var syntaxTree = SyntaxTree.Parse(text);
             var root = syntaxTree.Root;
-            var statement = root.Members.Last();
+            var globalStatement = root.Members.Last() as GlobalStatementSyntax;
+            var statement = globalStatement.Statement;
+
             return Assert.IsType<ExpressionStatementSyntax>(statement).Expression;
         }
 

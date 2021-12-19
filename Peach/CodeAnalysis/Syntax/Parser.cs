@@ -150,6 +150,8 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.WhileKeyword => ParseWhileStatement(),
                 SyntaxKind.LoopKeyword => ParseLoopStatement(),
                 SyntaxKind.ForKeyword => ParseForStatement(),
+                SyntaxKind.ContinueKeyword => ParseContinueStatement(),
+                SyntaxKind.BreakKeyword => ParseBreakStatement(),
                 _ => ParseExpressionStatement(),
             };
         }
@@ -281,6 +283,18 @@ namespace Peach.CodeAnalysis.Syntax
             return new ForStatementSyntax(forKeyword, variable, fromKeyword, start, toKeyword, stop, stepKeyword, step, body);
         }
 
+        private ContinueStatementSyntax ParseContinueStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.ContinueKeyword);
+            return new ContinueStatementSyntax(keyword);
+        }
+
+        private BreakStatementSyntax ParseBreakStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.BreakKeyword);
+            return new BreakStatementSyntax(keyword);
+        }
+
         private ExpressionStatementSyntax ParseExpressionStatement()
         {
             var expression = ParseAssignmentExpression();
@@ -385,7 +399,7 @@ namespace Peach.CodeAnalysis.Syntax
         private ExpressionSyntax ParseParenthesisedExpression()
         {
             var left = MatchToken(SyntaxKind.OpenParenToken);
-            var expression = ParseExpression();
+            var expression = ParseAssignmentExpression();
             var right = MatchToken(SyntaxKind.CloseParenToken);
             return new ParenthesisedExpressionSyntax(left, expression, right);
         }

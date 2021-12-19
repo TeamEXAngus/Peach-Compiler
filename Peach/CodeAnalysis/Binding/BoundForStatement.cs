@@ -2,9 +2,10 @@
 
 namespace Peach.CodeAnalysis.Binding
 {
-    internal sealed class BoundForStatement : BoundStatement
+    internal sealed class BoundForStatement : BoundLoop
     {
-        public BoundForStatement(VariableSymbol variable, BoundExpression start, BoundExpression stop, BoundExpression step, BoundStatement body)
+        public BoundForStatement(VariableSymbol variable, BoundExpression start, BoundExpression stop, BoundExpression step, BoundStatement body, BoundLabel breakLabel, BoundLabel continueLabel)
+            : base(breakLabel, continueLabel)
         {
             Variable = variable;
             Start = start;

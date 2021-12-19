@@ -22,93 +22,91 @@ namespace Peach.CodeAnalysis.Binding
             {
                 case BoundNodeKind.BlockStatement:
                     WriteBlockStatement(node as BoundBlockStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ExpressionStatement:
                     WriteExpressionStatement(node as BoundExpressionStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.VariableDeclaration:
                     WriteVariableDeclaration(node as BoundVariableDeclaration, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.IfStatement:
                     WriteIfStatement(node as BoundIfStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.WhileStatement:
                     WriteWhileStatement(node as BoundWhileStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.LoopStatement:
                     WriteLoopStatement(node as BoundLoopStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ForStatement:
                     WriteForStatement(node as BoundForStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.GotoStatement:
                     WriteGotoStatement(node as BoundGotoStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ConditionalGotoStatement:
                     WriteConditionalGotoStatement(node as BoundConditionalGotoStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.LabelStatement:
                     WriteLabelStatement(node as BoundLabelStatement, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.BinaryExpression:
                     WriteBinaryExpression(node as BoundBinaryExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.LiteralExpression:
                     WriteLiteralExpression(node as BoundLiteralExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ParenthesisedExpression:
                     WriteParenthesisedExpression(node as BoundParenthesisedExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.VariableExpression:
                     WriteVariableExpression(node as BoundVariableExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.AssignmentExpression:
                     WriteAssignmentExpression(node as BoundAssignmentExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.UnaryExpression:
                     WriteUnaryExpression(node as BoundUnaryExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.FunctionCallExpression:
                     WriteFunctionCallExpression(node as BoundFunctionCallExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.TypeCastExpression:
                     WriteTypeCastExpression(node as BoundTypeCastExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.IndexingExpression:
                     WriteIndexingExpression(node as BoundIndexingExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ListExpression:
                     WriteListExpression(node as BoundListExpression, writer);
-                    return;
+                    break;
 
                 case BoundNodeKind.ErrorExpression:
                     WriteErrorExpression(node as BoundErrorExpression, writer);
-                    return;
+                    break;
 
                 default:
                     throw new System.Exception($"Unexpected node kind {node.Kind}");
             }
-
-            writer.WriteLine();
         }
 
         private static void WriteNestedStatement(this IndentedTextWriter writer, BoundNode node)
@@ -219,11 +217,10 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteLabelStatement(BoundLabelStatement node, IndentedTextWriter writer)
         {
-            writer.Indent--;
-            writer.WriteGotoLabel("Label");
+            writer.Indent -= 2;
+            writer.WriteGotoLabel(node.Label.Name);
             writer.WritePunctuation(": ");
-            writer.WriteIdentifier(node.Label.Name);
-            writer.Indent++;
+            writer.Indent += 2;
             writer.WriteLine();
         }
 
@@ -328,7 +325,6 @@ namespace Peach.CodeAnalysis.Binding
         private static void WriteErrorExpression(BoundErrorExpression node, IndentedTextWriter writer)
         {
             writer.WriteKeyword("ERROR");
-            writer.WriteLine();
         }
     }
 }

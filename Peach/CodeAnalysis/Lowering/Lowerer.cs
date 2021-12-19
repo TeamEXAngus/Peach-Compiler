@@ -9,16 +9,8 @@ namespace Peach.CodeAnalysis.Lowering
 {
     internal class Lowerer : BoundTreeRewriter
     {
-        private int _labelCount;
-
         private Lowerer()
         { }
-
-        private BoundLabel GenerateLabel(string name = null)
-        {
-            var labelName = $"{++_labelCount}__{name ?? "Label"}";
-            return new BoundLabel(labelName);
-        }
 
         public static BoundBlockStatement Lower(BoundStatement statement)
         {
@@ -67,7 +59,7 @@ namespace Peach.CodeAnalysis.Lowering
                                                 END:
 
             */
-            var endLabel = GenerateLabel("end");
+            var endLabel = BoundLabel.GenerateLabel("end");
             var endLabelStatement = new BoundLabelStatement(endLabel);
             var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
 
@@ -86,10 +78,10 @@ namespace Peach.CodeAnalysis.Lowering
                                                 END:
             */
 
-            var elseLabel = GenerateLabel("else");
+            var elseLabel = BoundLabel.GenerateLabel("else");
             var elseLabelStatement = new BoundLabelStatement(elseLabel);
 
-            var endLabel = GenerateLabel("end");
+            var endLabel = BoundLabel.GenerateLabel("end-if");
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
             var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, jumpIfTrue: node.IsNegated);
@@ -115,10 +107,10 @@ namespace Peach.CodeAnalysis.Lowering
                                                     END:
             */
 
-            var startLabel = GenerateLabel("start");
+            var startLabel = node.ContinueLabel;
             var startLabelStatement = new BoundLabelStatement(startLabel);
 
-            var endLabel = GenerateLabel("end");
+            var endLabel = node.BreakLabel;
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
             var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: node.IsNegated);
@@ -143,6 +135,8 @@ namespace Peach.CodeAnalysis.Lowering
                 {                                                            while <var> < <end>
                     <body>                                                   {
                 }                                                                <body>
+
+                                                                                 CONTINUE_LABEL:
                                                                                  <var> = <var> + <step>
                                                                              }
             */
@@ -160,6 +154,8 @@ namespace Peach.CodeAnalysis.Lowering
                 new BoundVariableExpression(endSymbol)
             );
 
+            var continueLabel = new BoundLabelStatement(node.ContinueLabel);
+
             var increment = new BoundExpressionStatement(
                 new BoundAssignmentExpression(
                     node.Variable,
@@ -171,8 +167,8 @@ namespace Peach.CodeAnalysis.Lowering
                 )
             );
 
-            var whileBody = new BoundBlockStatement(ImmutableArray.Create(node.Body, increment));
-            var whileStatement = new BoundWhileStatement(condition, false, whileBody);
+            var whileBody = new BoundBlockStatement(ImmutableArray.Create(node.Body, continueLabel, increment));
+            var whileStatement = new BoundWhileStatement(condition, false, whileBody, node.BreakLabel, BoundLabel.GenerateLabel("start"));
 
             var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDeclaration, endDeclaration, whileStatement));
 
@@ -182,7 +178,7 @@ namespace Peach.CodeAnalysis.Lowering
         protected override BoundStatement RewriteLoopStatement(BoundLoopStatement node)
         {
             /*
-                loop                    while true
+                loop                    while (true)
                 {                       {
                     <body>      -->         <body>
                 }                       {
@@ -190,7 +186,7 @@ namespace Peach.CodeAnalysis.Lowering
 
             var literal = new BoundLiteralExpression(true);
 
-            var whileStatement = new BoundWhileStatement(literal, false, node.Body);
+            var whileStatement = new BoundWhileStatement(literal, false, node.Body, node.BreakLabel, node.ContinueLabel);
 
             return RewriteStatement(whileStatement);
         }

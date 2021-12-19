@@ -52,6 +52,8 @@
         FromKeyword,
         ToKeyword,
         StepKeyword,
+        ContinueKeyword,
+        BreakKeyword,
         DefKeyword,
         IntKeyword,
         BoolKeyword,
@@ -88,6 +90,8 @@
         WhileStatement,
         ForStatement,
         LoopStatement,
+        ContinueStatement,
+        BreakStatement,
     }
 
     public enum TokenKind

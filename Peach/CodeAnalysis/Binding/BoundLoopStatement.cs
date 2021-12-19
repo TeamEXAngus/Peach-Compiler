@@ -1,8 +1,9 @@
 ﻿namespace Peach.CodeAnalysis.Binding
 {
-    internal sealed class BoundLoopStatement : BoundStatement
+    internal sealed class BoundLoopStatement : BoundLoop
     {
-        public BoundLoopStatement(BoundStatement body)
+        public BoundLoopStatement(BoundStatement body, BoundLabel breakLabel, BoundLabel continueLabel)
+            : base(breakLabel, continueLabel)
         {
             Body = body;
         }

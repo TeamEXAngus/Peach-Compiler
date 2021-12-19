@@ -126,18 +126,6 @@ namespace Peach_Tests.CodeAnalysis
         }
 
         [Fact]
-        public void Evaluator_NoCrashWhenInsertedToken()
-        {
-            var text = @"[]";
-
-            var diagnostics = @$"
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.IdentifierToken, SyntaxKind.EOFToken)}
-            ";
-
-            AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
-        }
-
-        [Fact]
         public void Evaluator_ReportVariableAlreadyDeclared()
         {
             var text = @"
@@ -223,24 +211,18 @@ namespace Peach_Tests.CodeAnalysis
         {
             var text = @"
                 {
-                    if [true] [{]}
                     if (true) {}
 
-                    if not [false] [{]}
-                    if not (false) {}
-
-                    while not [true] [{]}
-                    while not (true) {}
-                }
+                    if [true] [{][}]
+                [}][]
             ";
 
             var diagnostics = @$"
                 {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.FalseKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.TrueKeyword, SyntaxKind.OpenParenToken)}
-                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.OpenBraceToken, SyntaxKind.TrueKeyword)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.CloseBraceToken, SyntaxKind.CloseParenToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.CloseBraceToken, SyntaxKind.IdentifierToken)}
+                {DiagnosticBag.GetUnexpectedTokenErrorMessage(SyntaxKind.EOFToken, SyntaxKind.IdentifierToken)}
             ";
 
             AssertingEnumerator.AssertHasDiagnostics(text, diagnostics);
