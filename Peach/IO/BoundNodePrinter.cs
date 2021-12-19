@@ -322,7 +322,7 @@ namespace Peach.CodeAnalysis.Binding
             writer.WritePunctuation("]");
         }
 
-        private static void WriteErrorExpression(BoundErrorExpression node, IndentedTextWriter writer)
+        private static void WriteErrorExpression(BoundErrorExpression _, IndentedTextWriter writer)
         {
             writer.WriteKeyword("ERROR");
         }

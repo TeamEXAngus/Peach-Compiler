@@ -1,4 +1,6 @@
-﻿namespace Peach.CodeAnalysis.Symbols
+﻿using System.IO;
+
+namespace Peach.CodeAnalysis.Symbols
 {
     public abstract class Symbol
     {
@@ -12,7 +14,9 @@
 
         public override string ToString()
         {
-            return $"{Kind} symbol '{Name}' ";
+            using var writer = new StringWriter();
+            this.WriteTo(writer);
+            return writer.ToString();
         }
     }
 }

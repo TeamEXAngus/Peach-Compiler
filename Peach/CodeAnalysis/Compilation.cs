@@ -1,5 +1,4 @@
 ﻿using Peach.CodeAnalysis.Binding;
-using Peach.CodeAnalysis.Lowering;
 using Peach.CodeAnalysis.Symbols;
 using Peach.CodeAnalysis.Syntax;
 using System.Collections.Generic;
@@ -58,11 +57,11 @@ namespace Peach.CodeAnalysis
             var program = Binder.BindProgram(GlobalScope);
             if (program.Diagnostics.Any())
             {
-                return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
+                return new EvaluationResult(program.Diagnostics, null);
             }
 
-            var statement = GetStatement();
-            var evaluator = new Evaluator(program.FunctionBodies, statement, variables);
+            var statement = program.Statement;
+            var evaluator = new Evaluator(program.Functions, statement, variables);
             var value = evaluator.Evaluate();
 
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
@@ -70,13 +69,23 @@ namespace Peach.CodeAnalysis
 
         internal void EmitTree(TextWriter writer)
         {
-            GetStatement().WriteTo(writer);
-        }
+            var program = Binder.BindProgram(GlobalScope);
 
-        private BoundBlockStatement GetStatement()
-        {
-            var result = GlobalScope.Statement;
-            return Lowerer.Lower(result);
+            if (program.Statement.Statements.Any())
+            {
+                program.Statement.WriteTo(writer);
+            }
+            else
+            {
+                foreach (var func in program.Functions)
+                {
+                    if (!GlobalScope.Functions.Contains(func.Key))
+                        continue;
+
+                    func.Key.WriteTo(writer);
+                    func.Value.WriteTo(writer);
+                }
+            }
         }
     }
 }
