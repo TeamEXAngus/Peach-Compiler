@@ -127,8 +127,12 @@ namespace Peach.CodeAnalysis.Lowering
             return RewriteStatement(result);
         }
 
+        private static int _forCounter;
+
         protected override BoundStatement RewriteForStatement(BoundForStatement node)
         {
+            static string getVarName() => $"<end{++_forCounter}>";
+
             /*
                                                                              let <var> = <start>
                 for <var> from <start> to <stop> step <step>     -->         let <end> = <stop>      <-- stop should only be calculated once
@@ -143,7 +147,7 @@ namespace Peach.CodeAnalysis.Lowering
 
             var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.Start);
 
-            var endSymbol = new GlobalVariableSymbol("<end>", true, TypeSymbol.Int);
+            var endSymbol = new GlobalVariableSymbol(getVarName(), true, TypeSymbol.Int);
             var endDeclaration = new BoundVariableDeclaration(endSymbol, node.Stop);
 
             var variableExpression = new BoundVariableExpression(node.Variable);

@@ -75,6 +75,11 @@ namespace Peach.CodeAnalysis
                         index++;
                         break;
 
+                    case BoundNodeKind.ReturnStatement:
+                        var statement = s as BoundReturnStatement;
+                        var val = statement.Expression is null ? null : EvaluateExpression(statement.Expression);
+                        return val;
+
                     default:
                         throw new Exception($"Unexpected statement {s.Kind}");
                 }

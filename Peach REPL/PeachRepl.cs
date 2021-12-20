@@ -106,6 +106,11 @@ namespace Peach
                     ColourPrintln("Reset all variables and scopes");
                     return;
 
+                case "#run":
+                    var text = System.IO.File.ReadAllText(@"C:\Users\angus\code.pch");
+                    EvaluteSubmission(text);
+                    return;
+
                 default:
                     base.EvaluateMetaCommand(command);
                     return;

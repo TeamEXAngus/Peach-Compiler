@@ -165,6 +165,22 @@ namespace Peach
             return string.Join('\n', document);
         }
 
+        /*public void LoadString(string str)
+        {
+            var document = new ObservableCollection<string>() { "" };
+            var view = new SubmissionView(RenderLine, document);
+
+            foreach (char c in str)
+            {
+                HandleTyping(document, c.ToString(), view);
+            }
+
+            if (document.Count == 1 && document[0].Length == 0)
+                return;
+
+            EvaluteSubmission(string.Join('\n', document));
+        }*/
+
         private void HandleKey(ConsoleKeyInfo key, SubmissionView view, ObservableCollection<string> document)
         {
             if (key.Modifiers == default)

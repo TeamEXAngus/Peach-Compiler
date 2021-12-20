@@ -55,6 +55,7 @@
         ContinueKeyword,
         BreakKeyword,
         DefKeyword,
+        ReturnKeyword,
         IntKeyword,
         BoolKeyword,
         StringKeyword,
@@ -92,6 +93,7 @@
         LoopStatement,
         ContinueStatement,
         BreakStatement,
+        ReturnStatement,
     }
 
     public enum TokenKind

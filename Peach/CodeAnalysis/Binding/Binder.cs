@@ -103,8 +103,8 @@ namespace Peach.CodeAnalysis.Binding
 
             var type = BindTypeClause(syntax.TypeClause) ?? TypeSymbol.Void;
 
-            if (type != TypeSymbol.Void)
-                _diagnostics.TEMPORARY__ReportFunctionNotSupported(syntax.TypeClause.Span);
+            //if (type != TypeSymbol.Void)
+            //    _diagnostics.TEMPORARY__ReportFunctionNotSupported(syntax.TypeClause.Span);
 
             var function = new FunctionSymbol(syntax.Identifier.Text, builder.ToImmutable(), type, syntax);
             if (!_scope.TryDeclareFunction(function))
@@ -169,6 +169,7 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.ContinueStatement => BindContinueStatement(syntax as ContinueStatementSyntax),
                 SyntaxKind.BreakStatement => BindBreakStatement(syntax as BreakStatementSyntax),
                 SyntaxKind.ExpressionStatement => BindExpressionStatement(syntax as ExpressionStatementSyntax),
+                SyntaxKind.ReturnStatement => BindReturnStatement(syntax as ReturnStatementSyntax),
                 _ => throw new Exception($"Unexpected statement {syntax.Kind}"),
             };
         }
@@ -320,6 +321,40 @@ namespace Peach.CodeAnalysis.Binding
             var expression = BindExpression(syntax.Expression, canBeVoid: true);
 
             return new BoundExpressionStatement(expression);
+        }
+
+        private BoundStatement BindReturnStatement(ReturnStatementSyntax syntax)
+        {
+            if (_function is null)
+            {
+                _diagnostics.ReportReturnOutsideFunction(syntax.Span);
+                return BindErrorStatement();
+            }
+
+            var expression = syntax.Value is not null
+               ? BindExpression(syntax.Value)
+               : null;
+
+            if (_function.Type == TypeSymbol.Void)
+            {
+                if (expression.Type is not null)
+                {
+                    _diagnostics.ReportInvalidReturnStatement(syntax.Value.Span, isVoidFunction: true);
+                    return BindErrorStatement();
+                }
+
+                return new BoundReturnStatement(expression);
+            }
+
+            if (expression.Type is null)
+            {
+                _diagnostics.ReportInvalidReturnStatement(syntax.Span, isVoidFunction: false);
+                return BindErrorStatement();
+            }
+
+            expression = BindTypeCastExpression(syntax.Value, _function.Type, allowExplicit: false);
+
+            return new BoundReturnStatement(expression);
         }
 
         private static BoundStatement BindErrorStatement()

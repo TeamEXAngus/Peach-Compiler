@@ -19,6 +19,7 @@ namespace Peach.CodeAnalysis.Binding
                 BoundNodeKind.GotoStatement => RewriteGotoStatement(node as BoundGotoStatement),
                 BoundNodeKind.ConditionalGotoStatement => RewriteConditionalGotoStatement(node as BoundConditionalGotoStatement),
                 BoundNodeKind.LabelStatement => RewriteLabelStatement(node as BoundLabelStatement),
+                BoundNodeKind.ReturnStatement => RewriteReturnStatement(node as BoundReturnStatement),
                 _ => throw new Exception($"Unexpected node kind in {nameof(RewriteStatement)}: {node.Kind}"),
             };
         }
@@ -133,6 +134,19 @@ namespace Peach.CodeAnalysis.Binding
         protected virtual BoundStatement RewriteLabelStatement(BoundLabelStatement node)
         {
             return node;
+        }
+
+        protected virtual BoundStatement RewriteReturnStatement(BoundReturnStatement node)
+        {
+            if (node.Expression is null)
+                return node;
+
+            var expression = RewriteExpression(node.Expression);
+
+            if (expression == node.Expression)
+                return node;
+
+            return new BoundReturnStatement(expression);
         }
 
         public virtual BoundExpression RewriteExpression(BoundExpression node)

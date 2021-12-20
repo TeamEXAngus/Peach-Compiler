@@ -211,7 +211,7 @@ namespace Peach.CodeAnalysis
 
         internal static string GetBreakContineOutsideLoopErrorMessage()
         {
-            return "Break and continue statements must be inside a loop";
+            return "Break or continue statement must be within a loop body";
         }
 
         /*
@@ -222,6 +222,35 @@ namespace Peach.CodeAnalysis
         {
             string message = "Functions with return types are currently unsupported. Try using globals?";
             Report(span, message);
+        }
+
+        internal void ReportReturnOutsideFunction(TextSpan span)
+        {
+            string message = GetReturnOutsideFunctionErrorMessage();
+            Report(span, message);
+        }
+
+        internal static string GetReturnOutsideFunctionErrorMessage()
+        {
+            return "Return statement must be within a function body";
+        }
+
+        internal void ReportInvalidReturnStatement(TextSpan span, bool isVoidFunction)
+        {
+            string message = isVoidFunction
+                           ? GetReturnMustNotHaveValueErrorMessage()
+                           : GetReturnMustHaveValueErrorMessage();
+            Report(span, message);
+        }
+
+        internal static string GetReturnMustHaveValueErrorMessage()
+        {
+            return "Return statement must be followed by an expression";
+        }
+
+        internal static string GetReturnMustNotHaveValueErrorMessage()
+        {
+            return "Return statement must not be followed by an expression in function with no return type";
         }
     }
 }

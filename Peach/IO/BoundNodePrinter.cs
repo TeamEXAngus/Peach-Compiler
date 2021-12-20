@@ -124,7 +124,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteBlockStatement(BoundBlockStatement node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation("{");
+            writer.WritePunctuation(SyntaxKind.OpenBraceToken);
             writer.WriteLine();
             writer.Indent += 2;
 
@@ -132,7 +132,7 @@ namespace Peach.CodeAnalysis.Binding
                 s.WriteTo(writer);
 
             writer.Indent -= 2;
-            writer.WritePunctuation("}");
+            writer.WritePunctuation(SyntaxKind.CloseBraceToken);
             writer.WriteLine();
         }
 
@@ -144,24 +144,34 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteVariableDeclaration(BoundVariableDeclaration node, IndentedTextWriter writer)
         {
-            writer.WriteKeyword(node.Variable.IsConst ? "const " : "let ");
+            writer.WriteKeyword(node.Variable.IsConst ? SyntaxKind.ConstKeyword : SyntaxKind.LetKeyword);
+            writer.WriteSpace();
             writer.WriteIdentifier(node.Variable.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             writer.WriteKeyword(node.Variable.Type.ToString());
-            writer.WritePunctuation(" = ");
+            writer.WriteSpace();
+            writer.WritePunctuation(SyntaxKind.EqualsToken);
+            writer.WriteSpace();
             node.Initializer.WriteTo(writer);
             writer.WriteLine();
         }
 
         private static void WriteIfStatement(BoundIfStatement node, IndentedTextWriter writer)
         {
-            writer.WriteKeyword(node.IsNegated ? "if not  " : "if ");
+            writer.WriteKeyword(SyntaxKind.IfKeyword);
+            writer.WriteSpace();
+            if (node.IsNegated)
+            {
+                writer.WriteKeyword(SyntaxKind.NotKeyword);
+                writer.WriteSpace();
+            }
             node.Condition.WriteTo(writer);
             writer.WriteLine();
             writer.WriteNestedStatement(node.ThenStatment);
             if (node.ElseStatement is not null)
             {
-                writer.WriteKeyword("else");
+                writer.WriteKeyword(SyntaxKind.ElseKeyword);
                 writer.WriteLine();
                 writer.WriteNestedStatement(node.ElseStatement);
             }
@@ -170,7 +180,13 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteWhileStatement(BoundWhileStatement node, IndentedTextWriter writer)
         {
-            writer.WriteKeyword(node.IsNegated ? "while not  " : "while ");
+            writer.WriteKeyword(SyntaxKind.WhileKeyword);
+            writer.WriteSpace();
+            if (node.IsNegated)
+            {
+                writer.WriteKeyword(SyntaxKind.NotKeyword);
+                writer.WriteSpace();
+            }
             node.Condition.WriteTo(writer);
             writer.WriteLine();
             writer.WriteNestedStatement(node.Body);
@@ -179,7 +195,7 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteLoopStatement(BoundLoopStatement node, IndentedTextWriter writer)
         {
-            writer.WriteKeyword("loop");
+            writer.WriteKeyword(SyntaxKind.LoopKeyword);
             writer.WriteLine();
             writer.WriteNestedStatement(node.Body);
             writer.WriteLine();
@@ -187,13 +203,20 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteForStatement(BoundForStatement node, IndentedTextWriter writer)
         {
-            writer.WriteKeyword("for ");
+            writer.WriteKeyword(SyntaxKind.ForKeyword);
+            writer.WriteSpace();
             writer.WriteIdentifier(node.Variable.Name);
-            writer.WriteKeyword(" from ");
+            writer.WriteSpace();
+            writer.WriteKeyword(SyntaxKind.ForKeyword);
+            writer.WriteSpace();
             node.Start.WriteTo(writer);
-            writer.WriteKeyword(" to ");
+            writer.WriteSpace();
+            writer.WriteKeyword(SyntaxKind.ToKeyword);
+            writer.WriteSpace();
             node.Stop.WriteTo(writer);
-            writer.WriteKeyword(" step ");
+            writer.WriteSpace();
+            writer.WriteKeyword(SyntaxKind.StepKeyword);
+            writer.WriteSpace();
             node.Step.WriteTo(writer);
             writer.WriteLine();
             writer.WriteNestedStatement(node.Body);
@@ -201,16 +224,25 @@ namespace Peach.CodeAnalysis.Binding
 
         private static void WriteGotoStatement(BoundGotoStatement node, IndentedTextWriter writer)
         {
-            writer.WriteGotoLabel("goto ");
+            writer.WriteGotoLabel("goto");
+            writer.WriteSpace();
             writer.WriteIdentifier(node.Label.Name);
             writer.WriteLine();
         }
 
         private static void WriteConditionalGotoStatement(BoundConditionalGotoStatement node, IndentedTextWriter writer)
         {
-            writer.WriteGotoLabel("goto ");
+            writer.WriteGotoLabel("goto");
+            writer.WriteSpace();
             writer.WriteIdentifier(node.Label.Name);
-            writer.WriteKeyword(node.JumpIfTrue ? " if " : " if not ");
+            writer.WriteSpace();
+            writer.WriteKeyword(SyntaxKind.IfKeyword);
+            writer.WriteSpace();
+            if (!node.JumpIfTrue)
+            {
+                writer.WriteKeyword(SyntaxKind.NotKeyword);
+                writer.WriteSpace();
+            }
             node.Condition.WriteTo(writer);
             writer.WriteLine();
         }
@@ -219,36 +251,50 @@ namespace Peach.CodeAnalysis.Binding
         {
             writer.Indent -= 2;
             writer.WriteGotoLabel(node.Label.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             writer.Indent += 2;
             writer.WriteLine();
         }
 
         private static void WriteBinaryExpression(BoundBinaryExpression node, IndentedTextWriter writer)
         {
-            var op = SyntaxFacts.GetText(node.Op.SyntaxKind);
             node.Left.WriteTo(writer);
-            writer.WritePunctuation($" {op} ");
+            writer.WriteSpace();
+            writer.WritePunctuation(node.Op.SyntaxKind);
+            writer.WriteSpace();
             node.Right.WriteTo(writer);
         }
 
         private static void WriteLiteralExpression(BoundLiteralExpression node, IndentedTextWriter writer)
         {
             if (node.Type == TypeSymbol.Bool)
+            {
                 writer.WriteKeyword(node.Value.ToString());
+            }
             else if (node.Type == TypeSymbol.Int)
+            {
                 writer.WriteNumber(node.Value.ToString());
+            }
             else if (node.Type == TypeSymbol.String)
-                writer.WriteString($"{'"'}{node.Value.ToString().Replace("\"", "\\\"")}{'"'}");
+            {
+                const string QuoteMark = "\"";
+                const string EscapedQuoteMark = "\\\"";
+                writer.WriteString(QuoteMark);
+                writer.WriteString(node.Value.ToString().Replace(QuoteMark, EscapedQuoteMark));
+                writer.WriteString(QuoteMark);
+            }
             else
+            {
                 writer.WriteKeyword(node.Type.Name);
+            }
         }
 
         private static void WriteParenthesisedExpression(BoundParenthesisedExpression node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation("(");
+            writer.WritePunctuation(SyntaxKind.OpenParenToken);
             node.Expression.WriteTo(writer);
-            writer.WritePunctuation(")");
+            writer.WritePunctuation(SyntaxKind.CloseParenToken);
         }
 
         private static void WriteVariableExpression(BoundVariableExpression node, IndentedTextWriter writer)
@@ -259,67 +305,78 @@ namespace Peach.CodeAnalysis.Binding
         private static void WriteAssignmentExpression(BoundAssignmentExpression node, IndentedTextWriter writer)
         {
             writer.WriteIdentifier(node.Variable.Name);
-            writer.WritePunctuation(" = ");
+            writer.WriteSpace();
+            writer.WritePunctuation(SyntaxKind.EqualsToken);
+            writer.WriteSpace();
             node.Expression.WriteTo(writer);
         }
 
         private static void WriteUnaryExpression(BoundUnaryExpression node, IndentedTextWriter writer)
         {
-            var op = SyntaxFacts.GetText(node.Op.SyntaxKind);
-            writer.WritePunctuation(op);
+            writer.WritePunctuation(node.Op.SyntaxKind);
             node.Operand.WriteTo(writer);
         }
 
         private static void WriteFunctionCallExpression(BoundFunctionCallExpression node, IndentedTextWriter writer)
         {
             writer.WriteIdentifier(node.Function.Name);
-            writer.WritePunctuation("(");
+            writer.WritePunctuation(SyntaxKind.OpenParenToken);
 
             var isFirst = true;
             foreach (var arg in node.Arguments)
             {
                 if (isFirst)
+                {
                     isFirst = false;
+                }
                 else
-                    writer.WritePunctuation(", ");
+                {
+                    writer.WritePunctuation(SyntaxKind.CommaToken);
+                    writer.WriteSpace();
+                }
 
                 arg.WriteTo(writer);
             }
-            writer.WritePunctuation(")");
+            writer.WritePunctuation(SyntaxKind.CloseParenToken);
         }
 
         private static void WriteTypeCastExpression(BoundTypeCastExpression node, IndentedTextWriter writer)
         {
             writer.WriteKeyword(node.Type.Name);
-            writer.WritePunctuation("(");
+            writer.WritePunctuation(SyntaxKind.OpenParenToken);
             node.Expression.WriteTo(writer);
-            writer.WritePunctuation(")");
+            writer.WritePunctuation(SyntaxKind.CloseParenToken);
         }
 
         private static void WriteIndexingExpression(BoundIndexingExpression node, IndentedTextWriter writer)
         {
             writer.WriteIdentifier(node.List.Name);
-            writer.WritePunctuation("[");
+            writer.WritePunctuation(SyntaxKind.OpenBracketToken);
             node.Index.WriteTo(writer);
-            writer.WritePunctuation("]");
+            writer.WritePunctuation(SyntaxKind.CloseBracketToken);
         }
 
         private static void WriteListExpression(BoundListExpression node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation("[");
+            writer.WritePunctuation(SyntaxKind.OpenBracketToken);
 
             var isFirst = false;
             foreach (var element in node.Contents)
             {
                 if (isFirst)
+                {
                     isFirst = false;
+                }
                 else
-                    writer.WritePunctuation(", ");
+                {
+                    writer.WritePunctuation(SyntaxKind.CommaToken);
+                    writer.WriteSpace();
+                }
 
                 element.WriteTo(writer);
             }
 
-            writer.WritePunctuation("]");
+            writer.WritePunctuation(SyntaxKind.CloseBraceToken);
         }
 
         private static void WriteErrorExpression(BoundErrorExpression _, IndentedTextWriter writer)

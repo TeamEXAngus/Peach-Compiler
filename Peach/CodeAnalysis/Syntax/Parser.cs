@@ -152,6 +152,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ForKeyword => ParseForStatement(),
                 SyntaxKind.ContinueKeyword => ParseContinueStatement(),
                 SyntaxKind.BreakKeyword => ParseBreakStatement(),
+                SyntaxKind.ReturnKeyword => ParseReturnStatement(),
                 _ => ParseExpressionStatement(),
             };
         }
@@ -293,6 +294,20 @@ namespace Peach.CodeAnalysis.Syntax
         {
             var keyword = MatchToken(SyntaxKind.BreakKeyword);
             return new BreakStatementSyntax(keyword);
+        }
+
+        private ReturnStatementSyntax ParseReturnStatement()
+        {
+            var keyword = MatchToken(SyntaxKind.ReturnKeyword);
+
+            var keywordLine = _text.GetLineIndex(keyword.Span.Start);
+            var currentLine = _text.GetLineIndex(Current.Span.Start);
+
+            var expression = keywordLine == currentLine && Current.Kind != SyntaxKind.EOFToken
+                           ? ParseExpression()
+                           : null;
+
+            return new ReturnStatementSyntax(keyword, expression);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()
