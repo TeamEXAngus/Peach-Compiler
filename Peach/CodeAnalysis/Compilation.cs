@@ -55,6 +55,16 @@ namespace Peach.CodeAnalysis
             }
 
             var program = Binder.BindProgram(GlobalScope);
+
+            var cfgStatement = (!program.Statement.Statements.Any()) && program.Functions.Any()
+                               ? program.Functions.Last().Value
+                               : program.Statement;
+            var cfg = ControlFlowGraph.Create(cfgStatement);
+            using (var streamWriter = new StreamWriter(@$"C:\Users\angus\cfg.dot"))
+            {
+                cfg.WriteTo(streamWriter);
+            }
+
             if (program.Diagnostics.Any())
             {
                 return new EvaluationResult(program.Diagnostics, null);

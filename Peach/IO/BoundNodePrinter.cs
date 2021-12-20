@@ -100,6 +100,10 @@ namespace Peach.CodeAnalysis.Binding
                     WriteListExpression(node as BoundListExpression, writer);
                     break;
 
+                case BoundNodeKind.ReturnStatement:
+                    WriteReturnExpression(node as BoundReturnStatement, writer);
+                    break;
+
                 case BoundNodeKind.ErrorExpression:
                     WriteErrorExpression(node as BoundErrorExpression, writer);
                     break;
@@ -360,7 +364,7 @@ namespace Peach.CodeAnalysis.Binding
         {
             writer.WritePunctuation(SyntaxKind.OpenBracketToken);
 
-            var isFirst = false;
+            var isFirst = true;
             foreach (var element in node.Contents)
             {
                 if (isFirst)
@@ -376,7 +380,18 @@ namespace Peach.CodeAnalysis.Binding
                 element.WriteTo(writer);
             }
 
-            writer.WritePunctuation(SyntaxKind.CloseBraceToken);
+            writer.WritePunctuation(SyntaxKind.CloseBracketToken);
+        }
+
+        private static void WriteReturnExpression(BoundReturnStatement node, IndentedTextWriter writer)
+        {
+            writer.WriteKeyword(SyntaxKind.ReturnKeyword);
+            if (node.Expression is not null)
+            {
+                writer.WriteSpace();
+                node.Expression.WriteTo(writer);
+            }
+            writer.WriteLine();
         }
 
         private static void WriteErrorExpression(BoundErrorExpression _, IndentedTextWriter writer)

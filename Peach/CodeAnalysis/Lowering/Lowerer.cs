@@ -131,7 +131,7 @@ namespace Peach.CodeAnalysis.Lowering
 
         protected override BoundStatement RewriteForStatement(BoundForStatement node)
         {
-            static string getVarName() => $"<end{++_forCounter}>";
+            static string getVarName() => $"#end{++_forCounter}#";
 
             /*
                                                                              let <var> = <start>

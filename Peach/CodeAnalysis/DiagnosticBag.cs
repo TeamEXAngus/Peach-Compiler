@@ -82,6 +82,17 @@ namespace Peach.CodeAnalysis
             return $"Binary operator '{text}' is not defined for types {left} and {right}";
         }
 
+        internal void ReportNotAllPathsReturn(TextSpan span)
+        {
+            string message = GetNotAllPathsReturnErrorMessage();
+            Report(span, message);
+        }
+
+        internal static string GetNotAllPathsReturnErrorMessage()
+        {
+            return $"Not all code paths return a value";
+        }
+
         internal void ReportUndefinedName(TextSpan span, string name)
         {
             string message = GetUndefinedNameErrorMessage(name);
