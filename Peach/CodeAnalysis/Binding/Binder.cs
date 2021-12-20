@@ -103,9 +103,6 @@ namespace Peach.CodeAnalysis.Binding
 
             var type = BindTypeClause(syntax.TypeClause) ?? TypeSymbol.Void;
 
-            //if (type != TypeSymbol.Void)
-            //    _diagnostics.TEMPORARY__ReportFunctionNotSupported(syntax.TypeClause.Span);
-
             var function = new FunctionSymbol(syntax.Identifier.Text, builder.ToImmutable(), type, syntax);
             if (!_scope.TryDeclareFunction(function))
             {

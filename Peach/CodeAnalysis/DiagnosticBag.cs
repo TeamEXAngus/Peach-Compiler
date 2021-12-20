@@ -214,16 +214,6 @@ namespace Peach.CodeAnalysis
             return "Break or continue statement must be within a loop body";
         }
 
-        /*
-         *          TODO: REMOVE THIS WHEN FUNCTIONS ARE ADDED
-         */
-
-        internal void TEMPORARY__ReportFunctionNotSupported(TextSpan span)
-        {
-            string message = "Functions with return types are currently unsupported. Try using globals?";
-            Report(span, message);
-        }
-
         internal void ReportReturnOutsideFunction(TextSpan span)
         {
             string message = GetReturnOutsideFunctionErrorMessage();
