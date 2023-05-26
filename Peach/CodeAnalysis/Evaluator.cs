@@ -113,8 +113,6 @@ namespace Peach.CodeAnalysis
                 BoundNodeKind.BinaryExpression => EvaluateBinaryExpression(node as BoundBinaryExpression),
                 BoundNodeKind.FunctionCallExpression => EvaluateFunctionCallExpression(node as BoundFunctionCallExpression),
                 BoundNodeKind.TypeCastExpression => EvaluateTypeCastExpression(node as BoundTypeCastExpression),
-                BoundNodeKind.IndexingExpression => EvaluateIndexingExpression(node as BoundIndexingExpression),
-                BoundNodeKind.ListExpression => EvaluateListExpression(node as BoundListExpression),
                 _ => throw new Exception($"Unexpected node in {nameof(EvaluateExpression)} '{node.Kind}'"),
             };
         }
@@ -181,6 +179,7 @@ namespace Peach.CodeAnalysis
                 BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
                 BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
                 BoundBinaryOperatorKind.Division => (int)left / (int)right,
+                BoundBinaryOperatorKind.Modulo => (int)left % (int)right,
                 BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
                 BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
                 BoundBinaryOperatorKind.Equality => Equals(left, right),
@@ -284,26 +283,6 @@ namespace Peach.CodeAnalysis
                 (from: TypeID.String, to: TypeID.Bool) => BoolFromString((string)EvaluateExpression(node.Expression)),
                 (_, _) => throw new Exception($"No conversion exists from {from} to {to}"),
             };
-        }
-
-        private object EvaluateIndexingExpression(BoundIndexingExpression node)
-        {
-            var list = AccessVariable(node.List) as Types.List;
-            var index = EvaluateExpression(node.Index);
-
-            return list.ElementAt((int)index);
-        }
-
-        private object EvaluateListExpression(BoundListExpression node)
-        {
-            var list = new Types.List();
-
-            foreach (var expression in node.Contents)
-            {
-                list.Add(EvaluateExpression(expression));
-            }
-
-            return list;
         }
 
         private static int IntFromString(string str)

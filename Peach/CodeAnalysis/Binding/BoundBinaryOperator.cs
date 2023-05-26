@@ -35,6 +35,7 @@ namespace Peach.CodeAnalysis.Binding
             new BoundBinaryOperator(SyntaxKind.MinusToken, BoundBinaryOperatorKind.Subtraction, TypeSymbol.Int),
             new BoundBinaryOperator(SyntaxKind.AsteriskToken, BoundBinaryOperatorKind.Multiplication, TypeSymbol.Int),
             new BoundBinaryOperator(SyntaxKind.SlashToken, BoundBinaryOperatorKind.Division, TypeSymbol.Int),
+            new BoundBinaryOperator(SyntaxKind.PercentToken, BoundBinaryOperatorKind.Modulo, TypeSymbol.Int),
 
             new BoundBinaryOperator(SyntaxKind.PlusToken, BoundBinaryOperatorKind.StringAddition, TypeSymbol.String),
 

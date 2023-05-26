@@ -57,23 +57,68 @@ namespace Peach.CodeAnalysis.Syntax
                     break;
 
                 case '+':
-                    _kind = SyntaxKind.PlusToken;
-                    _position++;
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.PlusEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.PlusToken;
+                        _position++;
+                    }
                     break;
 
                 case '-':
-                    _kind = SyntaxKind.MinusToken;
-                    _position++;
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.MinusEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.MinusToken;
+                        _position++;
+                    }
                     break;
 
                 case '*':
-                    _kind = SyntaxKind.AsteriskToken;
-                    _position++;
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.AsteriskEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.AsteriskToken;
+                        _position++;
+                    }
                     break;
 
                 case '/':
-                    _kind = SyntaxKind.SlashToken;
-                    _position++;
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.SlashEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.SlashToken;
+                        _position++;
+                    }
+                    break;
+
+                case '%':
+                    if (Lookahead == '=')
+                    {
+                        _kind = SyntaxKind.PercentEqualsToken;
+                        _position += 2;
+                    }
+                    else
+                    {
+                        _kind = SyntaxKind.PercentToken;
+                        _position++;
+                    }
                     break;
 
                 case '(':

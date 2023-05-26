@@ -1,4 +1,5 @@
-﻿using Peach.IO;
+﻿using Peach.CodeAnalysis.Syntax;
+using Peach.IO;
 using System;
 using System.IO;
 
@@ -37,25 +38,36 @@ namespace Peach.CodeAnalysis.Symbols
         private static void WriteGlobalVariableTo(GlobalVariableSymbol symbol, TextWriter writer)
         {
             writer.WriteKeyword("global ");
-            if (symbol.IsConst) writer.WriteKeyword("const ");
+            if (symbol.IsConst)
+            {
+                writer.WriteKeyword(SyntaxKind.ConstKeyword);
+                writer.WriteSpace();
+            }
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 
         private static void WriteLocalVariableTo(LocalVariableSymbol symbol, TextWriter writer)
         {
             writer.WriteKeyword("local ");
-            if (symbol.IsConst) writer.WriteKeyword("const ");
+            if (symbol.IsConst)
+            {
+                writer.WriteKeyword(SyntaxKind.ConstKeyword);
+                writer.WriteSpace();
+            }
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 
         private static void WriteParameter(ParameterSymbol symbol, TextWriter writer)
         {
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation(": ");
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
         }
 
@@ -63,30 +75,43 @@ namespace Peach.CodeAnalysis.Symbols
         {
             foreach (char c in symbol.Name)
                 if (c == '[')
-                    writer.WritePunctuation("[");
+                    writer.WritePunctuation(SyntaxKind.OpenBracketToken);
                 else if (c == ']')
-                    writer.WritePunctuation("]");
+                    writer.WritePunctuation(SyntaxKind.CloseBracketToken);
                 else writer.WriteKeyword(c.ToString());
         }
 
         private static void WriteFunctionTo(FunctionSymbol symbol, TextWriter writer)
         {
+            foreach (var modifier in symbol.Modifiers)
+            {
+                writer.WriteKeyword(modifier);
+                writer.WriteSpace();
+            }
+
             writer.WriteKeyword("function ");
             writer.WriteIdentifier(symbol.Name);
-            writer.WritePunctuation("(");
+            writer.WritePunctuation(SyntaxKind.OpenParenToken);
 
             bool isFirst = true;
             foreach (var param in symbol.Parameters)
             {
                 if (isFirst)
+                {
                     isFirst = false;
+                }
                 else
-                    writer.WritePunctuation(", ");
+                {
+                    writer.WritePunctuation(SyntaxKind.CommaToken);
+                    writer.WriteSpace();
+                }
 
                 param.WriteTo(writer);
             }
 
-            writer.WritePunctuation("): ");
+            writer.WritePunctuation(SyntaxKind.CloseParenToken);
+            writer.WritePunctuation(SyntaxKind.ColonToken);
+            writer.WriteSpace();
             symbol.Type.WriteTo(writer);
             writer.WriteLine();
         }

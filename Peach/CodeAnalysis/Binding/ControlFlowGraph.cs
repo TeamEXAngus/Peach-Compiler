@@ -80,8 +80,8 @@ namespace Peach.CodeAnalysis.Binding
 
         internal sealed class BasicBlockBuilder
         {
-            private List<BasicBlock> _blocks = new();
-            private List<BoundStatement> _statements = new();
+            private readonly List<BasicBlock> _blocks = new();
+            private readonly List<BoundStatement> _statements = new();
 
             public List<BasicBlock> Build(BoundBlockStatement block)
             {
@@ -328,9 +328,6 @@ namespace Peach.CodeAnalysis.Binding
 
         public static ControlFlowGraph Create(BoundBlockStatement body)
         {
-            var start = new BasicBlock(isStart: true);
-            var end = new BasicBlock(isStart: false);
-
             var builder = new BasicBlockBuilder();
             var blocks = builder.Build(body);
 

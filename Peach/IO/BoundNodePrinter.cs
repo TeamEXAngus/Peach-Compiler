@@ -92,14 +92,6 @@ namespace Peach.CodeAnalysis.Binding
                     WriteTypeCastExpression(node as BoundTypeCastExpression, writer);
                     break;
 
-                case BoundNodeKind.IndexingExpression:
-                    WriteIndexingExpression(node as BoundIndexingExpression, writer);
-                    break;
-
-                case BoundNodeKind.ListExpression:
-                    WriteListExpression(node as BoundListExpression, writer);
-                    break;
-
                 case BoundNodeKind.ReturnStatement:
                     WriteReturnExpression(node as BoundReturnStatement, writer);
                     break;
@@ -350,37 +342,6 @@ namespace Peach.CodeAnalysis.Binding
             writer.WritePunctuation(SyntaxKind.OpenParenToken);
             node.Expression.WriteTo(writer);
             writer.WritePunctuation(SyntaxKind.CloseParenToken);
-        }
-
-        private static void WriteIndexingExpression(BoundIndexingExpression node, IndentedTextWriter writer)
-        {
-            writer.WriteIdentifier(node.List.Name);
-            writer.WritePunctuation(SyntaxKind.OpenBracketToken);
-            node.Index.WriteTo(writer);
-            writer.WritePunctuation(SyntaxKind.CloseBracketToken);
-        }
-
-        private static void WriteListExpression(BoundListExpression node, IndentedTextWriter writer)
-        {
-            writer.WritePunctuation(SyntaxKind.OpenBracketToken);
-
-            var isFirst = true;
-            foreach (var element in node.Contents)
-            {
-                if (isFirst)
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    writer.WritePunctuation(SyntaxKind.CommaToken);
-                    writer.WriteSpace();
-                }
-
-                element.WriteTo(writer);
-            }
-
-            writer.WritePunctuation(SyntaxKind.CloseBracketToken);
         }
 
         private static void WriteReturnExpression(BoundReturnStatement node, IndentedTextWriter writer)

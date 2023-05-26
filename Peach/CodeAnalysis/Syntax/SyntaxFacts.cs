@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Peach.CodeAnalysis.Symbols;
+using System;
 using System.Collections.Generic;
 
 namespace Peach.CodeAnalysis.Syntax
@@ -41,6 +42,7 @@ namespace Peach.CodeAnalysis.Syntax
 
                 SyntaxKind.AsteriskToken => 5,
                 SyntaxKind.SlashToken => 5,
+                SyntaxKind.PercentToken => 5,
 
                 _ => 0
             };
@@ -66,6 +68,7 @@ namespace Peach.CodeAnalysis.Syntax
                 "continue" => SyntaxKind.ContinueKeyword,
                 "break" => SyntaxKind.BreakKeyword,
                 "def" => SyntaxKind.DefKeyword,
+                "entrypoint" => SyntaxKind.EntrypointKeyword,
                 "return" => SyntaxKind.ReturnKeyword,
                 "int" => SyntaxKind.IntKeyword,
                 "bool" => SyntaxKind.BoolKeyword,
@@ -94,14 +97,20 @@ namespace Peach.CodeAnalysis.Syntax
             }
         }
 
-        public static string GetText(SyntaxKind kind)
+        public static string GetText(this SyntaxKind kind)
         {
             return kind switch
             {
                 SyntaxKind.PlusToken => "+",
+                SyntaxKind.PlusEqualsToken => "+=",
                 SyntaxKind.MinusToken => "-",
+                SyntaxKind.MinusEqualsToken => "-=",
                 SyntaxKind.AsteriskToken => "*",
+                SyntaxKind.AsteriskEqualsToken => "*=",
                 SyntaxKind.SlashToken => "/",
+                SyntaxKind.SlashEqualsToken => "/=",
+                SyntaxKind.PercentToken => "%",
+                SyntaxKind.PercentEqualsToken => "%=",
                 SyntaxKind.AmpersandToken => "&",
                 SyntaxKind.PipeToken => "|",
                 SyntaxKind.CaretToken => "^",
@@ -140,6 +149,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ContinueKeyword => "continue",
                 SyntaxKind.BreakKeyword => "break",
                 SyntaxKind.DefKeyword => "def",
+                SyntaxKind.EntrypointKeyword => "entrypoint",
                 SyntaxKind.ReturnKeyword => "return",
                 SyntaxKind.IntKeyword => "int",
                 SyntaxKind.BoolKeyword => "bool",
@@ -148,7 +158,7 @@ namespace Peach.CodeAnalysis.Syntax
             };
         }
 
-        public static bool IsWord(SyntaxKind kind)
+        public static bool IsWord(this SyntaxKind kind)
         {
             return kind switch
             {
@@ -168,6 +178,7 @@ namespace Peach.CodeAnalysis.Syntax
                 SyntaxKind.ContinueKeyword => true,
                 SyntaxKind.BreakKeyword => true,
                 SyntaxKind.DefKeyword => true,
+                SyntaxKind.EntrypointKeyword => true,
                 SyntaxKind.ReturnKeyword => true,
                 SyntaxKind.IntKeyword => true,
                 SyntaxKind.BoolKeyword => true,
@@ -179,13 +190,51 @@ namespace Peach.CodeAnalysis.Syntax
             };
         }
 
-        public static bool IsOperator(SyntaxKind kind)
+        public static bool IsOperator(this SyntaxKind kind)
         {
             var sum = GetUnaryOperatorPrecedence(kind) + GetBinaryOperatorPrecedence(kind);
             sum += kind == SyntaxKind.EqualsToken ? 1 :
                    kind == SyntaxKind.CommaToken ? 1 :
                    kind == SyntaxKind.ColonToken ? 1 : 0;
             return sum != 0;
+        }
+
+        public static bool IsCompoundAssignmentOperator(this SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.PlusEqualsToken => true,
+                SyntaxKind.MinusEqualsToken => true,
+                SyntaxKind.AsteriskEqualsToken => true,
+                SyntaxKind.SlashEqualsToken => true,
+                SyntaxKind.PercentEqualsToken => true,
+
+                _ => false
+            };
+        }
+
+        public static SyntaxKind CompoundAssignmentOperatorGetBaseOperator(this SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.PlusEqualsToken => SyntaxKind.PlusToken,
+                SyntaxKind.MinusEqualsToken => SyntaxKind.MinusToken,
+                SyntaxKind.AsteriskEqualsToken => SyntaxKind.AsteriskToken,
+                SyntaxKind.SlashEqualsToken => SyntaxKind.SlashToken,
+                SyntaxKind.PercentEqualsToken => SyntaxKind.PercentToken,
+
+                _ => throw new ArgumentException($"SyntaxKind '{kind}' is not compound assigment operator.")
+            };
+        }
+
+        public static bool IsFunctionModifier(this SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.EntrypointKeyword => true,
+
+                _ => false,
+            };
         }
 
         public static TokenKind GetTokenKind(SyntaxKind kind)

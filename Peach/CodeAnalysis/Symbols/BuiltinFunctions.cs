@@ -7,10 +7,10 @@ namespace Peach.CodeAnalysis.Symbols
 {
     internal static class BuiltinFunctions
     {
-        public static readonly FunctionSymbol Print = new("print", ImmutableArray.Create(new ParameterSymbol("text", TypeSymbol.String)), TypeSymbol.Void);
-        public static readonly FunctionSymbol Input = new("input", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.String);
-        public static readonly FunctionSymbol Rand = new("rand", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Int);
-        public static readonly FunctionSymbol RandRange = new("randRange", ImmutableArray.Create(new ParameterSymbol("lower", TypeSymbol.Int), new ParameterSymbol("upper", TypeSymbol.Int)), TypeSymbol.Int);
+        public static readonly FunctionSymbol Print = new("print", null, ImmutableArray.Create(new ParameterSymbol("text", TypeSymbol.String)), TypeSymbol.Void);
+        public static readonly FunctionSymbol Input = new("input", null, ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.String);
+        public static readonly FunctionSymbol Rand = new("rand", null, ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Int);
+        public static readonly FunctionSymbol RandRange = new("randRange", null, ImmutableArray.Create(new ParameterSymbol("lower", TypeSymbol.Int), new ParameterSymbol("upper", TypeSymbol.Int)), TypeSymbol.Int);
 
         internal static IEnumerable<FunctionSymbol> GetAll()
             => typeof(BuiltinFunctions).GetFields(BindingFlags.Public | BindingFlags.Static)

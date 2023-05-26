@@ -89,7 +89,12 @@ namespace Peach.CodeAnalysis.Binding
 
         private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
         {
-            var builder = ImmutableArray.CreateBuilder<ParameterSymbol>();
+            var modifierBuilder = ImmutableArray.CreateBuilder<SyntaxKind>();
+
+            foreach (var token in syntax.Modifiers)
+                modifierBuilder.Add(token.Kind);
+
+            var parameterbuilder = ImmutableArray.CreateBuilder<ParameterSymbol>();
 
             var seenParamNames = new HashSet<string>();
 
@@ -104,13 +109,13 @@ namespace Peach.CodeAnalysis.Binding
                 else
                 {
                     var parameter = new ParameterSymbol(paramName, paramType);
-                    builder.Add(parameter);
+                    parameterbuilder.Add(parameter);
                 }
             }
 
             var type = BindTypeClause(syntax.TypeClause) ?? TypeSymbol.Void;
 
-            var function = new FunctionSymbol(syntax.Identifier.Text, builder.ToImmutable(), type, syntax);
+            var function = new FunctionSymbol(syntax.Identifier.Text, modifierBuilder.ToImmutable(), parameterbuilder.ToImmutable(), type, syntax); ;
             if (!_scope.TryDeclareFunction(function))
             {
                 _diagnostics.ReportSymbolAlreadyDeclared(syntax.Identifier.Span, syntax.Identifier.Text);
@@ -219,9 +224,6 @@ namespace Peach.CodeAnalysis.Binding
             if (syntax is TypeNameSyntax t)
                 return BindTypeName(t);
 
-            if (syntax is ListTypeSyntax l)
-                return BindListType(l);
-
             throw new Exception($"Unknown type type {syntax}");
         }
 
@@ -231,15 +233,6 @@ namespace Peach.CodeAnalysis.Binding
 
             if (type is null)
                 _diagnostics.ReportUndefinedType(syntax.Span, syntax.Identifier.Text);
-
-            return type;
-        }
-
-        private TypeSymbol BindListType(ListTypeSyntax syntax)
-        {
-            var heldType = BindType(syntax.Type);
-
-            var type = ListTypeSymbol.GetOrGenerateListTypeSymbol(heldType);
 
             return type;
         }
@@ -394,9 +387,8 @@ namespace Peach.CodeAnalysis.Binding
                 SyntaxKind.ParenthesisedExpression => BindParenthesisedExpression(syntax as ParenthesisedExpressionSyntax),
                 SyntaxKind.NameExpression => BindNameExpression(syntax as NameExpressionSyntax),
                 SyntaxKind.AssignmentExpression => BindAssignmentExpression(syntax as AssignmentExpressionSyntax),
+                SyntaxKind.CompoundAssignmentExpression => BindCompoundAssigmentExpression(syntax as CompoundAssignmentExpressionSyntax),
                 SyntaxKind.FunctionCallExpression => BindFunctionCallExpression(syntax as FunctionCallExpressionSyntax),
-                SyntaxKind.IndexingExpression => BindIndexingExpression(syntax as IndexingExpressionSyntax),
-                SyntaxKind.ListExpresion => BindListExpression(syntax as ListExpressionSyntax),
                 _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
             };
         }
@@ -488,6 +480,35 @@ namespace Peach.CodeAnalysis.Binding
             return new BoundAssignmentExpression(variable, boundExpression);
         }
 
+        private BoundExpression BindCompoundAssigmentExpression(CompoundAssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+
+            if (!_scope.TryLookupVariable(name, out var variable))
+            {
+                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return BindExpression(syntax.Expression);
+            }
+
+            if (variable.IsConst)
+            {
+                _diagnostics.ReportCannotAssignToConst(syntax.OperatorToken.Span, name);
+            }
+
+            // unwrap 'a op= b' into 'a = a op b'
+
+            var nameExpresion = new NameExpressionSyntax(syntax.IdentifierToken);
+
+            var operatorToken = new SyntaxToken(syntax.OperatorToken.Kind.CompoundAssignmentOperatorGetBaseOperator(),
+                syntax.OperatorToken.Position, syntax.OperatorToken.Text, null);
+
+            var binaryExpression = new BinaryExpressionSyntax(nameExpresion, operatorToken, syntax.Expression);
+
+            var boundExpression = BindExpression(binaryExpression, variable.Type);
+
+            return new BoundAssignmentExpression(variable, boundExpression);
+        }
+
         private BoundExpression BindFunctionCallExpression(FunctionCallExpressionSyntax syntax)
         {
             var argBuilder = ImmutableArray.CreateBuilder<BoundExpression>();
@@ -565,39 +586,6 @@ namespace Peach.CodeAnalysis.Binding
                 return expression;
 
             return new BoundTypeCastExpression(type, expression);
-        }
-
-        private BoundExpression BindIndexingExpression(IndexingExpressionSyntax syntax)
-        {
-            if (!_scope.TryLookupVariable(syntax.Identifier.Text, out var list))
-            {
-                _diagnostics.ReportUndefinedName(syntax.Identifier.Span, syntax.Identifier.Text);
-                return new BoundErrorExpression();
-            }
-
-            var index = BindExpression(syntax.Index, TypeSymbol.Int);
-
-            return new BoundIndexingExpression(list, index);
-        }
-
-        private BoundExpression BindListExpression(ListExpressionSyntax syntax)
-        {
-            var builder = ImmutableArray.CreateBuilder<BoundExpression>();
-
-            if (!syntax.Initializer.Any())
-                return new BoundListExpression(ImmutableArray<BoundExpression>.Empty);
-
-            var first = BindExpression(syntax.Initializer[0]);
-            var type = first.Type;
-            builder.Add(first);
-
-            for (int i = 1; i < syntax.Initializer.Count; i++)
-            {
-                var expression = BindExpression(syntax.Initializer[i], type);
-                builder.Add(expression);
-            }
-
-            return new BoundListExpression(builder.ToImmutable());
         }
 
         private VariableSymbol BindVariable(SyntaxToken identifier, bool isConst, TypeSymbol type)

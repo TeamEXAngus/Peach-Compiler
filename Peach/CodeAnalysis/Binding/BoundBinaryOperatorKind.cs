@@ -7,6 +7,7 @@
         Multiplication,
         StringAddition,
         Division,
+        Modulo,
         LogicalAnd,
         LogicalOr,
         BitwiseAnd,

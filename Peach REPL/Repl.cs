@@ -33,7 +33,7 @@ namespace Peach
                 if (!text.Contains('\n') && text.StartsWith('#'))
                     EvaluateMetaCommand(text);
                 else
-                    EvaluteSubmission(text);
+                    EvaluateSubmission(text);
 
                 _submissionHistory.Add(text);
                 _submissionHistoryIndex = 0;
@@ -449,7 +449,9 @@ namespace Peach
             ColourPrintln($"Invalid command '{command}'", ConsoleColor.Red);
         }
 
-        protected abstract void EvaluteSubmission(string sourceText);
+        protected abstract void EvaluateSubmission(string sourceText);
+
+        protected abstract void EvaluateFile(string FileName);
 
         protected abstract bool IsCompleteSubmission(string text);
     }

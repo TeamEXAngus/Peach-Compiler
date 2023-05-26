@@ -9,7 +9,7 @@ namespace Peach
 {
     internal class PeachRepl : Repl
     {
-        protected override void EvaluteSubmission(string sourceText)
+        protected override void EvaluateSubmission(string sourceText)
         {
             var syntaxTree = SyntaxTree.Parse(sourceText);
 
@@ -107,14 +107,20 @@ namespace Peach
                     return;
 
                 case "#run":
-                    var text = System.IO.File.ReadAllText(@"C:\Users\angus\code.pch");
-                    EvaluteSubmission(text);
+                    EvaluateFile(@"C:\Users\angus\code.pch");
                     return;
 
                 default:
                     base.EvaluateMetaCommand(command);
                     return;
             }
+        }
+
+        protected override void EvaluateFile(string FileName)
+        {
+            var text = System.IO.File.ReadAllText(FileName);
+
+            EvaluateSubmission(text);
         }
 
         protected override bool IsCompleteSubmission(string text)
